@@ -43,6 +43,14 @@ function classifySolidLungRADS(options: {
   if (scanType === 'baseline' && diameter >= 15) return '4B';
   if ((isNew || isGrowing) && diameter >= 8) return '4B';
 
+  // Follow-up existing nodules (not new, not growing) - classify by size like baseline
+  if (scanType === 'follow-up' && !isNew && !isGrowing) {
+    if (diameter < 6) return '2';
+    if (diameter >= 6 && diameter < 8) return '3';
+    if (diameter >= 8 && diameter < 15) return '4A';
+    if (diameter >= 15) return '4B';
+  }
+
   // Default conservative
   return '2';
 }

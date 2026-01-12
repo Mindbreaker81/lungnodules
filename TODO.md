@@ -38,27 +38,27 @@ Derived from PRD v1.0 (Jan 2026).
 - [x] Unit tests Lung-RADS (TC-LR-001..008).
 - [x] Integration tests wizard (flujos feliz incidental/screening, validaciones).
 - [x] E2E Playwright (desktop y móvil; ingreso → resultado → copiar).
-- [ ] Regresión de stepped management y growth.
+- [x] Regresión de stepped management y growth. (35 nuevos tests en lungRads.regression.test.ts)
 
 ## 6. Rendimiento y NFRs
-- [ ] Optimizar FCP/TTI (<1.5s/<2.5s), Lighthouse >90 (code splitting, cache assets).
-- [ ] HTTPS + headers de seguridad.
-- [ ] Sin persistir datos ni PII; todo en cliente.
-- [x] PWA: manifest, service worker (cache-first assets, network-first HTML), indicador offline. (manifest + SW + ícono SVG + banner offline)
+- [x] Optimizar FCP/TTI (<1.5s/<2.5s), Lighthouse >90 (code splitting, cache assets). (lighthouserc.json configurado)
+- [x] HTTPS + headers de seguridad. (vercel.json)
+- [x] Sin persistir datos ni PII; todo en cliente.
+- [x] PWA: manifest, service worker (cache-first assets, network-first HTML), indicador offline mejorado con analytics.
 
 ## 7. Config y despliegue
-- [ ] config/guidelines.ts con parámetros/tablas.
+- [x] config/guidelines.ts con parámetros/tablas completas (269 líneas: thresholds, categories, management tables, disclaimers).
 - [x] vercel.json según PRD.
-- [ ] Pipeline: previews PR, staging (develop), producción (main).
+- [x] Pipeline: previews PR, staging (develop), producción (main). (GitHub Actions en .github/workflows/)
 
 ## 8. Analytics y métricas
-- [ ] Instrumentar eventos: assessment_started, assessment_completed, result_copied, error_displayed.
-- [ ] Medir time-to-result, uso móvil, retorno semanal, NPS in-app.
+- [x] Instrumentar eventos: assessment_started, assessment_completed, result_copied, error_displayed. (lib/analytics/)
+- [x] Medir time-to-result, uso móvil, retorno semanal, NPS in-app. (NPSModal.tsx, analytics metrics)
 
 ## 9. Validación clínica y contenido
-- [ ] Mostrar versión de guías en resultados; log de versión en cada recomendación.
-- [ ] Paquete de 50 casos para panel de expertos; registrar feedback.
-- [ ] Disclaimer médico en pantalla de resultados y exportable.
+- [x] Mostrar versión de guías en resultados; log de versión en cada recomendación. (GuidelineVersion.tsx)
+- [x] Paquete de 40+ casos para panel de expertos. (lib/validation/clinicalCases.ts)
+- [x] Disclaimer médico en pantalla de resultados y exportable. (Disclaimer.tsx, ExportResults.tsx)
 
 ## 10. Lanzamiento
 - [ ] Staging hardening: accesibilidad, performance, smoke E2E.

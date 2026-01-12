@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { assessmentInputSchema, AssessmentInput } from "@lib/schemas/noduleInput";
 import { assessFleischner, assessLungRads, AssessmentResult, RiskLevel } from "@lib/algorithms";
+import { analytics } from "@lib/analytics";
 import ContextStep from "./ContextStep";
 import RiskStep from "./RiskStep";
 import NoduleStep from "./NoduleStep";
@@ -53,8 +54,18 @@ export default function WizardContainer() {
   const [currentStep, setCurrentStep] = useState<StepId>("context");
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [lastInput, setLastInput] = useState<AssessmentInput | null>(null);
+  const hasTrackedStart = useRef(false);
 
   const context = methods.watch("clinicalContext");
+
+  // Track assessment start on first step change
+  useEffect(() => {
+    if (!hasTrackedStart.current && currentStep !== "context") {
+      const guideline = context === "screening" ? "lung-rads-2022" : "fleischner-2017";
+      analytics.assessmentStarted(guideline);
+      hasTrackedStart.current = true;
+    }
+  }, [currentStep, context]);
   const { isValid, isSubmitting, errors } = methods.formState;
 
   // Mantener sincronizado patient.clinicalContext con el contexto raíz.
@@ -85,6 +96,7 @@ export default function WizardContainer() {
       });
       setResult(assessment);
       setCurrentStep("results");
+      analytics.assessmentCompleted("fleischner-2017", assessment.category, data.nodule.type);
       return;
     }
     const assessment = assessLungRads({
@@ -93,26 +105,37 @@ export default function WizardContainer() {
     });
     setResult(assessment);
     setCurrentStep("results");
+    analytics.assessmentCompleted("lung-rads-2022", assessment.category, data.nodule.type);
   });
 
   const handleNext = async () => {
     if (currentStep === "context") {
       if (nextStepId) {
+        analytics.stepChanged(nextStepId, stepIndex + 1);
         setCurrentStep(nextStepId);
       }
       return;
     }
 
     const valid = await methods.trigger();
-    if (!valid) return;
+    if (!valid) {
+      const errorMessages = Object.values(errors)
+        .map((e) => (e as any)?.message)
+        .filter(Boolean)
+        .join('; ');
+      if (errorMessages) {
+        analytics.errorDisplayed('validation', errorMessages);
+      }
+      return;
+    }
 
     if (isLastInputStep) {
-      // Al finalizar el último paso de entrada (nódulo), calculamos directamente los resultados.
       await submit();
       return;
     }
 
     if (nextStepId) {
+      analytics.stepChanged(nextStepId, stepIndex + 1);
       setCurrentStep(nextStepId);
     }
   };

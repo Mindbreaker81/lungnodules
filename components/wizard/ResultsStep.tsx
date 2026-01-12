@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { AssessmentResult, calculateLungRadsGrowth } from "@lib/algorithms";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
+import { analytics } from "@lib/analytics";
+import { DISCLAIMERS, APP_VERSION, GUIDELINE_VERSIONS } from "@config/guidelines";
 import { Button } from "@components/ui/button";
 
 interface Props {
@@ -9,10 +12,71 @@ interface Props {
   input?: AssessmentInput | null;
 }
 
+function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
+  const lines = [
+    `LUNG NODULE ASSESSMENT REPORT`,
+    `Generated: ${new Date().toISOString()}`,
+    `Tool Version: ${APP_VERSION}`,
+    ``,
+    `GUIDELINE: ${result.guideline === 'fleischner-2017' 
+      ? GUIDELINE_VERSIONS.fleischner.label 
+      : GUIDELINE_VERSIONS.lungRads.label}`,
+    `CATEGORY: ${result.category}`,
+    ``,
+    `RECOMMENDATION: ${result.recommendation}`,
+    `FOLLOW-UP INTERVAL: ${result.followUpInterval}`,
+    result.imagingModality ? `IMAGING MODALITY: ${result.imagingModality}` : null,
+    result.malignancyRisk ? `ESTIMATED MALIGNANCY RISK: ${result.malignancyRisk}` : null,
+    ``,
+    `RATIONALE: ${result.rationale}`,
+  ].filter(Boolean);
+
+  if (result.warnings && result.warnings.length > 0) {
+    lines.push(``, `WARNINGS:`);
+    result.warnings.forEach(w => lines.push(`  - ${w}`));
+  }
+
+  if (input) {
+    lines.push(
+      ``,
+      `INPUT DATA:`,
+      `  Context: ${input.clinicalContext}`,
+      `  Nodule Type: ${input.nodule.type}`,
+      `  Diameter: ${input.nodule.diameterMm}mm`,
+      input.nodule.solidComponentMm ? `  Solid Component: ${input.nodule.solidComponentMm}mm` : null,
+      `  Multiple: ${input.nodule.isMultiple ? 'Yes' : 'No'}`,
+    );
+  }
+
+  lines.push(
+    ``,
+    `---`,
+    DISCLAIMERS.export,
+  );
+
+  return lines.filter(Boolean).join('\n');
+}
+
 export default function ResultsStep({ result, input }: Props) {
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+
   if (!result) {
     return <p className="text-slate-600" aria-live="polite">Completa los pasos para ver la recomendación.</p>;
   }
+
+  const handleCopy = async () => {
+    try {
+      const text = formatResultForCopy(result, input ?? null);
+      await navigator.clipboard.writeText(text);
+      setCopyStatus('copied');
+      analytics.resultCopied(result.guideline, result.category);
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    } catch {
+      setCopyStatus('error');
+      analytics.errorDisplayed('clipboard', 'Failed to copy to clipboard');
+      setTimeout(() => setCopyStatus('idle'), 2000);
+    }
+  };
 
   const isScreening = input?.clinicalContext === "screening";
   const scanType = isScreening ? input?.nodule.scanType : undefined;
@@ -77,14 +141,20 @@ export default function ResultsStep({ result, input }: Props) {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
           ⚠️ MEDICAL DISCLAIMER: Decision support only; verificar contra guías actuales. No aplica a &lt;35 años,
           inmunocomprometidos o cáncer conocido.
         </div>
-        {/* Placeholder para futura acción de copiar/exportar */}
-        <Button type="button" variant="outline" size="sm" aria-label="Copiar recomendación" disabled>
-          Copiar (próx.)
+        <Button 
+          type="button" 
+          variant="outline" 
+          size="sm" 
+          aria-label="Copiar recomendación"
+          onClick={handleCopy}
+          className={copyStatus === 'copied' ? 'bg-green-50 text-green-700 border-green-300' : copyStatus === 'error' ? 'bg-red-50 text-red-700 border-red-300' : ''}
+        >
+          {copyStatus === 'copied' ? '✓ Copiado' : copyStatus === 'error' ? 'Error' : 'Copiar'}
         </Button>
       </div>
     </section>
