@@ -63,3 +63,6 @@ Derived from PRD v1.0 (Jan 2026).
 ## 10. Lanzamiento
 - [ ] Staging hardening: accesibilidad, performance, smoke E2E.
 - [ ] Producción: despliegue, verificación PWA, analytics activos, documentación final.
+
+## 11. Post-lanzamiento
+- [ ] Monitoreo de errores (Sentry), métricas de uso (Google Analytics), feedback de usuarios.
