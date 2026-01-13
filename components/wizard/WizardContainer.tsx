@@ -167,15 +167,15 @@ export default function WizardContainer() {
   return (
     <FormProvider {...methods}>
       <form className="space-y-6 pb-20" onSubmit={submit}>
-        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
           {steps.map((step) => (
             <div key={step.id} className="flex items-center gap-1">
               <div
-                className={`h-2 w-2 rounded-full ${step.id === currentStep ? "bg-primary" : "bg-slate-300"}`}
+                className={`h-2 w-2 rounded-full ${step.id === currentStep ? "bg-primary" : "bg-slate-700"}`}
                 aria-hidden
               />
-              <span className={step.id === currentStep ? "font-semibold text-slate-900" : ""}>{step.label}</span>
-              {step.id !== "results" && <span className="text-slate-400">/</span>}
+              <span className={step.id === currentStep ? "font-semibold text-white" : ""}>{step.label}</span>
+              {step.id !== "results" && <span className="text-slate-600">/</span>}
             </div>
           ))}
         </div>
@@ -183,7 +183,7 @@ export default function WizardContainer() {
         {content}
 
         {firstErrorMessage && (
-          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800" role="alert">
+          <div className="rounded-md border border-amber-900/50 bg-amber-900/20 p-3 text-sm text-amber-200" role="alert">
             {firstErrorMessage as string}
           </div>
         )}
@@ -208,7 +208,7 @@ export default function WizardContainer() {
         </div>
 
         {/* Barra fija inferior para mobile */}
-        <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 shadow-md md:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-between border-t border-slate-800 bg-background/95 backdrop-blur-md px-4 py-3 shadow-md md:hidden">
           <Button type="button" onClick={handleBack} disabled={stepIndex === 0} variant="outline" size="sm">
             Atrás
           </Button>

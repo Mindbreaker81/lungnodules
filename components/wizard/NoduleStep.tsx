@@ -26,19 +26,19 @@ export default function NoduleStep({ clinicalContext }: Props) {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-slate-700">Tipo de nódulo</label>
+          <label className="block text-sm font-medium text-slate-300">Tipo de nódulo</label>
           <select
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
+            className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-slate-100"
             aria-label="Tipo de nódulo"
             {...register("nodule.type")}
           >
-            <option value="solid">Sólido</option>
-            <option value="ground-glass">Ground-glass</option>
-            <option value="part-solid">Part-solid</option>
+            <option value="solid" className="bg-surface">Sólido</option>
+            <option value="ground-glass" className="bg-surface">Ground-glass</option>
+            <option value="part-solid" className="bg-surface">Part-solid</option>
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700">Diámetro medio (mm)</label>
+          <label className="block text-sm font-medium text-slate-300">Diámetro medio (mm)</label>
           <Input
             type="number"
             min={1}
@@ -53,7 +53,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
 
       {type === "part-solid" && (
         <div>
-          <label className="block text-sm font-medium text-slate-700">Componente sólido (mm)</label>
+          <label className="block text-sm font-medium text-slate-300">Componente sólido (mm)</label>
           <Input
             type="number"
             min={0}
@@ -64,7 +64,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
             {...register("nodule.solidComponentMm", { valueAsNumber: true })}
           />
           {solidExceeds && (
-            <p className="mt-1 text-sm text-amber-700">
+            <p className="mt-1 text-sm text-amber-400">
               El componente sólido no puede ser mayor que el diámetro total.
             </p>
           )}
@@ -72,28 +72,28 @@ export default function NoduleStep({ clinicalContext }: Props) {
       )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="flex items-center gap-2 text-slate-800">
-          <input type="checkbox" aria-label="Múltiples nódulos" {...register("nodule.isMultiple")} /> Múltiples
+        <label className="flex items-center gap-2 text-white">
+          <input type="checkbox" aria-label="Múltiples nódulos" {...register("nodule.isMultiple")} className="text-primary rounded focus:ring-primary" /> Múltiples
           nódulos (ingresa el dominante)
         </label>
-        <label className="flex items-center gap-2 text-slate-800">
-          <input type="checkbox" aria-label="Espiculación" {...register("nodule.hasSpiculation")} /> Espiculación
+        <label className="flex items-center gap-2 text-white">
+          <input type="checkbox" aria-label="Espiculación" {...register("nodule.hasSpiculation")} className="text-primary rounded focus:ring-primary" /> Espiculación
         </label>
-        <label className="flex items-center gap-2 text-slate-800">
-          <input type="checkbox" aria-label="Perifisural" {...register("nodule.isPerifissural")} /> Perifisural
+        <label className="flex items-center gap-2 text-white">
+          <input type="checkbox" aria-label="Perifisural" {...register("nodule.isPerifissural")} className="text-primary rounded focus:ring-primary" /> Perifisural
         </label>
-        <label className="flex items-center gap-2 text-slate-800">
-          <input type="checkbox" aria-label="Juxta-pleural o airway" {...register("nodule.isJuxtapleural")} /> Juxta-pleural / airway
+        <label className="flex items-center gap-2 text-white">
+          <input type="checkbox" aria-label="Juxta-pleural o airway" {...register("nodule.isJuxtapleural")} className="text-primary rounded focus:ring-primary" /> Juxta-pleural / airway
         </label>
         {clinicalContext === "screening" && (
-          <label className="flex items-center gap-2 text-slate-800">
-            <input type="checkbox" aria-label="Nódulo nuevo en follow-up" {...register("nodule.isNew")} /> Nódulo nuevo en follow-up
+          <label className="flex items-center gap-2 text-white">
+            <input type="checkbox" aria-label="Nódulo nuevo en follow-up" {...register("nodule.isNew")} className="text-primary rounded focus:ring-primary" /> Nódulo nuevo en follow-up
           </label>
         )}
       </div>
 
       {isMultiple && (
-        <p className="text-sm text-slate-600">Para múltiples nódulos, ingresa el nódulo dominante o más sospechoso.</p>
+        <p className="text-sm text-slate-400">Para múltiples nódulos, ingresa el nódulo dominante o más sospechoso.</p>
       )}
     </div>
   );

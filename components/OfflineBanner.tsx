@@ -27,7 +27,7 @@ export function OfflineBanner() {
     if (typeof navigator !== "undefined") {
       setIsOffline(!navigator.onLine);
     }
-    
+
     window.addEventListener("offline", handleOffline);
     window.addEventListener("online", handleOnline);
     return () => {
@@ -41,8 +41,8 @@ export function OfflineBanner() {
   return (
     <div className="fixed bottom-16 left-0 right-0 z-20 flex justify-center px-4 md:bottom-4">
       {isOffline ? (
-        <div 
-          className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800 shadow-lg"
+        <div
+          className="flex items-center gap-2 rounded-lg border border-amber-900/50 bg-amber-900/20 px-4 py-2 text-sm text-amber-200 shadow-lg backdrop-blur-sm"
           role="status"
           aria-live="polite"
         >
@@ -55,8 +55,8 @@ export function OfflineBanner() {
           </span>
         </div>
       ) : showReconnected ? (
-        <div 
-          className="flex items-center gap-2 rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-800 shadow-lg"
+        <div
+          className="flex items-center gap-2 rounded-lg border border-green-900/50 bg-green-900/20 px-4 py-2 text-sm text-green-200 shadow-lg backdrop-blur-sm"
           role="status"
           aria-live="polite"
         >

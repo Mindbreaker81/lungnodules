@@ -13,10 +13,20 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-background text-slate-900">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-screen bg-background text-slate-100 font-display">
         <ServiceWorkerRegister />
         <OfflineBanner />
-        <main className="mx-auto max-w-4xl px-4 py-6">{children}</main>
+        <main className="mx-auto max-w-md px-4 py-6 pb-24">{children}</main>
       </body>
     </html>
   );
