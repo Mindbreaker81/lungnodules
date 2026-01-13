@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#106c7a",
+              "background-light": "#f8fafb",
+              "background-dark": "#12161c",
+              "surface-dark": "#1e232b",
+              "accent-teal": "#94c0c7"
+            },
+            fontFamily: {
+              "display": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center p-4 justify-between max-w-md mx-auto w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary cursor-pointer">arrow_back_ios</span>
+<h2 class="text-lg font-bold leading-tight tracking-tight">Resultado</h2>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-300">share</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-md mx-auto w-full px-4 py-6 space-y-6">
+<!-- Hero Result Section -->
+<section class="text-center space-y-2">
+<div class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-2">
+                Categoría Lung-RADS® v2022
+            </div>
+<h1 class="text-4xl font-extrabold tracking-tight dark:text-white">Lung-RADS 3</h1>
+<p class="text-accent-teal text-lg font-medium">Probablemente Benigno</p>
+</section>
+<!-- Main Recommendation Card -->
+<div class="bg-primary dark:bg-primary p-6 rounded-xl shadow-xl shadow-primary/20 relative overflow-hidden">
+<!-- Decorative background pattern -->
+<div class="absolute top-0 right-0 opacity-10 pointer-events-none translate-x-1/4 -translate-y-1/4">
+<span class="material-symbols-outlined text-[120px]">clinical_notes</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-white">event_repeat</span>
+<h3 class="text-white text-lg font-bold">Plan de Seguimiento</h3>
+</div>
+<p class="text-white text-xl leading-relaxed font-semibold">
+                    Realizar TAC de tórax a dosis bajas (LDCT) en 6 meses.
+                </p>
+<p class="text-white/80 text-sm mt-3 leading-normal italic">
+                    Si el nódulo permanece estable después de 2 ciclos de seguimiento, puede retornar al tamizaje anual.
+                </p>
+</div>
+</div>
+<!-- Clinical Details Section -->
+<section class="space-y-3">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Detalles Clínicos</h3>
+<span class="material-symbols-outlined text-sm text-slate-400">info</span>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<div class="bg-slate-50 dark:bg-surface-dark p-4 rounded-lg flex items-center justify-between border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">straighten</span>
+<div>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">Tamaño Nódulo</p>
+<p class="font-bold">6 - 10 mm</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_right</span>
+</div>
+<div class="bg-slate-50 dark:bg-surface-dark p-4 rounded-lg flex items-center justify-between border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">texture</span>
+<div>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">Morfología</p>
+<p class="font-bold">Sólido o subsólido</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_right</span>
+</div>
+<div class="bg-slate-50 dark:bg-surface-dark p-4 rounded-lg flex items-center justify-between border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">history</span>
+<div>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold">Crecimiento</p>
+<p class="font-bold">Sin cambios previos</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- References Section -->
+<section class="pt-4 border-t border-slate-200 dark:border-slate-800">
+<div class="bg-slate-100 dark:bg-slate-800/30 p-4 rounded-lg">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-slate-400 mt-0.5">menu_book</span>
+<div class="space-y-1">
+<p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight">Referencia Guía</p>
+<p class="text-sm text-slate-600 dark:text-slate-300 leading-tight">
+                            American College of Radiology (ACR). Lung CT Screening Reporting and Data System (Lung-RADS®) Assessment Categories v2022.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<div class="h-24"></div> <!-- Spacer for fixed footer -->
+</main>
+<!-- Bottom Action Bar -->
+<footer class="fixed bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 p-4 pb-8">
+<div class="max-w-md mx-auto grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 h-14 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold transition-all active:scale-95">
+<span class="material-symbols-outlined">restart_alt</span>
+                Reiniciar
+            </button>
+<button class="flex items-center justify-center gap-2 h-14 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 transition-all active:scale-95">
+<span class="material-symbols-outlined">save</span>
+                Guardar
+            </button>
+</div>
+</footer>
+</body></html>

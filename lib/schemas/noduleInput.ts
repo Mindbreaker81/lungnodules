@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { ClinicalContext, NoduleType, RiskLevel, ScanType } from '../algorithms/types';
 
-const clinicalContextValues: ClinicalContext[] = ['incidental', 'screening'];
-const noduleTypeValues: NoduleType[] = ['solid', 'ground-glass', 'part-solid'];
-const riskLevelValues: RiskLevel[] = ['low', 'high'];
-const scanTypeValues: ScanType[] = ['baseline', 'follow-up'];
+
+const clinicalContextValues = ['incidental', 'screening'] as const;
+const noduleTypeValues = ['solid', 'ground-glass', 'part-solid'] as const;
+const riskLevelValues = ['low', 'high'] as const;
+const scanTypeValues = ['baseline', 'follow-up'] as const;
 
 const diameterSchema = z
   .number({ invalid_type_error: 'Enter diameter between 1-100 mm' })

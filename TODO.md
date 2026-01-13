@@ -3,7 +3,7 @@
 Derived from PRD v1.0 (Jan 2026).
 
 ## 0. Fundamentos del proyecto
-- [ ] Inicializar base Next.js 14+ con TypeScript, Tailwind, shadcn/ui; ESLint/Prettier.
+- [x] Inicializar base Next.js 14+ con TypeScript, Tailwind, shadcn/ui; ESLint/Prettier.
 - [x] Configurar layout y páginas `/` (landing) y `/assessment` (wizard).
 - [x] Definir estructura de carpetas (app/, components/ui, components/wizard, lib/algorithms, lib/schemas, config/, __tests__/, public/manifest.json).
 - [x] Actualizar Next.js a ^14.2.35 (mitigación vulnerabilidades audit).

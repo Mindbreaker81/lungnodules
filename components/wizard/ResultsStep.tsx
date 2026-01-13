@@ -18,8 +18,8 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
     `Generated: ${new Date().toISOString()}`,
     `Tool Version: ${APP_VERSION}`,
     ``,
-    `GUIDELINE: ${result.guideline === 'fleischner-2017' 
-      ? GUIDELINE_VERSIONS.fleischner.label 
+    `GUIDELINE: ${result.guideline === 'fleischner-2017'
+      ? GUIDELINE_VERSIONS.fleischner.label
       : GUIDELINE_VERSIONS.lungRads.label}`,
     `CATEGORY: ${result.category}`,
     ``,
@@ -78,12 +78,15 @@ export default function ResultsStep({ result, input }: Props) {
     }
   };
 
-  const isScreening = input?.clinicalContext === "screening";
-  const scanType = isScreening ? input?.nodule.scanType : undefined;
-  const isFollowUp = scanType === "follow-up";
+  const screeningInput = input && input.clinicalContext === "screening" ? input : undefined;
+  const isFollowUp = screeningInput?.nodule.scanType === "follow-up";
   const isGrowing =
-    isFollowUp && input
-      ? calculateLungRadsGrowth(input.nodule.diameterMm, input.nodule.priorDiameterMm, input.nodule.priorScanMonthsAgo)
+    isFollowUp && screeningInput
+      ? calculateLungRadsGrowth(
+        screeningInput.nodule.diameterMm,
+        screeningInput.nodule.priorDiameterMm,
+        screeningInput.nodule.priorScanMonthsAgo
+      )
       : false;
   const growthLabel = isFollowUp ? (isGrowing ? "Crecimiento detectado (>1.5mm/12m)" : "Sin crecimiento significativo") : null;
   const hasMultiple = input?.nodule.isMultiple;
@@ -146,10 +149,10 @@ export default function ResultsStep({ result, input }: Props) {
           ⚠️ MEDICAL DISCLAIMER: Decision support only; verificar contra guías actuales. No aplica a &lt;35 años,
           inmunocomprometidos o cáncer conocido.
         </div>
-        <Button 
-          type="button" 
-          variant="outline" 
-          size="sm" 
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           aria-label="Copiar recomendación"
           onClick={handleCopy}
           className={copyStatus === 'copied' ? 'bg-green-50 text-green-700 border-green-300' : copyStatus === 'error' ? 'bg-red-50 text-red-700 border-red-300' : ''}

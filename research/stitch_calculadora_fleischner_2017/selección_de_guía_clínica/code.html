@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Selección de Guía Clínica</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#106c7a",
+                        "background-light": "#f8fafb",
+                        "background-dark": "#12161c",
+                        "card-dark": "#1a2f32",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<nav class="sticky top-0 z-50 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center p-4 justify-between max-w-md mx-auto">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">Protocolo Pulmonar</h2>
+<div class="flex w-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-full size-10 bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Container -->
+<main class="flex-1 w-full max-w-md mx-auto px-4 pb-24">
+<!-- Headline Section -->
+<header class="py-8">
+<h1 class="text-slate-900 dark:text-white text-[28px] font-bold leading-tight text-center">
+                Selección de Guía
+            </h1>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-relaxed mt-2 text-center">
+                Identifique la vía clínica adecuada según el origen del hallazgo.
+            </p>
+</header>
+<!-- Guideline Cards -->
+<div class="space-y-6">
+<!-- Card 1: Fleischner -->
+<div class="group relative flex flex-col items-stretch justify-start rounded-xl shadow-lg bg-white dark:bg-card-dark overflow-hidden border border-slate-200 dark:border-slate-800 transition-all active:scale-[0.98]">
+<div class="w-full h-40 bg-center bg-no-repeat bg-cover" data-alt="CXR showing incidental pulmonary nodule finding" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCobMOHdLkvkQVEetzLL19irByEDUxJ68VR8X1rT8j_rjGHQNnUV4XIF5E5ZlkHbYqHKlQL7D92a-pb1Y6VRHBm6DROfjRxMW5E49xOHJwjEKQ7UZK9PrPRFtXW1h4quZoXwikpbyQBU7XzTVOjqfTw4w5fHTjAd6j0Zmh_LoBPu2NoEsLwwXVJ9fiq46WnGTZTrlSGwogojgcCmc74rLiUtDdb-Y0vt1h0UsLZyr9eiWhkZKn9e6D1BhxNVkfcn0THbPLo_rxvA3kQ");'>
+<div class="absolute top-4 left-4">
+<span class="bg-primary/90 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">
+                            Incidental
+                        </span>
+</div>
+</div>
+<div class="flex w-full flex-col p-5">
+<div class="flex justify-between items-start mb-1">
+<p class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Fleischner 2017</p>
+<span class="material-symbols-outlined text-primary text-xl">info</span>
+</div>
+<p class="text-slate-500 dark:text-[#94c0c7] text-sm font-medium mb-4">Nódulos Incidentales</p>
+<p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
+                        Para pacientes ≥35 años con nódulos detectados accidentalmente fuera de programas de tamizaje.
+                    </p>
+<button class="w-full flex cursor-pointer items-center justify-center gap-2 rounded-lg h-12 bg-primary text-white text-sm font-bold shadow-md hover:bg-primary/90">
+<span>Iniciar Evaluación</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card 2: Lung-RADS -->
+<div class="group relative flex flex-col items-stretch justify-start rounded-xl shadow-lg bg-white dark:bg-card-dark overflow-hidden border border-slate-200 dark:border-slate-800 transition-all active:scale-[0.98]">
+<div class="w-full h-40 bg-center bg-no-repeat bg-cover" data-alt="Doctor explaining CT results to patient" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCTW2vJaz_47sudNUJOoi7DVOIMPgXtwBkYiyjp2rfd420E7o7O2BuZ3gEs_-PSfN_EZnrU5B2NXvICLleKAe0tCa3EowzSh5nVoK8-6rjlE98kLkFE4YflW5SSTdXIphSK3UsAbA0sMEf6dgaCZaWxNN5w4rKF8Zj9vdhO8eHmsbHr4ds9g5YdjJ8MoTbPJSoPw7zjywqpHK2o2ogjKsPKCCjR5hIjQmwTfn-EI3r0KJOwSRqR0j0DdSU6LaStdKSHxLNfenztZlPx");'>
+<div class="absolute top-4 left-4">
+<span class="bg-teal-600 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">
+                            Screening
+                        </span>
+</div>
+</div>
+<div class="flex w-full flex-col p-5">
+<div class="flex justify-between items-start mb-1">
+<p class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Lung-RADS® v2022</p>
+<span class="material-symbols-outlined text-primary text-xl">verified</span>
+</div>
+<p class="text-slate-500 dark:text-[#94c0c7] text-sm font-medium mb-4">Tamizaje Organizado</p>
+<p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6">
+                        Sistema de reporte para pacientes en programas de tamizaje de cáncer de pulmón de alto riesgo.
+                    </p>
+<button class="w-full flex cursor-pointer items-center justify-center gap-2 rounded-lg h-12 bg-primary text-white text-sm font-bold shadow-md hover:bg-primary/90">
+<span>Iniciar Evaluación</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Help Section -->
+<div class="mt-8 p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-4">
+<div class="size-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">help</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">¿Dudas con la selección?</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Consulte los criterios de inclusión de cada guía antes de proceder.</p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (iOS Style) -->
+<div class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-xl z-50">
+<div class="max-w-md mx-auto grid grid-cols-4 h-20 px-2 pb-safe">
+<button class="flex flex-col items-center justify-center gap-1 text-primary">
+<span class="material-symbols-outlined fill-1">clinical_notes</span>
+<span class="text-[10px] font-bold">Guías</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">calculate</span>
+<span class="text-[10px] font-medium">Calculadora</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-medium">Historial</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-medium">Ajustes</span>
+</button>
+</div>
+</div>
+</body></html>
