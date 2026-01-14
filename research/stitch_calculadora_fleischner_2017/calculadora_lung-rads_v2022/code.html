@@ -55,7 +55,7 @@
 <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen pb-32">
 <!-- Top Navigation Bar -->
 <nav class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-<div class="flex items-center p-4 justify-between max-w-md mx-auto">
+<div class="flex items-center p-4 justify-between max-w-md md:max-w-2xl lg:max-w-4xl mx-auto">
 <div class="flex size-10 shrink-0 items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
 <span class="material-symbols-outlined text-slate-600 dark:text-white">arrow_back_ios_new</span>
 </div>
@@ -65,7 +65,7 @@
 </div>
 </div>
 </nav>
-<main class="max-w-md mx-auto px-4 py-6 space-y-6">
+<main class="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 space-y-6 md:space-y-8">
 <!-- Section: Size Input -->
 <section class="bg-white dark:bg-surface-dark rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
 <div class="flex items-center justify-between mb-4">
@@ -100,7 +100,7 @@
 <!-- Section: Consistency Selection -->
 <section class="bg-white dark:bg-surface-dark rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
 <h3 class="text-slate-900 dark:text-white text-base font-bold tracking-tight mb-4">Consistência</h3>
-<div class="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-background-dark rounded-lg">
+<div class="grid grid-cols-3 gap-2 md:gap-3 p-1 md:p-2 bg-slate-100 dark:bg-background-dark rounded-lg">
 <button class="py-2.5 px-2 text-xs font-bold rounded-md bg-white dark:bg-primary text-primary dark:text-white shadow-sm transition-all">Sólido</button>
 <button class="py-2.5 px-2 text-xs font-bold rounded-md text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 transition-all">Sub-sólido</button>
 <button class="py-2.5 px-2 text-xs font-bold rounded-md text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 transition-all">Vidro Fosco</button>
@@ -158,8 +158,8 @@
 </section>
 </main>
 <!-- Bottom Action & Results Area -->
-<div class="fixed bottom-0 inset-x-0 z-50 p-4 bg-white/90 dark:bg-background-dark/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800">
-<div class="max-w-md mx-auto">
+<div class="fixed bottom-0 inset-x-0 z-50 p-4 md:relative md:mt-8 bg-white/90 dark:bg-background-dark/90 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-slate-200 dark:border-slate-800 md:border-t-0">
+<div class="max-w-md md:max-w-2xl lg:max-w-4xl mx-auto">
 <!-- Result Banner (Dynamic) -->
 <div class="bg-primary rounded-xl p-4 mb-4 flex items-center justify-between shadow-lg shadow-primary/20">
 <div class="flex-1">
@@ -177,7 +177,7 @@
 </div>
 </div>
 <!-- Tab Navigation -->
-<div class="flex justify-between items-center px-4">
+<div class="flex justify-between items-center px-4 md:hidden">
 <button class="flex flex-col items-center gap-1 text-primary">
 <span class="material-symbols-outlined">calculate</span>
 <span class="text-[10px] font-bold">Lung-RADS</span>

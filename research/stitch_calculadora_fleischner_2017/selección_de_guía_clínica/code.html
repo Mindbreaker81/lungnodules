@@ -49,7 +49,7 @@
 <body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
 <!-- Top Navigation Bar -->
 <nav class="sticky top-0 z-50 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800">
-<div class="flex items-center p-4 justify-between max-w-md mx-auto">
+<div class="flex items-center p-4 justify-between max-w-md md:max-w-3xl lg:max-w-5xl mx-auto">
 <div class="text-primary flex size-10 shrink-0 items-center justify-center">
 <span class="material-symbols-outlined text-2xl">menu</span>
 </div>
@@ -62,10 +62,10 @@
 </div>
 </nav>
 <!-- Main Content Container -->
-<main class="flex-1 w-full max-w-md mx-auto px-4 pb-24">
+<main class="flex-1 w-full max-w-md md:max-w-3xl lg:max-w-5xl mx-auto px-4 md:px-6 lg:px-8 pb-24 md:pb-8">
 <!-- Headline Section -->
-<header class="py-8">
-<h1 class="text-slate-900 dark:text-white text-[28px] font-bold leading-tight text-center">
+<header class="py-8 md:py-12 lg:py-16">
+<h1 class="text-slate-900 dark:text-white text-[28px] md:text-4xl lg:text-5xl font-bold leading-tight text-center">
                 Selección de Guía
             </h1>
 <p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-relaxed mt-2 text-center">
@@ -73,7 +73,7 @@
             </p>
 </header>
 <!-- Guideline Cards -->
-<div class="space-y-6">
+<div class="space-y-6 md:grid md:grid-cols-2 md:gap-6 md:space-y-0 lg:gap-8">
 <!-- Card 1: Fleischner -->
 <div class="group relative flex flex-col items-stretch justify-start rounded-xl shadow-lg bg-white dark:bg-card-dark overflow-hidden border border-slate-200 dark:border-slate-800 transition-all active:scale-[0.98]">
 <div class="w-full h-40 bg-center bg-no-repeat bg-cover" data-alt="CXR showing incidental pulmonary nodule finding" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCobMOHdLkvkQVEetzLL19irByEDUxJ68VR8X1rT8j_rjGHQNnUV4XIF5E5ZlkHbYqHKlQL7D92a-pb1Y6VRHBm6DROfjRxMW5E49xOHJwjEKQ7UZK9PrPRFtXW1h4quZoXwikpbyQBU7XzTVOjqfTw4w5fHTjAd6j0Zmh_LoBPu2NoEsLwwXVJ9fiq46WnGTZTrlSGwogojgcCmc74rLiUtDdb-Y0vt1h0UsLZyr9eiWhkZKn9e6D1BhxNVkfcn0THbPLo_rxvA3kQ");'>
@@ -124,7 +124,7 @@
 </div>
 </div>
 <!-- Help Section -->
-<div class="mt-8 p-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-4">
+<div class="mt-8 p-4 md:p-6 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-4 md:col-span-2">
 <div class="size-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
 <span class="material-symbols-outlined text-primary">help</span>
 </div>
@@ -135,7 +135,7 @@
 </div>
 </main>
 <!-- Bottom Navigation Bar (iOS Style) -->
-<div class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-xl z-50">
+<div class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-xl z-50 md:hidden">
 <div class="max-w-md mx-auto grid grid-cols-4 h-20 px-2 pb-safe">
 <button class="flex flex-col items-center justify-center gap-1 text-primary">
 <span class="material-symbols-outlined fill-1">clinical_notes</span>
