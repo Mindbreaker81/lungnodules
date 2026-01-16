@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
 import { RISK_FACTOR_TOOLTIP } from "@config/guidelines";
@@ -10,8 +11,18 @@ interface Props {
 }
 
 export default function RiskStep({ clinicalContext }: Props) {
-  const { register, watch } = useFormContext<AssessmentInput>();
+  const { register, watch, setValue } = useFormContext<AssessmentInput>();
   const scanType = watch("nodule.scanType");
+  const hasKnownMalignancy = watch("patient.hasKnownMalignancy");
+  const isImmunocompromised = watch("patient.isImmunocompromised");
+  const hasExclusion = Boolean(hasKnownMalignancy || isImmunocompromised);
+
+  useEffect(() => {
+    if (clinicalContext === "screening" && scanType === "baseline") {
+      setValue("priorCategory", undefined);
+      setValue("priorStatus", undefined);
+    }
+  }, [clinicalContext, scanType, setValue]);
 
   return (
     <div className="space-y-4">
@@ -40,6 +51,37 @@ export default function RiskStep({ clinicalContext }: Props) {
                 <input type="radio" value="high" aria-label="Riesgo alto" {...register("patient.riskLevel")} className="text-primary focus:ring-primary" /> Alto
               </label>
             </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-300">Exclusiones Fleischner</p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <label className="flex items-center gap-2 text-white">
+                <input
+                  type="checkbox"
+                  aria-label="Cáncer conocido"
+                  {...register("patient.hasKnownMalignancy")}
+                  className="text-primary rounded focus:ring-primary"
+                />
+                Cáncer conocido
+              </label>
+              <label className="flex items-center gap-2 text-white">
+                <input
+                  type="checkbox"
+                  aria-label="Inmunocompromiso"
+                  {...register("patient.isImmunocompromised")}
+                  className="text-primary rounded focus:ring-primary"
+                />
+                Inmunocompromiso
+              </label>
+            </div>
+            {hasExclusion && (
+              <div
+                className="rounded-md border border-amber-900/50 bg-amber-900/20 p-3 text-sm text-amber-200"
+                role="alert"
+              >
+                Fleischner no aplica en pacientes con cáncer conocido o inmunocompromiso. Usa guía clínica específica.
+              </div>
+            )}
           </div>
         </div>
       ) : (
@@ -76,6 +118,45 @@ export default function RiskStep({ clinicalContext }: Props) {
                   className="mt-1"
                   {...register("nodule.priorScanMonthsAgo", { valueAsNumber: true })}
                 />
+              </div>
+            </div>
+          )}
+          {scanType === "follow-up" && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-slate-300">Stepped management (opcional)</p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300">Categoría previa</label>
+                  <select
+                    className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                    aria-label="Categoría Lung-RADS previa"
+                    defaultValue=""
+                    {...register("priorCategory", { setValueAs: (value) => value || undefined })}
+                  >
+                    <option value="" className="bg-surface">Sin categoría previa</option>
+                    <option value="0" className="bg-surface">0</option>
+                    <option value="1" className="bg-surface">1</option>
+                    <option value="2" className="bg-surface">2</option>
+                    <option value="3" className="bg-surface">3</option>
+                    <option value="4A" className="bg-surface">4A</option>
+                    <option value="4B" className="bg-surface">4B</option>
+                    <option value="4X" className="bg-surface">4X</option>
+                    <option value="S" className="bg-surface">S</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300">Estado previo</label>
+                  <select
+                    className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                    aria-label="Estado Lung-RADS previo"
+                    defaultValue=""
+                    {...register("priorStatus", { setValueAs: (value) => value || undefined })}
+                  >
+                    <option value="" className="bg-surface">Sin estado previo</option>
+                    <option value="stable" className="bg-surface">Estable (step-down permitido)</option>
+                    <option value="progression" className="bg-surface">Progresión</option>
+                  </select>
+                </div>
               </div>
             </div>
           )}

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { assessmentInputSchema, AssessmentInput } from "@lib/schemas/noduleInput";
-import { assessFleischner, assessLungRads, AssessmentResult, RiskLevel } from "@lib/algorithms";
+import { assessFleischner, assessLungRads, AssessmentResult, RiskLevel, ClinicalContext } from "@lib/algorithms";
 import { analytics } from "@lib/analytics";
 import ContextStep from "./ContextStep";
 import RiskStep from "./RiskStep";
@@ -40,8 +40,17 @@ const defaultValues = {
     isJuxtapleural: false,
     isAirway: false,
     isAtypicalCyst: false,
+    isBenign: false,
+    hasSignificantFinding: false,
+    isInflammatory: false,
+    inflammatoryCategory: undefined,
+    airwayLocation: undefined,
+    airwayPersistent: false,
+    atypicalCystCategory: undefined,
     isNew: false,
   },
+  priorCategory: undefined,
+  priorStatus: undefined,
 } satisfies AssessmentInput;
 
 export default function WizardContainer() {
@@ -56,7 +65,8 @@ export default function WizardContainer() {
   const [lastInput, setLastInput] = useState<AssessmentInput | null>(null);
   const hasTrackedStart = useRef(false);
 
-  const context = methods.watch("clinicalContext");
+  const rawContext = methods.watch("clinicalContext");
+  const context: ClinicalContext = rawContext === "screening" ? "screening" : "incidental";
 
   // Track assessment start on first step change
   useEffect(() => {
@@ -80,6 +90,8 @@ export default function WizardContainer() {
       methods.setValue("nodule.scanType" as any, undefined);
       methods.setValue("nodule.priorDiameterMm" as any, undefined);
       methods.setValue("nodule.priorScanMonthsAgo" as any, undefined);
+      methods.setValue("priorCategory", undefined);
+      methods.setValue("priorStatus", undefined);
     }
   }, [context, methods]);
 
@@ -102,6 +114,8 @@ export default function WizardContainer() {
     const assessment = assessLungRads({
       patient: data.patient,
       nodule: data.nodule as any,
+      priorCategory: data.priorCategory,
+      priorStatus: data.priorStatus,
     });
     setResult(assessment);
     setCurrentStep("results");

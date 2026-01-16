@@ -13,6 +13,16 @@ interface Props {
 }
 
 function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
+  const measurementContext = input?.clinicalContext;
+  const formatMeasurement = (value: number) => {
+    if (measurementContext === "incidental") {
+      return Math.round(value).toString();
+    }
+    if (measurementContext === "screening") {
+      return value.toFixed(1);
+    }
+    return value.toString();
+  };
   const lines = [
     `LUNG NODULE ASSESSMENT REPORT`,
     `Generated: ${new Date().toISOString()}`,
@@ -42,8 +52,10 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
       `INPUT DATA:`,
       `  Context: ${input.clinicalContext}`,
       `  Nodule Type: ${input.nodule.type}`,
-      `  Diameter: ${input.nodule.diameterMm}mm`,
-      input.nodule.solidComponentMm ? `  Solid Component: ${input.nodule.solidComponentMm}mm` : null,
+      `  Diameter: ${formatMeasurement(input.nodule.diameterMm)}mm`,
+      input.nodule.solidComponentMm !== undefined
+        ? `  Solid Component: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
+        : null,
       `  Multiple: ${input.nodule.isMultiple ? 'Yes' : 'No'}`,
     );
   }
@@ -89,6 +101,10 @@ export default function ResultsStep({ result, input }: Props) {
       )
       : false;
   const growthLabel = isFollowUp ? (isGrowing ? "Crecimiento detectado (>1.5mm/12m)" : "Sin crecimiento significativo") : null;
+  const measurementNote =
+    input?.clinicalContext === "incidental"
+      ? "Fleischner: medición redondeada al mm; crecimiento significativo ≥2 mm."
+      : null;
   const hasMultiple = input?.nodule.isMultiple;
 
   return (
@@ -121,6 +137,7 @@ export default function ResultsStep({ result, input }: Props) {
             {growthLabel}
           </p>
         )}
+        {measurementNote && <p className="text-sm text-slate-400">{measurementNote}</p>}
         {hasMultiple && (
           <p className="text-sm text-slate-300">
             Múltiples nódulos: recomendaciones aplican al nódulo dominante; evaluar el resto con la misma guía.

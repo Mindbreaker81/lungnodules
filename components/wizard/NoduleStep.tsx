@@ -12,8 +12,12 @@ export default function NoduleStep({ clinicalContext }: Props) {
   const { register, watch } = useFormContext<AssessmentInput>();
   const type = watch("nodule.type");
   const isMultiple = watch("nodule.isMultiple");
+  const isAirway = watch("nodule.isAirway");
+  const isInflammatory = watch("nodule.isInflammatory");
+  const isAtypicalCyst = watch("nodule.isAtypicalCyst");
   const diameter = watch("nodule.diameterMm");
   const solidComponent = watch("nodule.solidComponentMm");
+  const isScreening = clinicalContext === "screening";
   const solidExceeds =
     type === "part-solid" &&
     solidComponent !== undefined &&
@@ -81,16 +85,95 @@ export default function NoduleStep({ clinicalContext }: Props) {
         </label>
         <label className="flex items-center gap-2 text-white">
           <input type="checkbox" aria-label="Perifisural" {...register("nodule.isPerifissural")} className="text-primary rounded focus:ring-primary" /> Perifisural
+          {isScreening && <span className="text-xs text-slate-400">benigno (≤10mm)</span>}
         </label>
         <label className="flex items-center gap-2 text-white">
-          <input type="checkbox" aria-label="Juxta-pleural o airway" {...register("nodule.isJuxtapleural")} className="text-primary rounded focus:ring-primary" /> Juxta-pleural / airway
+          <input type="checkbox" aria-label="Juxta-pleural" {...register("nodule.isJuxtapleural")} className="text-primary rounded focus:ring-primary" /> Yuxtapleural
+          {isScreening && <span className="text-xs text-slate-400">benigno (≤10mm)</span>}
         </label>
-        {clinicalContext === "screening" && (
+        {isScreening && (
           <label className="flex items-center gap-2 text-white">
             <input type="checkbox" aria-label="Nódulo nuevo en follow-up" {...register("nodule.isNew")} className="text-primary rounded focus:ring-primary" /> Nódulo nuevo en follow-up
           </label>
         )}
       </div>
+
+      {isScreening && (
+        <div className="space-y-3 rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
+          <p className="text-sm font-medium text-slate-300">Reglas especiales Lung-RADS v2022</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label className="flex items-center gap-2 text-white">
+              <input type="checkbox" aria-label="Benigno definitivo o sin nódulos" {...register("nodule.isBenign")} className="text-primary rounded focus:ring-primary" /> Sin nódulos o benigno definitivo (Cat 1)
+            </label>
+            <label className="flex items-center gap-2 text-white">
+              <input type="checkbox" aria-label="Hallazgo significativo" {...register("nodule.hasSignificantFinding")} className="text-primary rounded focus:ring-primary" /> Hallazgo significativo (Cat S)
+            </label>
+            <label className="flex items-center gap-2 text-white">
+              <input type="checkbox" aria-label="Hallazgo inflamatorio" {...register("nodule.isInflammatory")} className="text-primary rounded focus:ring-primary" /> Hallazgo inflamatorio/infeccioso
+            </label>
+            <label className="flex items-center gap-2 text-white">
+              <input type="checkbox" aria-label="Nódulo de vía aérea" {...register("nodule.isAirway")} className="text-primary rounded focus:ring-primary" /> Nódulo de vía aérea
+            </label>
+            <label className="flex items-center gap-2 text-white">
+              <input type="checkbox" aria-label="Quiste pulmonar atípico" {...register("nodule.isAtypicalCyst")} className="text-primary rounded focus:ring-primary" /> Quiste pulmonar atípico
+            </label>
+          </div>
+
+          {isInflammatory && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300">Categoría inflamatoria</label>
+              <select
+                className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                aria-label="Categoría inflamatoria"
+                defaultValue=""
+                {...register("nodule.inflammatoryCategory", { setValueAs: (value) => value || undefined })}
+              >
+                <option value="" className="bg-surface">Selecciona una categoría</option>
+                <option value="category0" className="bg-surface">Categoría 0 (incompleto, control 1-3m)</option>
+                <option value="category2" className="bg-surface">Categoría 2 (probable inflamatorio)</option>
+              </select>
+            </div>
+          )}
+
+          {isAirway && (
+            <div className="space-y-2">
+              <div>
+                <label className="block text-sm font-medium text-slate-300">Localización vía aérea</label>
+                <select
+                  className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                  aria-label="Localización del nódulo de vía aérea"
+                  defaultValue=""
+                  {...register("nodule.airwayLocation", { setValueAs: (value) => value || undefined })}
+                >
+                  <option value="" className="bg-surface">Selecciona una opción</option>
+                  <option value="subsegmental" className="bg-surface">Subsegmentario o benigno (Cat 2)</option>
+                  <option value="segmental-proximal" className="bg-surface">Segmentario o proximal (Cat 4A)</option>
+                </select>
+              </div>
+              <label className="flex items-center gap-2 text-white">
+                <input type="checkbox" aria-label="Persistente en control" {...register("nodule.airwayPersistent")} className="text-primary rounded focus:ring-primary" /> Persistente en control 3 meses (Cat 4B)
+              </label>
+            </div>
+          )}
+
+          {isAtypicalCyst && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300">Categoría de quiste atípico</label>
+              <select
+                className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                aria-label="Categoría de quiste pulmonar atípico"
+                defaultValue=""
+                {...register("nodule.atypicalCystCategory", { setValueAs: (value) => value || undefined })}
+              >
+                <option value="" className="bg-surface">Selecciona una categoría</option>
+                <option value="category3" className="bg-surface">Categoría 3 (quiste estable con crecimiento quístico)</option>
+                <option value="category4A" className="bg-surface">Categoría 4A (pared gruesa/multilocular)</option>
+                <option value="category4B" className="bg-surface">Categoría 4B (crecimiento o nodularidad)</option>
+              </select>
+            </div>
+          )}
+        </div>
+      )}
 
       {isMultiple && (
         <p className="text-sm text-slate-400">Para múltiples nódulos, ingresa el nódulo dominante o más sospechoso.</p>

@@ -60,9 +60,27 @@ Derived from PRD v1.0 (Jan 2026).
 - [x] Paquete de 40+ casos para panel de expertos. (lib/validation/clinicalCases.ts)
 - [x] Disclaimer médico en pantalla de resultados y exportable. (Disclaimer.tsx, ExportResults.tsx)
 
-## 10. Lanzamiento
+## 10. Hallazgos pendientes (auditoría clínica)
+- [x] Añadir inputs UI para exclusiones Fleischner (cáncer conocido, inmunocompromiso) y bloquear cálculo si aplica.
+- [x] Implementar reglas Lung-RADS v2022 especiales: nódulos de vía aérea, quistes pulmonares atípicos, yuxtapleurales, infeccioso/inflamatorio, categorías 0/1/4X/S.
+- [x] Implementar manejo Fleischner para sub-sólidos múltiples (GGN/part-solid) y exención perifissural cuando aplique.
+- [x] Exponer stepped management en UI (priorCategory/priorStatus) y validaciones asociadas.
+- [x] Ajustar medición Fleischner a redondeo en mm.
+- [ ] Mensajes de crecimiento ≥2 mm (Fleischner) y mantener decimales en Lung-RADS.
+- [ ] Unificar terminología clínica en UI (GGN/no sólido, parte-sólido, sub-sólido) con tooltips claros.
+- [ ] Mostrar componente GuidelineVersion en resultados y exportes (no se renderiza actualmente).
+- [ ] Evaluar módulo de modelos predictivos (Mayo/Brock/Herder) como feature de roadmap.
+- [x] Añadir tests para reglas especiales y exclusiones (airway/quistes/juxtapleural/perifissural/sub-sólidos múltiples/UI exclusions).
+
+## 11. Plan de implementación (prioridad clínica)
+- [x] Fase 1 — Correcciones críticas: exclusiones Fleischner en UI, reglas Lung-RADS especiales, sub-sólidos múltiples Fleischner, perifissural benigno, tests nuevos.
+- [ ] Fase 2 — Exactitud operativa: redondeo Fleischner y growth ≥2 mm, stepped management en UI.
+- [ ] Fase 3 — UI/UX: terminología clínica unificada y tooltips.
+- [ ] Fase 4 — Roadmap: modelos predictivos (Mayo/Brock/Herder).
+
+## 12. Lanzamiento
 - [ ] Staging hardening: accesibilidad, performance, smoke E2E.
 - [ ] Producción: despliegue, verificación PWA, analytics activos, documentación final.
 
-## 11. Post-lanzamiento
+## 13. Post-lanzamiento
 - [ ] Monitoreo de errores (Sentry), métricas de uso (Google Analytics), feedback de usuarios.

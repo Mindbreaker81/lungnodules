@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
@@ -51,6 +52,31 @@ describe("WizardContainer", () => {
     expect(screen.getByText(/Solid <6mm/)).toBeInTheDocument();
   });
 
+  test("bloquea Fleischner si hay exclusiones", async () => {
+    const user = userEvent.setup();
+
+    render(<WizardContainer />);
+
+    // Paso 1: Contexto -> Riesgo
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    const malignancyCheckbox = screen.getByLabelText(/Cáncer conocido/i);
+    await act(async () => {
+      await user.click(malignancyCheckbox);
+    });
+
+    // Intentar avanzar al paso de nódulo
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    expect(screen.getByText(/Fleischner no aplica en pacientes con cáncer conocido/i)).toBeInTheDocument();
+    expect(screen.getByText(/Exclusiones Fleischner/i)).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: /Tipo de nódulo/i })).not.toBeInTheDocument();
+  });
+
   test("flujo screening feliz muestra resultados", async () => {
     const user = userEvent.setup();
 
@@ -95,5 +121,48 @@ describe("WizardContainer", () => {
     // Debe mostrar resultados mocked de Lung-RADS
     expect(await screen.findByText(/Continue annual LDCT/i)).toBeInTheDocument();
     expect(screen.getByText(/lung-rads-2022/i)).toBeInTheDocument();
+  });
+
+  test("valida stepped management cuando falta estado previo", async () => {
+    const user = userEvent.setup();
+
+    render(<WizardContainer />);
+
+    const screeningRadio = screen.getByLabelText(/Lung-RADS v2022/i);
+    await act(async () => {
+      await user.click(screeningRadio);
+    });
+
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    const scanSelect = await screen.findByRole("combobox", { name: /Tipo de scan/i });
+    await act(async () => {
+      await user.selectOptions(scanSelect, "follow-up");
+    });
+
+    const priorDiameterInput = screen.getByLabelText(/Diámetro previo en mm/i);
+    await act(async () => {
+      await user.type(priorDiameterInput, "4");
+    });
+    const priorMonthsInput = screen.getByLabelText(/Meses desde el scan previo/i);
+    await act(async () => {
+      await user.type(priorMonthsInput, "6");
+    });
+
+    const priorCategorySelect = screen.getByLabelText(/Categoría Lung-RADS previa/i);
+    await act(async () => {
+      await user.selectOptions(priorCategorySelect, "3");
+    });
+
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    expect(
+      screen.getByText(/Selecciona el estado previo si indicas una categoría previa/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: /Tipo de nódulo/i })).not.toBeInTheDocument();
   });
 });

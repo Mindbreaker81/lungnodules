@@ -87,27 +87,119 @@ function applySteppedManagement(currentCategory: string, priorCategory?: string,
 }
 
 function buildResult(category: string, rationale: string, warnings?: string[]): AssessmentResult {
-  const followUps: Record<string, { timing: string; recommendation: string }> = {
-    '0': { timing: '1-3 months', recommendation: 'Additional imaging or LDCT' },
-    '1': { timing: '12 months', recommendation: 'Continue annual LDCT' },
-    '2': { timing: '12 months', recommendation: 'Continue annual LDCT' },
-    '3': { timing: '6 months', recommendation: 'LDCT' },
-    '4A': { timing: '3 months', recommendation: 'LDCT; PET/CT if solid ≥8mm' },
-    '4B': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy' },
-    '4X': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy; consider multidisciplinary review' },
+  const followUps: Record<string, { timing: string; recommendation: string; modality: string }> = {
+    '0': { timing: '1-3 months', recommendation: 'Additional imaging or LDCT', modality: 'LDCT' },
+    '1': { timing: '12 months', recommendation: 'Continue annual LDCT', modality: 'LDCT' },
+    '2': { timing: '12 months', recommendation: 'Continue annual LDCT', modality: 'LDCT' },
+    '3': { timing: '6 months', recommendation: 'LDCT', modality: 'LDCT' },
+    '4A': { timing: '3 months', recommendation: 'LDCT; PET/CT if solid ≥8mm', modality: 'LDCT or PET/CT' },
+    '4B': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy', modality: 'CT/PET/Biopsy' },
+    '4X': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy; consider multidisciplinary review', modality: 'CT/PET/Biopsy/MDT' },
+    'S': { timing: 'As indicated', recommendation: 'Manage significant findings per clinical judgment', modality: 'As indicated' },
   };
 
-  const follow = followUps[category] ?? { timing: 'As indicated', recommendation: 'Clinical judgment' };
+  const follow = followUps[category] ?? {
+    timing: 'As indicated',
+    recommendation: 'Clinical judgment',
+    modality: 'As indicated',
+  };
 
   return {
     guideline: GUIDELINE,
     category,
     recommendation: follow.recommendation,
     followUpInterval: follow.timing,
-    imagingModality: 'LDCT',
+    imagingModality: follow.modality,
     rationale,
     warnings,
   };
+}
+
+function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
+  category: string;
+  rationale: string;
+  warnings?: string[];
+} | null {
+  if (nodule.hasSignificantFinding) {
+    return {
+      category: 'S',
+      rationale: 'Significant finding flagged; manage per clinical judgment',
+    };
+  }
+
+  if (nodule.isBenign) {
+    return {
+      category: '1',
+      rationale: 'No nodules or definitely benign findings',
+    };
+  }
+
+  if (nodule.isInflammatory) {
+    const category = nodule.inflammatoryCategory === 'category2' ? '2' : '0';
+    return {
+      category,
+      rationale:
+        category === '0'
+          ? 'Inflammatory/infectious pattern warrants short-term follow-up'
+          : 'Inflammatory/infectious pattern likely benign',
+      warnings: nodule.inflammatoryCategory ? undefined : ['Inflammatory category not specified'],
+    };
+  }
+
+  if (nodule.isAirway) {
+    if (nodule.airwayPersistent) {
+      return {
+        category: '4B',
+        rationale: 'Persistent airway nodule on 3-month follow-up',
+      };
+    }
+    if (nodule.airwayLocation === 'segmental-proximal') {
+      return {
+        category: '4A',
+        rationale: 'Segmental or proximal airway nodule',
+      };
+    }
+    if (nodule.airwayLocation === 'subsegmental') {
+      return {
+        category: '2',
+        rationale: 'Subsegmental airway nodule with benign features',
+      };
+    }
+    return {
+      category: '4A',
+      rationale: 'Airway nodule (location unspecified)',
+      warnings: ['Airway location not specified'],
+    };
+  }
+
+  if (nodule.isAtypicalCyst) {
+    const map = {
+      category3: { category: '3', rationale: 'Atypical cyst with growing cystic component' },
+      category4A: { category: '4A', rationale: 'Atypical cyst with thick wall or multiloculated morphology' },
+      category4B: { category: '4B', rationale: 'Atypical cyst with growth or nodularity' },
+    } as const;
+    if (!nodule.atypicalCystCategory || !map[nodule.atypicalCystCategory]) {
+      return {
+        category: '3',
+        rationale: 'Atypical cyst flagged; pending detailed characterization',
+        warnings: ['Atypical cyst category not specified'],
+      };
+    }
+    return map[nodule.atypicalCystCategory];
+  }
+
+  if (nodule.isJuxtapleural || nodule.isPerifissural) {
+    const isBenignJuxta =
+      nodule.type === 'solid' && nodule.diameterMm <= 10 && !nodule.hasSpiculation;
+    if (isBenignJuxta) {
+      return {
+        category: '2',
+        rationale: 'Yuxtapleural/perifissural benign morphology (≤10mm, smooth margins)',
+      };
+    }
+  }
+
+  return null;
 }
 
 export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: LungRadsAssessmentInput): AssessmentResult {
@@ -127,6 +219,11 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
   let category: string;
   let warnings: string[] | undefined;
 
+  const specialCategory = getSpecialCategory(nodule);
+  if (specialCategory) {
+    return buildResult(specialCategory.category, specialCategory.rationale, specialCategory.warnings);
+  }
+
   if (nodule.type === 'solid') {
     category = classifySolidLungRADS({
       diameter: nodule.diameterMm,
@@ -142,6 +239,10 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     warnings = result.warnings;
   }
 
+  if (nodule.hasSpiculation && ['3', '4A', '4B'].includes(category)) {
+    category = '4X';
+  }
+
   category = applySteppedManagement(category, priorCategory, priorStatus);
 
   if (nodule.solidComponentMm !== undefined && nodule.solidComponentMm > nodule.diameterMm) {
@@ -153,6 +254,9 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     isGrowing ? 'Growth >1.5mm/12m detected' : 'No significant growth detected',
     isNew ? 'New nodule' : 'Existing nodule',
   ];
+  if (nodule.hasSpiculation && category === '4X') {
+    rationaleParts.push('Spiculated margins (4X)');
+  }
 
   return buildResult(category, rationaleParts.join(' | '), warnings);
 }

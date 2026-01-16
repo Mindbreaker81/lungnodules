@@ -130,6 +130,12 @@ export const LUNGRADS_CATEGORIES = {
     malignancyProbability: 'Variable, higher concern',
     color: 'red',
   },
+  'S': {
+    name: 'Significant Findings',
+    description: 'Clinically significant or potentially significant findings unrelated to lung cancer',
+    malignancyProbability: 'Variable',
+    color: 'gray',
+  },
 } as const;
 
 export const LUNGRADS_MANAGEMENT = {
@@ -140,6 +146,7 @@ export const LUNGRADS_MANAGEMENT = {
   '4A': { timing: '3 months', recommendation: 'LDCT; PET/CT if solid ≥8mm', modality: 'LDCT or PET/CT' },
   '4B': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy', modality: 'CT/PET/Biopsy' },
   '4X': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy; consider multidisciplinary review', modality: 'CT/PET/Biopsy/MDT' },
+  'S': { timing: 'As indicated', recommendation: 'Manage significant findings per clinical judgment', modality: 'As indicated' },
 } as const;
 
 // =============================================================================

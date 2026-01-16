@@ -82,4 +82,64 @@ describe('Lung-RADS v2022', () => {
     const res = run({ type: 'ground-glass', diameterMm: 35 });
     expect(res.category).toBe('3');
   });
+
+  test('TC-LR-009 Benign/no nodules -> Category 1', () => {
+    const res = run({ isBenign: true });
+    expect(res.category).toBe('1');
+  });
+
+  test('TC-LR-010 Significant findings -> Category S', () => {
+    const res = run({ hasSignificantFinding: true });
+    expect(res.category).toBe('S');
+  });
+
+  test('TC-LR-011 Inflammatory category 0 -> Category 0', () => {
+    const res = run({ isInflammatory: true, inflammatoryCategory: 'category0' });
+    expect(res.category).toBe('0');
+  });
+
+  test('TC-LR-012 Inflammatory category 2 -> Category 2', () => {
+    const res = run({ isInflammatory: true, inflammatoryCategory: 'category2' });
+    expect(res.category).toBe('2');
+  });
+
+  test('TC-LR-013 Airway subsegmental -> Category 2', () => {
+    const res = run({ isAirway: true, airwayLocation: 'subsegmental' });
+    expect(res.category).toBe('2');
+  });
+
+  test('TC-LR-014 Airway segmental/proximal -> Category 4A', () => {
+    const res = run({ isAirway: true, airwayLocation: 'segmental-proximal' });
+    expect(res.category).toBe('4A');
+  });
+
+  test('TC-LR-015 Airway persistent -> Category 4B', () => {
+    const res = run({
+      isAirway: true,
+      airwayLocation: 'segmental-proximal',
+      airwayPersistent: true,
+    });
+    expect(res.category).toBe('4B');
+  });
+
+  test('TC-LR-016 Atypical cyst -> Category 3/4A/4B', () => {
+    expect(run({ isAtypicalCyst: true, atypicalCystCategory: 'category3' }).category).toBe('3');
+    expect(run({ isAtypicalCyst: true, atypicalCystCategory: 'category4A' }).category).toBe('4A');
+    expect(run({ isAtypicalCyst: true, atypicalCystCategory: 'category4B' }).category).toBe('4B');
+  });
+
+  test('TC-LR-017 Juxta/perifissural benign morphology -> Category 2', () => {
+    const res = run({
+      type: 'solid',
+      diameterMm: 8,
+      isJuxtapleural: true,
+      hasSpiculation: false,
+    });
+    expect(res.category).toBe('2');
+  });
+
+  test('TC-LR-018 Spiculation upgrades to 4X', () => {
+    const res = run({ type: 'solid', diameterMm: 7, hasSpiculation: true });
+    expect(res.category).toBe('4X');
+  });
 });

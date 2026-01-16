@@ -10,6 +10,8 @@ import {
 
 const GUIDELINE: GuidelineId = 'fleischner-2017';
 
+const roundToNearestMm = (value: number) => Math.round(value);
+
 export function checkFleischnerApplicability(patient: PatientProfile): ApplicabilityResult {
   if (patient.age < 35) {
     return { applicable: false, reason: 'Fleischner guidelines apply to patients ≥35 years' };
@@ -21,6 +23,68 @@ export function checkFleischnerApplicability(patient: PatientProfile): Applicabi
     return { applicable: false, reason: 'Immunocompromised — guideline not applicable' };
   }
   return { applicable: true };
+}
+
+function assessSubsolidMultiple(options: {
+  type: 'ground-glass' | 'part-solid';
+  diameter: number;
+  solidComponent?: number;
+  riskLevel: RiskLevel;
+}): AssessmentResult {
+  const { type, diameter, solidComponent, riskLevel } = options;
+  const highRiskFollowup = 'CT at 3-6 months; if stable consider CT at 2 and 4 years';
+  const lowRiskFollowup = 'CT at 3-6 months to confirm persistence; no routine follow-up if stable';
+
+  if (diameter < 6) {
+    return {
+      guideline: GUIDELINE,
+      category: `${type === 'ground-glass' ? 'Ground-glass' : 'Part-solid'} <6mm (multiple)`,
+      recommendation: riskLevel === 'high' ? highRiskFollowup : lowRiskFollowup,
+      followUpInterval: riskLevel === 'high' ? '3-6 months (consider 2 & 4 years)' : '3-6 months',
+      rationale: 'Multiple subsolid nodules <6mm warrant short-term confirmation; consider infectious causes',
+    };
+  }
+
+  if (type === 'ground-glass') {
+    return {
+      guideline: GUIDELINE,
+      category: 'Ground-glass ≥6mm (multiple)',
+      recommendation: 'CT at 3-6 months; subsequent management based on most suspicious nodule',
+      followUpInterval: '3-6 months',
+      rationale: 'Dominant nodule guides management; persistent multiple GGNs may represent multifocal disease',
+    };
+  }
+
+  if (solidComponent === undefined) {
+    return {
+      guideline: GUIDELINE,
+      category: 'Part-solid ≥6mm (multiple, solid unknown)',
+      recommendation: 'Measure solid component; CT at 3-6 months; manage based on dominant nodule',
+      followUpInterval: '3-6 months',
+      rationale: 'Solid component size drives risk stratification for part-solid nodules',
+      warnings: ['Solid component size required for part-solid assessment'],
+    };
+  }
+
+  if (solidComponent < 6) {
+    return {
+      guideline: GUIDELINE,
+      category: 'Part-solid ≥6mm, solid <6mm (multiple)',
+      recommendation: 'CT at 3-6 months; if persistent, annual CT for 5 years (dominant nodule)',
+      followUpInterval: '3-6 months; then annual x5y',
+      rationale: 'Persistent part-solid nodules with small solid components need long-term surveillance',
+    };
+  }
+
+  return {
+    guideline: GUIDELINE,
+    category: 'Part-solid ≥6mm, solid ≥6mm (multiple)',
+    recommendation: 'CT at 3-6 months; consider PET/CT, biopsy, or surgical excision if persistent',
+    followUpInterval: '3-6 months (then diagnostic workup)',
+    malignancyRisk: 'High suspicion',
+    rationale: 'Solid component ≥6mm is highly suspicious even in multiple nodules',
+    warnings: ['HIGHLY SUSPICIOUS — consider tissue diagnosis'],
+  };
 }
 
 function assessSolidSingle(diameter: number, riskLevel: RiskLevel): AssessmentResult {
@@ -182,18 +246,34 @@ export function assessFleischner({ patient, nodule }: FleischnerAssessmentInput)
   }
 
   const riskLevel: RiskLevel = patient.riskLevel ?? 'low';
-  const { type, diameterMm, solidComponentMm, isMultiple } = nodule;
+  const { type, diameterMm, solidComponentMm, isMultiple, isPerifissural } = nodule;
+  const roundedDiameter = roundToNearestMm(diameterMm);
+  const roundedSolidComponent = solidComponentMm === undefined ? undefined : roundToNearestMm(solidComponentMm);
+
+  if (type === 'solid' && isPerifissural) {
+    return {
+      guideline: GUIDELINE,
+      category: 'Perifissural nodule (benign morphology)',
+      recommendation: 'No routine follow-up',
+      followUpInterval: 'None',
+      rationale: 'Perifissural nodules with typical benign morphology rarely malignant',
+    };
+  }
 
   if (type === 'solid') {
-    return isMultiple ? assessSolidMultiple(diameterMm, riskLevel) : assessSolidSingle(diameterMm, riskLevel);
+    return isMultiple ? assessSolidMultiple(roundedDiameter, riskLevel) : assessSolidSingle(roundedDiameter, riskLevel);
   }
 
   if (type === 'ground-glass') {
-    return assessGroundGlass(diameterMm);
+    return isMultiple
+      ? assessSubsolidMultiple({ type, diameter: roundedDiameter, riskLevel })
+      : assessGroundGlass(roundedDiameter);
   }
 
   if (type === 'part-solid') {
-    return assessPartSolid(diameterMm, solidComponentMm);
+    return isMultiple
+      ? assessSubsolidMultiple({ type, diameter: roundedDiameter, solidComponent: roundedSolidComponent, riskLevel })
+      : assessPartSolid(roundedDiameter, roundedSolidComponent);
   }
 
   return {

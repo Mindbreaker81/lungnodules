@@ -21,6 +21,13 @@ export interface NoduleCharacteristics {
   isJuxtapleural?: boolean;
   isAirway?: boolean;
   isAtypicalCyst?: boolean;
+  isBenign?: boolean;
+  hasSignificantFinding?: boolean;
+  isInflammatory?: boolean;
+  inflammatoryCategory?: 'category0' | 'category2';
+  airwayLocation?: 'subsegmental' | 'segmental-proximal';
+  airwayPersistent?: boolean;
+  atypicalCystCategory?: 'category3' | 'category4A' | 'category4B';
   isNew?: boolean;
 }
 
