@@ -5,6 +5,7 @@ import { AssessmentResult } from '@lib/algorithms/types';
 import { AssessmentInput } from '@lib/schemas/noduleInput';
 import { analytics } from '@lib/analytics';
 import { DISCLAIMERS, APP_VERSION, GUIDELINE_VERSIONS } from '@config/guidelines';
+import GuidelineVersion from '@components/GuidelineVersion';
 import { Button } from '@components/ui/button';
 
 interface ExportResultsProps {
@@ -14,10 +15,28 @@ interface ExportResultsProps {
 
 type ExportFormat = 'txt' | 'json' | 'clipboard';
 
+const NODULE_TYPE_LABELS: Record<string, string> = {
+  solid: 'Sólido',
+  'ground-glass': 'Vidrio esmerilado (GGN / no sólido)',
+  'part-solid': 'Parte-sólido (sub-sólido)',
+};
+
+const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
+
 function formatAsText(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo = result.guideline === 'fleischner-2017' 
     ? GUIDELINE_VERSIONS.fleischner 
     : GUIDELINE_VERSIONS.lungRads;
+  const measurementContext = input?.clinicalContext;
+  const formatMeasurement = (value: number) => {
+    if (measurementContext === 'incidental') {
+      return Math.round(value).toString();
+    }
+    if (measurementContext === 'screening') {
+      return value.toFixed(1);
+    }
+    return value.toString();
+  };
 
   const lines = [
     '═'.repeat(60),
@@ -57,9 +76,11 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
       `Patient Age: ${input.patient.age} years`,
       input.patient.riskLevel ? `Risk Level: ${input.patient.riskLevel}` : null,
       '',
-      `Nodule Type: ${input.nodule.type}`,
-      `Diameter: ${input.nodule.diameterMm} mm`,
-      input.nodule.solidComponentMm !== undefined ? `Solid Component: ${input.nodule.solidComponentMm} mm` : null,
+      `Nodule Type: ${formatNoduleType(input.nodule.type)}`,
+      `Diameter: ${formatMeasurement(input.nodule.diameterMm)} mm`,
+      input.nodule.solidComponentMm !== undefined
+        ? `Solid Component: ${formatMeasurement(input.nodule.solidComponentMm)} mm`
+        : null,
       `Multiple Nodules: ${input.nodule.isMultiple ? 'Yes' : 'No'}`,
     );
   }
@@ -167,25 +188,28 @@ export default function ExportResults({ result, input }: ExportResultsProps) {
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 z-10 w-48 rounded-md border border-slate-200 bg-white shadow-lg">
+        <div className="absolute right-0 top-full z-10 mt-2 w-64 rounded-md border border-slate-700 bg-surface shadow-lg">
+          <div className="border-b border-slate-700 px-3 py-2">
+            <GuidelineVersion guideline={result.guideline} compact />
+          </div>
           <div className="p-1">
             <button
               onClick={() => handleExport('clipboard')}
-              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-100 hover:bg-slate-800"
             >
               <span>📋</span>
               Copiar al portapapeles
             </button>
             <button
               onClick={() => handleExport('txt')}
-              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-100 hover:bg-slate-800"
             >
               <span>📄</span>
               Descargar como .txt
             </button>
             <button
               onClick={() => handleExport('json')}
-              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-100 hover:bg-slate-800"
             >
               <span>📊</span>
               Descargar como .json

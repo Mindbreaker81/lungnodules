@@ -6,17 +6,24 @@ interface GuidelineVersionProps {
   guideline: 'fleischner-2017' | 'lung-rads-2022';
   showCitation?: boolean;
   compact?: boolean;
+  showLabel?: boolean;
 }
 
-export default function GuidelineVersion({ guideline, showCitation = false, compact = false }: GuidelineVersionProps) {
+export default function GuidelineVersion({
+  guideline,
+  showCitation = false,
+  compact = false,
+  showLabel = true,
+}: GuidelineVersionProps) {
   const info = guideline === 'fleischner-2017' 
     ? GUIDELINE_VERSIONS.fleischner 
     : GUIDELINE_VERSIONS.lungRads;
 
   if (compact) {
+    const label = showLabel ? `${info.label} (v${info.version})` : `v${info.version}`;
     return (
       <span className="text-xs text-slate-500">
-        {info.label} (v{info.version})
+        {label}
       </span>
     );
   }

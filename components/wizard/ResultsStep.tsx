@@ -5,6 +5,7 @@ import { AssessmentResult, calculateLungRadsGrowth } from "@lib/algorithms";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
 import { analytics } from "@lib/analytics";
 import { DISCLAIMERS, APP_VERSION, GUIDELINE_VERSIONS } from "@config/guidelines";
+import GuidelineVersion from "@components/GuidelineVersion";
 import { Button } from "@components/ui/button";
 
 interface Props {
@@ -12,7 +13,19 @@ interface Props {
   input?: AssessmentInput | null;
 }
 
+const NODULE_TYPE_LABELS: Record<string, string> = {
+  solid: "Sólido",
+  "ground-glass": "Vidrio esmerilado (GGN / no sólido)",
+  "part-solid": "Parte-sólido (sub-sólido)",
+};
+
+const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
+
 function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
+  const guidelineInfo =
+    result.guideline === "fleischner-2017"
+      ? GUIDELINE_VERSIONS.fleischner
+      : GUIDELINE_VERSIONS.lungRads;
   const measurementContext = input?.clinicalContext;
   const formatMeasurement = (value: number) => {
     if (measurementContext === "incidental") {
@@ -28,9 +41,7 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
     `Generated: ${new Date().toISOString()}`,
     `Tool Version: ${APP_VERSION}`,
     ``,
-    `GUIDELINE: ${result.guideline === 'fleischner-2017'
-      ? GUIDELINE_VERSIONS.fleischner.label
-      : GUIDELINE_VERSIONS.lungRads.label}`,
+    `GUIDELINE: ${guidelineInfo.label} (v${guidelineInfo.version})`,
     `CATEGORY: ${result.category}`,
     ``,
     `RECOMMENDATION: ${result.recommendation}`,
@@ -51,7 +62,7 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
       ``,
       `INPUT DATA:`,
       `  Context: ${input.clinicalContext}`,
-      `  Nodule Type: ${input.nodule.type}`,
+      `  Nodule Type: ${formatNoduleType(input.nodule.type)}`,
       `  Diameter: ${formatMeasurement(input.nodule.diameterMm)}mm`,
       input.nodule.solidComponentMm !== undefined
         ? `  Solid Component: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
@@ -90,6 +101,10 @@ export default function ResultsStep({ result, input }: Props) {
     }
   };
 
+  const guidelineInfo =
+    result.guideline === "fleischner-2017"
+      ? GUIDELINE_VERSIONS.fleischner
+      : GUIDELINE_VERSIONS.lungRads;
   const screeningInput = input && input.clinicalContext === "screening" ? input : undefined;
   const isFollowUp = screeningInput?.nodule.scanType === "follow-up";
   const isGrowing =
@@ -116,7 +131,8 @@ export default function ResultsStep({ result, input }: Props) {
       <header className="flex items-center justify-between">
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-400">Guía</p>
-          <h2 className="text-lg font-semibold text-white">{result.guideline}</h2>
+          <h2 className="text-lg font-semibold text-white">{guidelineInfo.label}</h2>
+          <GuidelineVersion guideline={result.guideline} compact showLabel={false} />
         </div>
         <div className="rounded-md bg-primary/20 border border-primary/50 px-3 py-1 text-sm font-semibold text-primary" aria-label="Categoría asignada">
           {result.category}

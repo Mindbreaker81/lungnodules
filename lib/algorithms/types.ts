@@ -2,6 +2,10 @@ export type ClinicalContext = 'incidental' | 'screening';
 export type NoduleType = 'solid' | 'ground-glass' | 'part-solid';
 export type RiskLevel = 'low' | 'high';
 export type ScanType = 'baseline' | 'follow-up';
+export type Sex = 'female' | 'male';
+export type SmokingStatus = 'never' | 'former' | 'current';
+export type ExtrathoracicCancerHistory = 'none' | 'over5y' | 'recent';
+export type PetUptake = 'absent' | 'faint' | 'moderate' | 'intense';
 
 export interface PatientProfile {
   age: number;
@@ -9,6 +13,11 @@ export interface PatientProfile {
   clinicalContext: ClinicalContext;
   hasKnownMalignancy?: boolean;
   isImmunocompromised?: boolean;
+  sex?: Sex;
+  smokingStatus?: SmokingStatus;
+  extrathoracicCancerHistory?: ExtrathoracicCancerHistory;
+  hasFamilyHistoryLungCancer?: boolean;
+  hasEmphysema?: boolean;
 }
 
 export interface NoduleCharacteristics {
@@ -18,6 +27,10 @@ export interface NoduleCharacteristics {
   isMultiple: boolean;
   isPerifissural?: boolean;
   hasSpiculation?: boolean;
+  isUpperLobe?: boolean;
+  noduleCount?: number;
+  hasPet?: boolean;
+  petUptake?: PetUptake;
   isJuxtapleural?: boolean;
   isAirway?: boolean;
   isAtypicalCyst?: boolean;

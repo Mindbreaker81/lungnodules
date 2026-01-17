@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 import WizardContainer from "@components/wizard/WizardContainer";
@@ -155,14 +155,24 @@ describe("WizardContainer", () => {
     await act(async () => {
       await user.selectOptions(priorCategorySelect, "3");
     });
+    expect(priorCategorySelect).toHaveValue("3");
+
+    const nextButtons = screen.getAllByRole("button", { name: /siguiente|finalizar/i });
+    nextButtons.forEach((button) => expect(button).toBeDisabled());
+
+    const priorStatusSelect = screen.getByLabelText(/Estado Lung-RADS previo/i);
+    await act(async () => {
+      await user.selectOptions(priorStatusSelect, "stable");
+    });
+
+    await waitFor(() => {
+      nextButtons.forEach((button) => expect(button).toBeEnabled());
+    });
 
     await act(async () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
 
-    expect(
-      screen.getByText(/Selecciona el estado previo si indicas una categoría previa/i),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole("combobox", { name: /Tipo de nódulo/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Tipo de nódulo/i })).toBeInTheDocument();
   });
 });

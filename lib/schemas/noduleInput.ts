@@ -5,6 +5,10 @@ const clinicalContextValues = ['incidental', 'screening'] as const;
 const noduleTypeValues = ['solid', 'ground-glass', 'part-solid'] as const;
 const riskLevelValues = ['low', 'high'] as const;
 const scanTypeValues = ['baseline', 'follow-up'] as const;
+const sexValues = ['female', 'male'] as const;
+const smokingStatusValues = ['never', 'former', 'current'] as const;
+const extrathoracicCancerHistoryValues = ['none', 'over5y', 'recent'] as const;
+const petUptakeValues = ['absent', 'faint', 'moderate', 'intense'] as const;
 const airwayLocationValues = ['subsegmental', 'segmental-proximal'] as const;
 const inflammatoryCategoryValues = ['category0', 'category2'] as const;
 const atypicalCystCategoryValues = ['category3', 'category4A', 'category4B'] as const;
@@ -28,6 +32,11 @@ export const patientSchema = z.object({
   riskLevel: z.enum(riskLevelValues).optional(), // Fleischner only
   hasKnownMalignancy: z.boolean().optional(),
   isImmunocompromised: z.boolean().optional(),
+  sex: z.enum(sexValues).optional(),
+  smokingStatus: z.enum(smokingStatusValues).optional(),
+  extrathoracicCancerHistory: z.enum(extrathoracicCancerHistoryValues).optional(),
+  hasFamilyHistoryLungCancer: z.boolean().optional(),
+  hasEmphysema: z.boolean().optional(),
 });
 
 export const noduleBaseSchema = z.object({
@@ -37,6 +46,14 @@ export const noduleBaseSchema = z.object({
   isMultiple: z.boolean(),
   isPerifissural: z.boolean().optional(),
   hasSpiculation: z.boolean().optional(),
+  isUpperLobe: z.boolean().optional(),
+  noduleCount: z
+    .number({ invalid_type_error: 'Ingresa el número de nódulos' })
+    .min(1, 'Ingresa el número de nódulos')
+    .max(50, 'Ingresa el número de nódulos (≤50)')
+    .optional(),
+  hasPet: z.boolean().optional(),
+  petUptake: z.enum(petUptakeValues).optional(),
   isJuxtapleural: z.boolean().optional(),
   isAirway: z.boolean().optional(),
   isAtypicalCyst: z.boolean().optional(),
@@ -194,6 +211,27 @@ export const assessmentInputSchema = z
         code: z.ZodIssueCode.custom,
         message: 'Selecciona la categoría del quiste pulmonar atípico',
         path: ['nodule', 'atypicalCystCategory'],
+      });
+    }
+    if (data.nodule.hasPet && !data.nodule.petUptake) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Selecciona la captación FDG si hay PET-CT disponible',
+        path: ['nodule', 'petUptake'],
+      });
+    }
+    if (data.nodule.petUptake && !data.nodule.hasPet) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Marca PET-CT disponible para indicar la captación',
+        path: ['nodule', 'hasPet'],
+      });
+    }
+    if (data.nodule.isMultiple && !data.nodule.noduleCount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Indica el número de nódulos si son múltiples',
+        path: ['nodule', 'noduleCount'],
       });
     }
     if (data.priorCategory && !data.priorStatus) {

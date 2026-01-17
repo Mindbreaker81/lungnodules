@@ -66,16 +66,16 @@ Derived from PRD v1.0 (Jan 2026).
 - [x] Implementar manejo Fleischner para sub-sólidos múltiples (GGN/part-solid) y exención perifissural cuando aplique.
 - [x] Exponer stepped management en UI (priorCategory/priorStatus) y validaciones asociadas.
 - [x] Ajustar medición Fleischner a redondeo en mm.
-- [ ] Mensajes de crecimiento ≥2 mm (Fleischner) y mantener decimales en Lung-RADS.
-- [ ] Unificar terminología clínica en UI (GGN/no sólido, parte-sólido, sub-sólido) con tooltips claros.
-- [ ] Mostrar componente GuidelineVersion en resultados y exportes (no se renderiza actualmente).
-- [ ] Evaluar módulo de modelos predictivos (Mayo/Brock/Herder) como feature de roadmap.
+- [x] Mensajes de crecimiento ≥2 mm (Fleischner) y mantener decimales en Lung-RADS.
+- [x] Unificar terminología clínica en UI (GGN/no sólido, parte-sólido, sub-sólido) con tooltips claros.
+- [x] Mostrar componente GuidelineVersion en resultados y exportes (no se renderiza actualmente).
+- [x] Evaluar módulo de modelos predictivos (Mayo/Brock/Herder) como feature de roadmap. (research/predictive-models-roadmap.md)
 - [x] Añadir tests para reglas especiales y exclusiones (airway/quistes/juxtapleural/perifissural/sub-sólidos múltiples/UI exclusions).
 
 ## 11. Plan de implementación (prioridad clínica)
 - [x] Fase 1 — Correcciones críticas: exclusiones Fleischner en UI, reglas Lung-RADS especiales, sub-sólidos múltiples Fleischner, perifissural benigno, tests nuevos.
-- [ ] Fase 2 — Exactitud operativa: redondeo Fleischner y growth ≥2 mm, stepped management en UI.
-- [ ] Fase 3 — UI/UX: terminología clínica unificada y tooltips.
+- [x] Fase 2 — Exactitud operativa: redondeo Fleischner y growth ≥2 mm, stepped management en UI.
+- [x] Fase 3 — UI/UX: terminología clínica unificada y tooltips.
 - [ ] Fase 4 — Roadmap: modelos predictivos (Mayo/Brock/Herder).
 
 ## 12. Lanzamiento
