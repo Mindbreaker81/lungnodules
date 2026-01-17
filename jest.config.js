@@ -10,11 +10,7 @@ module.exports = {
     '^@components/(.*)$': '<rootDir>/components/$1',
     '^@app/(.*)$': '<rootDir>/app/$1',
   },
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        jsx: 'react-jsx',
-      },
-    },
+  transform: {
+    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
   },
 };

@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import { AssessmentResult } from '@lib/algorithms/types';
 import { AssessmentInput } from '@lib/schemas/noduleInput';
+import {
+  getPredictiveSummaries,
+  getRecommendedPredictiveModel,
+  PredictiveModelId,
+  PredictiveModelSummary,
+} from '@lib/predictive';
 import { analytics } from '@lib/analytics';
 import { DISCLAIMERS, APP_VERSION, GUIDELINE_VERSIONS } from '@config/guidelines';
 import GuidelineVersion from '@components/GuidelineVersion';
@@ -21,7 +27,26 @@ const NODULE_TYPE_LABELS: Record<string, string> = {
   'part-solid': 'Parte-sólido (sub-sólido)',
 };
 
+const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {
+  mayo: 'Mayo Clinic',
+  brock: 'Brock (Pan-Can)',
+  herder: 'Herder (post-PET)',
+};
+
+const PREDICTIVE_STATUS_LABELS: Record<PredictiveModelSummary['status'], string> = {
+  available: 'Calculado',
+  insufficient_data: 'Datos incompletos',
+  not_applicable: 'No aplica',
+};
+
+const PREDICTIVE_RISK_LABELS: Record<NonNullable<PredictiveModelSummary['riskBand']>, string> = {
+  low: 'Bajo',
+  intermediate: 'Intermedio',
+  high: 'Alto',
+};
+
 const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
+const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 function formatAsText(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo = result.guideline === 'fleischner-2017' 
@@ -83,6 +108,34 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
         : null,
       `Multiple Nodules: ${input.nodule.isMultiple ? 'Yes' : 'No'}`,
     );
+
+    const predictiveSummaries = getPredictiveSummaries(input);
+    if (predictiveSummaries.length > 0) {
+      lines.push('', '─'.repeat(60), 'PREDICTIVE MODELS', '─'.repeat(60), '');
+      predictiveSummaries.forEach((summary) => {
+        lines.push(`${summary.label}: ${PREDICTIVE_STATUS_LABELS[summary.status]}`);
+        if (summary.probability !== undefined && summary.riskBand) {
+          lines.push(
+            `  Probability: ${formatProbability(summary.probability)} (${PREDICTIVE_RISK_LABELS[summary.riskBand]})`
+          );
+        }
+        if (summary.preTestProbability !== undefined && summary.preTestModelId) {
+          lines.push(
+            `  Pre-test (${PREDICTIVE_MODEL_LABELS[summary.preTestModelId]}): ${formatProbability(summary.preTestProbability)}`
+          );
+        }
+        if (summary.reason) {
+          lines.push(`  Note: ${summary.reason}`);
+        }
+        if (summary.missingFields && summary.missingFields.length > 0) {
+          lines.push(`  Missing: ${summary.missingFields.join(', ')}`);
+        }
+        if (summary.notes && summary.notes.length > 0) {
+          summary.notes.forEach((note) => lines.push(`  • ${note}`));
+        }
+        lines.push('');
+      });
+    }
   }
 
   lines.push(
@@ -105,6 +158,8 @@ function formatAsJSON(result: AssessmentResult, input: AssessmentInput | null): 
   const guidelineInfo = result.guideline === 'fleischner-2017' 
     ? GUIDELINE_VERSIONS.fleischner 
     : GUIDELINE_VERSIONS.lungRads;
+  const predictiveSummaries = input ? getPredictiveSummaries(input) : [];
+  const recommendedModel = input ? getRecommendedPredictiveModel(input) : null;
 
   return JSON.stringify({
     metadata: {
@@ -130,6 +185,10 @@ function formatAsJSON(result: AssessmentResult, input: AssessmentInput | null): 
       clinicalContext: input.clinicalContext,
       patient: input.patient,
       nodule: input.nodule,
+    } : null,
+    predictive: input ? {
+      recommendedModel,
+      summaries: predictiveSummaries,
     } : null,
     disclaimer: DISCLAIMERS.general,
   }, null, 2);

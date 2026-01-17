@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { AssessmentResult, calculateLungRadsGrowth } from "@lib/algorithms";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
+import {
+  getPredictiveSummaries,
+  getRecommendedPredictiveModel,
+  PredictiveModelId,
+  PredictiveModelSummary,
+} from "@lib/predictive";
 import { analytics } from "@lib/analytics";
 import { DISCLAIMERS, APP_VERSION, GUIDELINE_VERSIONS } from "@config/guidelines";
 import GuidelineVersion from "@components/GuidelineVersion";
@@ -19,7 +25,32 @@ const NODULE_TYPE_LABELS: Record<string, string> = {
   "part-solid": "Parte-sólido (sub-sólido)",
 };
 
+const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {
+  mayo: "Mayo Clinic",
+  brock: "Brock (Pan-Can)",
+  herder: "Herder (post-PET)",
+};
+
+const PREDICTIVE_STATUS_LABELS: Record<PredictiveModelSummary["status"], string> = {
+  available: "Calculado",
+  insufficient_data: "Datos incompletos",
+  not_applicable: "No aplica",
+};
+
+const PREDICTIVE_STATUS_STYLES: Record<PredictiveModelSummary["status"], string> = {
+  available: "border-emerald-900/50 bg-emerald-900/20 text-emerald-200",
+  insufficient_data: "border-amber-900/50 bg-amber-900/20 text-amber-200",
+  not_applicable: "border-slate-700 bg-slate-900/40 text-slate-400",
+};
+
+const PREDICTIVE_RISK_LABELS: Record<NonNullable<PredictiveModelSummary["riskBand"]>, string> = {
+  low: "Bajo",
+  intermediate: "Intermedio",
+  high: "Alto",
+};
+
 const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
+const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo =
@@ -82,6 +113,7 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
 
 export default function ResultsStep({ result, input }: Props) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [showPredictive, setShowPredictive] = useState(false);
 
   if (!result) {
     return <p className="text-slate-600" aria-live="polite">Completa los pasos para ver la recomendación.</p>;
@@ -121,6 +153,9 @@ export default function ResultsStep({ result, input }: Props) {
       ? "Fleischner: medición redondeada al mm; crecimiento significativo ≥2 mm."
       : null;
   const hasMultiple = input?.nodule.isMultiple;
+  const predictiveSummaries = input ? getPredictiveSummaries(input) : [];
+  const recommendedModel = input ? getRecommendedPredictiveModel(input) : null;
+  const recommendedSummary = predictiveSummaries.find((summary) => summary.id === recommendedModel);
 
   return (
     <section
@@ -176,6 +211,78 @@ export default function ResultsStep({ result, input }: Props) {
           </ul>
         </div>
       )}
+
+      <div className="rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
+        <button
+          type="button"
+          onClick={() => setShowPredictive((prev) => !prev)}
+          className="flex w-full items-center justify-between text-left text-sm font-medium text-slate-200"
+        >
+          <span>Modelos predictivos (beta)</span>
+          <span className="text-slate-400">{showPredictive ? "Ocultar" : "Ver"}</span>
+        </button>
+        {showPredictive && (
+          <div className="mt-3 space-y-3">
+            {recommendedSummary && (
+              <p className="text-sm text-slate-300">
+                Modelo recomendado por contexto: <span className="font-semibold text-white">{recommendedSummary.label}</span>
+                {recommendedSummary.probability !== undefined && recommendedSummary.riskBand && (
+                  <span className="ml-2 text-xs text-slate-400">
+                    ({formatProbability(recommendedSummary.probability)} · {PREDICTIVE_RISK_LABELS[recommendedSummary.riskBand]})
+                  </span>
+                )}
+              </p>
+            )}
+            <div className="space-y-3">
+              {predictiveSummaries.map((summary) => (
+                <div key={summary.id} className="rounded-md border border-slate-700/60 bg-slate-950/40 p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-white">{summary.label}</p>
+                    <span className={`rounded-full border px-2 py-0.5 text-xs ${PREDICTIVE_STATUS_STYLES[summary.status]}`}>
+                      {PREDICTIVE_STATUS_LABELS[summary.status]}
+                    </span>
+                  </div>
+                  {summary.probability !== undefined && summary.riskBand && (
+                    <p className="mt-2 text-sm text-slate-200">
+                      Probabilidad: <span className="font-semibold text-white">{formatProbability(summary.probability)}</span>
+                      <span className="ml-2 text-xs text-slate-400">{PREDICTIVE_RISK_LABELS[summary.riskBand]}</span>
+                    </p>
+                  )}
+                  {summary.preTestProbability !== undefined && summary.preTestModelId && (
+                    <p className="mt-2 text-xs text-slate-400">
+                      Pre-test ({PREDICTIVE_MODEL_LABELS[summary.preTestModelId]}): {formatProbability(summary.preTestProbability)}
+                    </p>
+                  )}
+                  {summary.reason && (
+                    <p className="mt-2 text-xs text-slate-400">{summary.reason}</p>
+                  )}
+                  {summary.missingFields && summary.missingFields.length > 0 && (
+                    <div className="mt-2 text-xs text-slate-400">
+                      <p className="font-medium text-slate-300">Campos requeridos:</p>
+                      <ul className="mt-1 list-disc space-y-1 pl-4">
+                        {summary.missingFields.map((field) => (
+                          <li key={field}>{field}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {summary.notes && summary.notes.length > 0 && (
+                    <ul className="mt-2 text-xs text-slate-400">
+                      {summary.notes.map((note) => (
+                        <li key={note}>• {note}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-slate-500">
+              Modelos calculados con coeficientes publicados (Mayo/Brock/Herder). Verifica la aplicabilidad clínica y
+              complementa con juicio médico.
+            </p>
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1 rounded-md border border-slate-700 bg-slate-800/50 p-3 text-xs text-slate-400">
