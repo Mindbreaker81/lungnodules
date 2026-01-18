@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-01-18
+### Fixed
+- **Wizard UI**: Fixed single/multiple nodule toggle not responding to clicks in Fleischner flow
+- **Form Validation**: Fixed boolean coercion for risk factors checkboxes (z.coerce.boolean)
+- **Navigation**: Added "Nueva evaluación" button alongside "Recalcular" in results view
+- **UX**: Improved error logging for form validation failures via onInvalid handler
+
 ## [0.2.0] - 2026-01-12
 ### Added
 - **Regression Tests**: 35 new tests for stepped management and growth calculation (`lungRads.regression.test.ts`)

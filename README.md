@@ -9,13 +9,15 @@ Aplicación clínica para recomendar seguimiento de nódulos pulmonares según F
 - Algoritmos iniciales en `lib/algorithms/`
 - Esquemas de validación en `lib/schemas/`
 
-## Siguientes pasos (alto nivel)
-1) Inicializar proyecto Next.js 14+ con TypeScript, Tailwind, shadcn/ui.
-2) Conectar wizard UI a algoritmos (Fleischner/Lung-RADS) usando React Hook Form + Zod.
-3) Agregar pruebas unitarias y E2E (Jest/Playwright).
-4) Configurar PWA y despliegue en Vercel.
+## Características
+- **Wizard interactivo** con validación paso a paso
+- **Guías clínicas**: Fleischner 2017 (incidental) y Lung-RADS v2022 (screening)
+- **Modelos predictivos**: Mayo Clinic, Brock (Pan-Can), Herder (post-PET)
+- **UI responsiva** con PWA (offline-first)
+- **Exportación** de resultados en texto/JSON
+- **Analytics** de uso y errores
 
-## Scripts esperados (cuando se inicialice el proyecto)
-- `dev`: arranca Next.js en modo desarrollo.
-- `test`: ejecuta pruebas unitarias.
-- `lint`: ejecuta ESLint/Prettier.
+## Scripts
+- `dev`: arranca Next.js en modo desarrollo
+- `test`: ejecuta pruebas unitarias
+- `lint`: ejecuta ESLint/Prettier

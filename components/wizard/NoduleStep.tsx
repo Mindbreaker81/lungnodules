@@ -97,11 +97,6 @@ export default function NoduleStep({ clinicalContext }: Props) {
             <span className="text-xs text-slate-400">Más de un nódulo</span>
           </button>
         </div>
-        <input
-          type="hidden"
-          value={isMultiple ? "true" : "false"}
-          {...register("nodule.isMultiple", { setValueAs: (value) => value === "true" })}
-        />
         {isMultiple && (
           <div>
             <label className="block text-sm font-medium text-slate-300">Número de nódulos</label>

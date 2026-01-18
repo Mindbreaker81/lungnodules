@@ -269,6 +269,14 @@ export default function WizardContainer() {
     setCurrentStep(steps[stepIndex - 1].id);
   };
 
+  const handleReset = () => {
+    methods.reset(defaultValues);
+    setResult(null);
+    setLastInput(null);
+    setCurrentStep("context");
+    analytics.stepChanged("context", 0);
+  };
+
   const content = useMemo(() => {
     switch (currentStep) {
       case "context":
@@ -325,9 +333,14 @@ export default function WizardContainer() {
               {isLastInputStep ? "Finalizar" : "Siguiente"}
             </Button>
           ) : (
-            <Button type="submit" disabled={isSubmitting}>
-              Recalcular
-            </Button>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={handleReset}>
+                Nueva evaluación
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                Recalcular
+              </Button>
+            </div>
           )}
         </div>
 
@@ -346,9 +359,14 @@ export default function WizardContainer() {
               {isLastInputStep ? "Finalizar" : "Siguiente"}
             </Button>
           ) : (
-            <Button type="submit" size="sm" disabled={isSubmitting}>
-              Recalcular
-            </Button>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={handleReset}>
+                Nueva evaluación
+              </Button>
+              <Button type="submit" size="sm" disabled={isSubmitting}>
+                Recalcular
+              </Button>
+            </div>
           )}
         </div>
       </form>
