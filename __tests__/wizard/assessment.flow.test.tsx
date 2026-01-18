@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 import WizardContainer from "@components/wizard/WizardContainer";
@@ -37,12 +37,38 @@ describe("WizardContainer", () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
 
-    // Paso 2: Riesgo/edad -> continuar
+    // Paso 2: Riesgo/edad -> seleccionar factor y continuar
+    const ageInput = await screen.findByLabelText(/Edad del paciente/i);
+    await act(async () => {
+      fireEvent.change(ageInput, { target: { value: "70" } });
+      fireEvent.blur(ageInput);
+    });
+
+    const ageRiskFactor = screen.getByLabelText(/Edad >65 años/i);
+    await act(async () => {
+      await user.click(ageRiskFactor);
+    });
+    expect(screen.getByText(/Riesgo calculado/i)).toBeInTheDocument();
+
     await act(async () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
 
-    // Paso 3: Nódulo -> continuar a resultados
+    // Paso 3: Nódulo
+    expect(await screen.findByRole("combobox", { name: /Tipo de nódulo/i })).toBeInTheDocument();
+
+    // Paso 3: Nódulo -> validar estado por defecto (único)
+    expect(screen.getByText(/Diámetro medio/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Número de nódulos/i)).not.toBeInTheDocument();
+
+    const diameterInput = screen.getByLabelText(/Diámetro en milímetros/i);
+    await act(async () => {
+      await user.clear(diameterInput);
+      await user.type(diameterInput, "5");
+    });
+    expect(diameterInput).toHaveValue(5);
+
+    // Continuar a resultados
     await act(async () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
@@ -120,7 +146,7 @@ describe("WizardContainer", () => {
 
     // Debe mostrar resultados mocked de Lung-RADS
     expect(await screen.findByText(/Continue annual LDCT/i)).toBeInTheDocument();
-    expect(screen.getByText(/lung-rads-2022/i)).toBeInTheDocument();
+    expect(screen.getByText(/Lung-RADS v2022/i)).toBeInTheDocument();
   });
 
   test("valida stepped management cuando falta estado previo", async () => {
@@ -157,22 +183,21 @@ describe("WizardContainer", () => {
     });
     expect(priorCategorySelect).toHaveValue("3");
 
-    const nextButtons = screen.getAllByRole("button", { name: /siguiente|finalizar/i });
-    nextButtons.forEach((button) => expect(button).toBeDisabled());
+    // Intentar avanzar sin estado previo: debe bloquear el cambio de paso
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+    expect(screen.queryByRole("combobox", { name: /Tipo de nódulo/i })).not.toBeInTheDocument();
 
     const priorStatusSelect = screen.getByLabelText(/Estado Lung-RADS previo/i);
     await act(async () => {
       await user.selectOptions(priorStatusSelect, "stable");
     });
 
-    await waitFor(() => {
-      nextButtons.forEach((button) => expect(button).toBeEnabled());
-    });
-
+    // Ahora sí debería permitir avanzar a Nódulo
     await act(async () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
-
-    expect(screen.getByRole("combobox", { name: /Tipo de nódulo/i })).toBeInTheDocument();
+    expect(await screen.findByRole("combobox", { name: /Tipo de nódulo/i })).toBeInTheDocument();
   });
 });

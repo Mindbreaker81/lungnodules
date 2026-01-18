@@ -32,6 +32,8 @@ export default function NoduleStep({ clinicalContext }: Props) {
     !Number.isNaN(solidComponent) &&
     !Number.isNaN(diameter) &&
     solidComponent > diameter;
+  const diameterLabel = isMultiple ? "Diámetro del nódulo dominante (mm)" : "Diámetro medio (mm)";
+  const diameterHint = isMultiple ? "Usa el nódulo dominante o más sospechoso." : undefined;
 
   useEffect(() => {
     if (!hasPet) {
@@ -47,36 +49,88 @@ export default function NoduleStep({ clinicalContext }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
-            <span>Tipo de nódulo</span>
-            <span className="text-xs text-slate-400" title={NODULE_TYPE_TOOLTIP} aria-label="Ayuda sobre tipos de nódulo">
-              (?)
-            </span>
-          </label>
-          <select
-            className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-slate-100"
-            aria-label="Tipo de nódulo"
-            {...register("nodule.type")}
+      <div>
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-300">
+          <span>Tipo de nódulo</span>
+          <span className="text-xs text-slate-400" title={NODULE_TYPE_TOOLTIP} aria-label="Ayuda sobre tipos de nódulo">
+            (?)
+          </span>
+        </label>
+        <select
+          className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-slate-100"
+          aria-label="Tipo de nódulo"
+          {...register("nodule.type")}
+        >
+          <option value="solid" className="bg-surface">Sólido</option>
+          <option value="ground-glass" className="bg-surface">Vidrio esmerilado (GGN / no sólido)</option>
+          <option value="part-solid" className="bg-surface">Parte-sólido (sub-sólido)</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-slate-300">Número de nódulos</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setValue("nodule.isMultiple", false, { shouldValidate: true })}
+            className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition ${
+              isMultiple
+                ? "border-slate-700/60 bg-slate-900/40 text-slate-300 hover:border-slate-500"
+                : "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
+            }`}
+            aria-pressed={!isMultiple}
           >
-            <option value="solid" className="bg-surface">Sólido</option>
-            <option value="ground-glass" className="bg-surface">Vidrio esmerilado (GGN / no sólido)</option>
-            <option value="part-solid" className="bg-surface">Parte-sólido (sub-sólido)</option>
-          </select>
+            <span>Único</span>
+            <span className="text-xs text-slate-400">Un solo nódulo</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setValue("nodule.isMultiple", true, { shouldValidate: true })}
+            className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition ${
+              isMultiple
+                ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
+                : "border-slate-700/60 bg-slate-900/40 text-slate-300 hover:border-slate-500"
+            }`}
+            aria-pressed={isMultiple}
+          >
+            <span>Múltiples</span>
+            <span className="text-xs text-slate-400">Más de un nódulo</span>
+          </button>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-300">Diámetro medio (mm)</label>
-          <Input
-            type="number"
-            min={1}
-            max={100}
-            step="0.1"
-            aria-label="Diámetro medio en milímetros"
-            className="mt-1"
-            {...register("nodule.diameterMm", { valueAsNumber: true })}
-          />
-        </div>
+        <input
+          type="hidden"
+          value={isMultiple ? "true" : "false"}
+          {...register("nodule.isMultiple", { setValueAs: (value) => value === "true" })}
+        />
+        {isMultiple && (
+          <div>
+            <label className="block text-sm font-medium text-slate-300">Número de nódulos</label>
+            <Input
+              type="number"
+              min={1}
+              max={50}
+              aria-label="Número de nódulos"
+              className="mt-1"
+              {...register("nodule.noduleCount", {
+                setValueAs: (value) => (value === "" ? undefined : Number(value)),
+              })}
+            />
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-300">{diameterLabel}</label>
+        <Input
+          type="number"
+          min={1}
+          max={100}
+          step="0.1"
+          aria-label="Diámetro en milímetros"
+          className="mt-1"
+          {...register("nodule.diameterMm", { valueAsNumber: true })}
+        />
+        {diameterHint && <p className="mt-1 text-xs text-slate-400">{diameterHint}</p>}
       </div>
 
       {type === "part-solid" && (
@@ -99,56 +153,42 @@ export default function NoduleStep({ clinicalContext }: Props) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="flex items-center gap-2 text-white">
-          <input type="checkbox" aria-label="Múltiples nódulos" {...register("nodule.isMultiple")} className="text-primary rounded focus:ring-primary" /> Múltiples
-          nódulos (ingresa el dominante)
-        </label>
-        <label className="flex items-center gap-2 text-white">
-          <input type="checkbox" aria-label="Espiculación" {...register("nodule.hasSpiculation")} className="text-primary rounded focus:ring-primary" /> Espiculación
-        </label>
-        <label className="flex items-center gap-2 text-white">
-          <input type="checkbox" aria-label="Lóbulo superior" {...register("nodule.isUpperLobe")} className="text-primary rounded focus:ring-primary" /> Lóbulo superior
-        </label>
-        <label className="flex items-center gap-2 text-white">
-          <input type="checkbox" aria-label="Perifisural" {...register("nodule.isPerifissural")} className="text-primary rounded focus:ring-primary" /> Perifisural
-          {isScreening && <span className="text-xs text-slate-400">benigno (≤10mm)</span>}
-        </label>
-        <label className="flex items-center gap-2 text-white">
-          <input type="checkbox" aria-label="Juxta-pleural" {...register("nodule.isJuxtapleural")} className="text-primary rounded focus:ring-primary" /> Yuxtapleural
-          {isScreening && <span className="text-xs text-slate-400">benigno (≤10mm)</span>}
-        </label>
-        {isScreening && (
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-slate-300">Características morfológicas</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label className="flex items-center gap-2 text-white">
-            <input type="checkbox" aria-label="Nódulo nuevo en follow-up" {...register("nodule.isNew")} className="text-primary rounded focus:ring-primary" /> Nódulo nuevo en follow-up
+            <input type="checkbox" aria-label="Espiculación" {...register("nodule.hasSpiculation")} className="text-primary rounded focus:ring-primary" /> Espiculación
           </label>
-        )}
+          <label className="flex items-center gap-2 text-white">
+            <input type="checkbox" aria-label="Lóbulo superior" {...register("nodule.isUpperLobe")} className="text-primary rounded focus:ring-primary" /> Lóbulo superior
+          </label>
+          <label className="flex items-center gap-2 text-white">
+            <input type="checkbox" aria-label="Perifisural" {...register("nodule.isPerifissural")} className="text-primary rounded focus:ring-primary" /> Perifisural
+            {isScreening && <span className="text-xs text-slate-400">benigno (≤10mm)</span>}
+          </label>
+          <label className="flex items-center gap-2 text-white">
+            <input type="checkbox" aria-label="Juxta-pleural" {...register("nodule.isJuxtapleural")} className="text-primary rounded focus:ring-primary" /> Yuxtapleural
+            {isScreening && <span className="text-xs text-slate-400">benigno (≤10mm)</span>}
+          </label>
+          {isScreening && (
+            <label className="flex items-center gap-2 text-white">
+              <input type="checkbox" aria-label="Nódulo nuevo en follow-up" {...register("nodule.isNew")} className="text-primary rounded focus:ring-primary" /> Nódulo nuevo en follow-up
+            </label>
+          )}
+        </div>
       </div>
 
       <div className="space-y-3 rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
         <p className="text-sm font-medium text-slate-300">Factores para modelos predictivos (opcional)</p>
-        {isMultiple && (
-          <div>
-            <label className="block text-sm font-medium text-slate-300">Número de nódulos</label>
-            <Input
-              type="number"
-              min={1}
-              max={50}
-              aria-label="Número de nódulos"
-              className="mt-1"
-              {...register("nodule.noduleCount", {
-                setValueAs: (value) => (value === "" ? undefined : Number(value)),
-              })}
-            />
-          </div>
-        )}
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label className="flex items-center gap-2 text-white">
             <input type="checkbox" aria-label="PET-CT disponible" {...register("nodule.hasPet")} className="text-primary rounded focus:ring-primary" /> PET-CT disponible
           </label>
           {hasPet && (
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-slate-300">Captación FDG</label>
+              <label className="block text-sm font-medium text-slate-300">
+                Captación FDG <span className="text-xs text-slate-400">(SUVmax aprox.)</span>
+              </label>
               <select
                 className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
                 aria-label="Captación FDG en PET"
@@ -156,10 +196,10 @@ export default function NoduleStep({ clinicalContext }: Props) {
                 {...register("nodule.petUptake", { setValueAs: (value) => value || undefined })}
               >
                 <option value="" className="bg-surface">Selecciona una opción</option>
-                <option value="absent" className="bg-surface">Ausente</option>
-                <option value="faint" className="bg-surface">Leve</option>
-                <option value="moderate" className="bg-surface">Moderada</option>
-                <option value="intense" className="bg-surface">Intensa</option>
+                <option value="absent" className="bg-surface">Ausente (SUVmax &lt;1)</option>
+                <option value="faint" className="bg-surface">Leve (SUVmax 1-2.5)</option>
+                <option value="moderate" className="bg-surface">Moderada (SUVmax 2.5-4)</option>
+                <option value="intense" className="bg-surface">Intensa (SUVmax &gt;4)</option>
               </select>
             </div>
           )}
@@ -243,9 +283,6 @@ export default function NoduleStep({ clinicalContext }: Props) {
         </div>
       )}
 
-      {isMultiple && (
-        <p className="text-sm text-slate-400">Para múltiples nódulos, ingresa el nódulo dominante o más sospechoso.</p>
-      )}
     </div>
   );
 }

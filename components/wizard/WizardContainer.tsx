@@ -27,6 +27,14 @@ const defaultValues = {
     clinicalContext: "incidental",
     age: 50,
     riskLevel: "low",
+    riskFactors: {
+      age65: false,
+      smoking30: false,
+      currentSmoker: false,
+      familyHistory: false,
+      emphysema: false,
+      carcinogenExposure: false,
+    },
     hasKnownMalignancy: false,
     isImmunocompromised: false,
     sex: undefined,
@@ -85,7 +93,7 @@ export default function WizardContainer() {
       hasTrackedStart.current = true;
     }
   }, [currentStep, context]);
-  const { isValid, isSubmitting, errors } = methods.formState;
+  const { isSubmitting, errors } = methods.formState;
 
   // Mantener sincronizado patient.clinicalContext con el contexto raíz.
   useEffect(() => {
@@ -94,8 +102,9 @@ export default function WizardContainer() {
       methods.setValue("patient.riskLevel", undefined);
       methods.setValue("nodule.scanType" as any, methods.getValues("nodule.scanType") ?? "baseline");
     } else {
-      const risk = (methods.getValues("patient.riskLevel") as RiskLevel | undefined) ?? "low";
-      methods.setValue("patient.riskLevel", risk);
+      const riskFactors = methods.getValues("patient.riskFactors");
+      const hasHighRisk = riskFactors ? Object.values(riskFactors).some(Boolean) : false;
+      methods.setValue("patient.riskLevel", hasHighRisk ? "high" : "low");
       methods.setValue("nodule.scanType" as any, undefined);
       methods.setValue("nodule.priorDiameterMm" as any, undefined);
       methods.setValue("nodule.priorScanMonthsAgo" as any, undefined);
@@ -108,28 +117,129 @@ export default function WizardContainer() {
   const nextStepId = steps[stepIndex + 1]?.id;
   const isLastInputStep = nextStepId === "results";
 
-  const submit = methods.handleSubmit((data) => {
-    setLastInput(data);
-    if (data.clinicalContext === "incidental") {
-      const assessment = assessFleischner({
+  const validateStep = (step: StepId) => {
+    methods.clearErrors();
+
+    if (step === "risk") {
+      if (context === "incidental") {
+        const age = methods.getValues("patient.age");
+        const riskLevel = methods.getValues("patient.riskLevel");
+        const hasKnownMalignancy = methods.getValues("patient.hasKnownMalignancy");
+        const isImmunocompromised = methods.getValues("patient.isImmunocompromised");
+
+        if (age === undefined || Number.isNaN(age)) {
+          methods.setError("patient.age", { type: "manual", message: "Age must be positive" });
+          return false;
+        }
+        if (age < 35) {
+          methods.setError("patient.age", { type: "manual", message: "Fleischner guidelines apply to patients ≥35 years" });
+          return false;
+        }
+        if (!riskLevel) {
+          methods.setError("patient.riskLevel" as any, { type: "manual", message: "Risk level is required for Fleischner" });
+          return false;
+        }
+        if (hasKnownMalignancy) {
+          methods.setError("patient.hasKnownMalignancy", {
+            type: "manual",
+            message: "Fleischner no aplica en pacientes con cáncer conocido",
+          });
+          return false;
+        }
+        if (isImmunocompromised) {
+          methods.setError("patient.isImmunocompromised", {
+            type: "manual",
+            message: "Fleischner no aplica en pacientes inmunocomprometidos",
+          });
+          return false;
+        }
+        return true;
+      }
+
+      const scanType = methods.getValues("nodule.scanType" as any);
+      if (!scanType) {
+        methods.setError("nodule.scanType" as any, { type: "manual", message: "Tipo de scan requerido" });
+        return false;
+      }
+      if (scanType === "follow-up") {
+        const priorDiameter = methods.getValues("nodule.priorDiameterMm" as any);
+        const priorMonths = methods.getValues("nodule.priorScanMonthsAgo" as any);
+        if (priorDiameter === undefined || priorMonths === undefined) {
+          methods.setError("nodule.priorDiameterMm" as any, {
+            type: "manual",
+            message: "Prior diameter and interval are required for follow-up scans",
+          });
+          return false;
+        }
+
+        const priorCategory = methods.getValues("priorCategory");
+        const priorStatus = methods.getValues("priorStatus");
+        if (priorCategory && !priorStatus) {
+          methods.setError("priorStatus" as any, { type: "manual", message: "Estado Lung-RADS previo requerido" });
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (step === "nodule") {
+      const diameter = methods.getValues("nodule.diameterMm");
+      if (diameter === undefined || Number.isNaN(diameter)) {
+        methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Enter diameter between 1-100 mm" });
+        return false;
+      }
+      if (diameter < 1 || diameter > 100) {
+        methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Enter diameter between 1-100 mm" });
+        return false;
+      }
+      const isMultiple = methods.getValues("nodule.isMultiple");
+      if (isMultiple) {
+        const count = methods.getValues("nodule.noduleCount");
+        if (count === undefined || Number.isNaN(count) || count < 1) {
+          methods.setError("nodule.noduleCount" as any, { type: "manual", message: "Ingresa el número de nódulos" });
+          return false;
+        }
+      }
+      return true;
+    }
+
+    return true;
+  };
+
+  const submit = methods.handleSubmit(
+    (data) => {
+      setLastInput(data);
+      if (data.clinicalContext === "incidental") {
+        const assessment = assessFleischner({
+          patient: data.patient,
+          nodule: data.nodule,
+        });
+        setResult(assessment);
+        setCurrentStep("results");
+        analytics.assessmentCompleted("fleischner-2017", assessment.category, data.nodule.type);
+        return;
+      }
+      const assessment = assessLungRads({
         patient: data.patient,
-        nodule: data.nodule,
+        nodule: data.nodule as any,
+        priorCategory: data.priorCategory,
+        priorStatus: data.priorStatus,
       });
       setResult(assessment);
       setCurrentStep("results");
-      analytics.assessmentCompleted("fleischner-2017", assessment.category, data.nodule.type);
-      return;
+      analytics.assessmentCompleted("lung-rads-2022", assessment.category, data.nodule.type);
+    },
+    (validationErrors) => {
+      // Log validation errors for debugging
+      console.error("Form validation failed:", JSON.stringify(validationErrors, null, 2));
+      const flatErrors = Object.entries(validationErrors)
+        .map(([key, value]) => `${key}: ${(value as any)?.message || JSON.stringify(value)}`)
+        .join("; ");
+      if (flatErrors) {
+        analytics.errorDisplayed("validation", flatErrors);
+      }
     }
-    const assessment = assessLungRads({
-      patient: data.patient,
-      nodule: data.nodule as any,
-      priorCategory: data.priorCategory,
-      priorStatus: data.priorStatus,
-    });
-    setResult(assessment);
-    setCurrentStep("results");
-    analytics.assessmentCompleted("lung-rads-2022", assessment.category, data.nodule.type);
-  });
+  );
 
   const handleNext = async () => {
     if (currentStep === "context") {
@@ -140,17 +250,8 @@ export default function WizardContainer() {
       return;
     }
 
-    const valid = await methods.trigger();
-    if (!valid) {
-      const errorMessages = Object.values(errors)
-        .map((e) => (e as any)?.message)
-        .filter(Boolean)
-        .join('; ');
-      if (errorMessages) {
-        analytics.errorDisplayed('validation', errorMessages);
-      }
-      return;
-    }
+    const valid = validateStep(currentStep);
+    if (!valid) return;
 
     if (isLastInputStep) {
       await submit();
@@ -219,7 +320,7 @@ export default function WizardContainer() {
             <Button
               type="button"
               onClick={handleNext}
-              disabled={currentStep !== "context" && (!isValid || isSubmitting)}
+              disabled={isSubmitting}
             >
               {isLastInputStep ? "Finalizar" : "Siguiente"}
             </Button>
@@ -240,7 +341,7 @@ export default function WizardContainer() {
               type="button"
               onClick={handleNext}
               size="sm"
-              disabled={currentStep !== "context" && (!isValid || isSubmitting)}
+              disabled={isSubmitting}
             >
               {isLastInputStep ? "Finalizar" : "Siguiente"}
             </Button>

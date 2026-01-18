@@ -15,6 +15,15 @@ const atypicalCystCategoryValues = ['category3', 'category4A', 'category4B'] as 
 const lungRadsCategoryValues = ['0', '1', '2', '3', '4A', '4B', '4X', 'S'] as const;
 const priorStatusValues = ['stable', 'progression'] as const;
 
+const riskFactorSchema = z.object({
+  age65: z.coerce.boolean().optional(),
+  smoking30: z.coerce.boolean().optional(),
+  currentSmoker: z.coerce.boolean().optional(),
+  familyHistory: z.coerce.boolean().optional(),
+  emphysema: z.coerce.boolean().optional(),
+  carcinogenExposure: z.coerce.boolean().optional(),
+});
+
 const diameterSchema = z
   .number({ invalid_type_error: 'Enter diameter between 1-100 mm' })
   .min(1, 'Enter diameter between 1-100 mm')
@@ -30,6 +39,7 @@ export const patientSchema = z.object({
   clinicalContext: z.enum(clinicalContextValues),
   age: z.number().min(0, 'Age must be positive'),
   riskLevel: z.enum(riskLevelValues).optional(), // Fleischner only
+  riskFactors: riskFactorSchema.optional(),
   hasKnownMalignancy: z.boolean().optional(),
   isImmunocompromised: z.boolean().optional(),
   sex: z.enum(sexValues).optional(),

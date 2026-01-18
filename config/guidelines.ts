@@ -56,30 +56,30 @@ export const THRESHOLDS = {
 // RISK FACTORS
 // =============================================================================
 
-export const RISK_FACTOR_TOOLTIP = `HIGH RISK Factors (any of):
-• Age >65 years
-• Heavy smoking history (≥30 pack-years)
-• Current smoker or quit <15 years ago
-• Family history of lung cancer
-• Emphysema or pulmonary fibrosis on imaging
-• Known carcinogen exposure (asbestos, radon, uranium)
+export const RISK_FACTOR_TOOLTIP = `FACTORES DE ALTO RIESGO (cualquiera):
+• Edad >65 años
+• Tabaquismo intenso (≥30 paquetes-año)
+• Fumador actual o dejó hace <15 años
+• Antecedentes familiares de cáncer de pulmón
+• Enfisema o fibrosis pulmonar en imagen
+• Exposición a carcinógenos conocidos (asbesto, radón, uranio)
 
-LOW RISK: Absence of above factors, younger age, minimal/no smoking`;
+RIESGO BAJO: ausencia de los factores anteriores, menor edad, tabaquismo mínimo o nulo`;
 
 export const RISK_FACTORS = {
   high: [
-    { id: 'age65', label: 'Age >65 years' },
-    { id: 'smoking30', label: 'Heavy smoking history (≥30 pack-years)' },
-    { id: 'currentSmoker', label: 'Current smoker or quit <15 years ago' },
-    { id: 'familyHistory', label: 'Family history of lung cancer' },
-    { id: 'emphysema', label: 'Emphysema or pulmonary fibrosis on imaging' },
-    { id: 'carcinogenExposure', label: 'Known carcinogen exposure (asbestos, radon, uranium)' },
+    { id: 'age65', label: 'Edad >65 años' },
+    { id: 'smoking30', label: 'Tabaquismo intenso (≥30 paquetes-año)' },
+    { id: 'currentSmoker', label: 'Fumador actual o dejó hace <15 años' },
+    { id: 'familyHistory', label: 'Antecedentes familiares de cáncer de pulmón' },
+    { id: 'emphysema', label: 'Enfisema o fibrosis pulmonar en imagen' },
+    { id: 'carcinogenExposure', label: 'Exposición a carcinógenos conocidos (asbesto, radón, uranio)' },
   ],
   morphologic: [
-    { id: 'spiculation', label: 'Spiculated margins' },
-    { id: 'upperLobe', label: 'Upper lobe location' },
-    { id: 'partSolid', label: 'Part-solid morphology' },
-    { id: 'growing', label: 'Growing nodule' },
+    { id: 'spiculation', label: 'Márgenes espiculados' },
+    { id: 'upperLobe', label: 'Localización en lóbulo superior' },
+    { id: 'partSolid', label: 'Morfología parte-sólida' },
+    { id: 'growing', label: 'Nódulo en crecimiento' },
   ],
 } as const;
 

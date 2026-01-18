@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
-import { RISK_FACTOR_TOOLTIP } from "@config/guidelines";
+import { RISK_FACTORS, RISK_FACTOR_TOOLTIP } from "@config/guidelines";
 import { Input } from "@components/ui/input";
 
 interface Props {
@@ -16,7 +16,9 @@ export default function RiskStep({ clinicalContext }: Props) {
   const hasKnownMalignancy = watch("patient.hasKnownMalignancy");
   const isImmunocompromised = watch("patient.isImmunocompromised");
   const extrathoracicCancerHistory = watch("patient.extrathoracicCancerHistory");
+  const riskFactors = watch("patient.riskFactors");
   const hasExclusion = Boolean(hasKnownMalignancy || isImmunocompromised);
+  const hasHighRisk = riskFactors ? Object.values(riskFactors).some(Boolean) : false;
 
   useEffect(() => {
     if (clinicalContext === "screening" && scanType === "baseline") {
@@ -24,6 +26,11 @@ export default function RiskStep({ clinicalContext }: Props) {
       setValue("priorStatus", undefined);
     }
   }, [clinicalContext, scanType, setValue]);
+
+  useEffect(() => {
+    if (clinicalContext !== "incidental") return;
+    setValue("patient.riskLevel", hasHighRisk ? "high" : "low", { shouldValidate: true });
+  }, [clinicalContext, hasHighRisk, setValue]);
 
   return (
     <div className="space-y-4">
@@ -40,17 +47,39 @@ export default function RiskStep({ clinicalContext }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm text-slate-300">
-              <span>Riesgo</span>
-              <span className="text-xs text-slate-400">Tooltip: {RISK_FACTOR_TOOLTIP.split("\n")[0]}</span>
+            <div className="flex items-center gap-2 text-sm text-slate-300">
+              <span>Factores de riesgo (Fleischner)</span>
+              <span
+                className="text-xs text-slate-400 cursor-help"
+                title={RISK_FACTOR_TOOLTIP}
+                aria-label="Factores de alto riesgo (Fleischner)"
+              >
+                (?)
+              </span>
             </div>
-            <div className="flex gap-3">
-              <label className="flex items-center gap-2 text-white">
-                <input type="radio" value="low" aria-label="Riesgo bajo" {...register("patient.riskLevel")} className="text-primary focus:ring-primary" /> Bajo
-              </label>
-              <label className="flex items-center gap-2 text-white">
-                <input type="radio" value="high" aria-label="Riesgo alto" {...register("patient.riskLevel")} className="text-primary focus:ring-primary" /> Alto
-              </label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {RISK_FACTORS.high.map((factor) => (
+                <label key={factor.id} className="flex items-center gap-2 text-white">
+                  <input
+                    type="checkbox"
+                    aria-label={factor.label}
+                    {...register(`patient.riskFactors.${factor.id}` as const)}
+                    className="text-primary rounded focus:ring-primary"
+                  />
+                  {factor.label}
+                </label>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-2 rounded-md border border-slate-700/60 bg-slate-900/40 px-3 py-2 text-sm">
+              <span className="text-slate-300">Riesgo calculado:</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  hasHighRisk ? "bg-rose-500/20 text-rose-200" : "bg-emerald-500/20 text-emerald-200"
+                }`}
+              >
+                {hasHighRisk ? "ALTO" : "BAJO"}
+              </span>
+              <span className="text-xs text-slate-400">Se ajusta automáticamente según los factores seleccionados.</span>
             </div>
           </div>
           <div className="space-y-2">
