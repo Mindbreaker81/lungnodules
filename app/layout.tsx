@@ -27,6 +27,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ServiceWorkerRegister />
         <OfflineBanner />
         <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-24 lg:max-w-4xl">{children}</main>
+        <footer className="mx-auto w-full max-w-2xl px-4 pb-6 lg:max-w-4xl">
+          <div className="border-t border-slate-800 pt-4 text-center text-xs text-slate-500">
+            © 2026{' '}
+            <a
+              href="https://github.com/mindbreaker81"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-slate-300"
+            >
+              mindbreaker81
+            </a>
+          </div>
+        </footer>
       </body>
     </html>
   );
