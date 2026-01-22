@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **UI/Footer**: Added footer with copyright notice © 2026 and GitHub attribution link (mindbreaker81)
+
+### Changed
+- **Responsive Layout**: Updated global layout container widths for better tablet/desktop experience
+- **Home UI**: Adjusted hero heading typography for improved scaling across breakpoints
+- **Results UI**: Improved disclaimer + copy button layout to avoid text compression on small/medium screens
+
+### Fixed
+- **Mobile Inputs**: Set `inputMode="decimal"` by default on numeric inputs to improve mobile keyboard behavior
+- **Vercel Deploy**: Removed multi-region `regions` setting from `vercel.json` to avoid Pro/Enterprise restriction
+## [1.0.0] - 2026-01-22
+### Added
+- **Localization (i18n)**: Traducción completa al Español de algoritmos clínicos, configuración y resultados (Fleischner + Lung-RADS).
+- **Clinical Tests**: Nueva suite de pruebas clínicas automatizadas (`__tests__/clinical_scenarios.test.ts`) para validar salidas en español.
+- **UI Constants**: Centralización de textos de interfaz en `config/i18n.ts`.
+
+### Changed
+- **Config**: Unificación de terminología "Vidrio deslustrado" (antes "Vidrio esmerilado") en toda la aplicación.
+- **Herder Model**: Se añadió una advertencia explícita cuando se usa Herder con Brock (screening) debido a la limitación de evidencia clínica.
+- **Validation**: Se ajustó la edad mínima permitida en el input a 18 años, manteniendo la validación de negocio de Fleischner (>=35).
+
+
 ## [0.2.1] - 2026-01-18
 ### Fixed
 - **Wizard UI**: Fixed single/multiple nodule toggle not responding to clicks in Fleischner flow

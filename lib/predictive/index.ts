@@ -335,6 +335,11 @@ function buildHerderSummary(
     riskBand: toRiskBand(probability),
     preTestModelId: preTestSummary.id,
     preTestProbability,
-    notes: ["Odds ajustadas con LR de FDG-PET (Herder 2005)."],
+    notes: [
+      "Odds ajustadas con LR de FDG-PET (Herder 2005).",
+      ...(preTestSummary.id === 'brock'
+        ? ["Nota: Herder fue validado originalmente con Mayo. Su uso con Brock tiene evidencia limitada."]
+        : [])
+    ],
   };
 }

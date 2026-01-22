@@ -23,7 +23,7 @@ type ExportFormat = 'txt' | 'json' | 'clipboard';
 
 const NODULE_TYPE_LABELS: Record<string, string> = {
   solid: 'Sólido',
-  'ground-glass': 'Vidrio esmerilado (GGN / no sólido)',
+  'ground-glass': 'Vidrio deslustrado (GGN / no sólido)',
   'part-solid': 'Parte-sólido (sub-sólido)',
 };
 
@@ -49,8 +49,8 @@ const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
 const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
 
 function formatAsText(result: AssessmentResult, input: AssessmentInput | null): string {
-  const guidelineInfo = result.guideline === 'fleischner-2017' 
-    ? GUIDELINE_VERSIONS.fleischner 
+  const guidelineInfo = result.guideline === 'fleischner-2017'
+    ? GUIDELINE_VERSIONS.fleischner
     : GUIDELINE_VERSIONS.lungRads;
   const measurementContext = input?.clinicalContext;
   const formatMeasurement = (value: number) => {
@@ -65,28 +65,28 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
 
   const lines = [
     '═'.repeat(60),
-    'LUNG NODULE ASSESSMENT REPORT',
+    'REPORTE DE EVALUACIÓN DE NÓDULO PULMONAR',
     '═'.repeat(60),
     '',
-    `Generated: ${new Date().toLocaleString()}`,
-    `Tool Version: ${APP_VERSION}`,
-    `Guideline: ${guidelineInfo.label} (v${guidelineInfo.version})`,
+    `Generado: ${new Date().toLocaleString()}`,
+    `Versión de Herramienta: ${APP_VERSION}`,
+    `Guía: ${guidelineInfo.label} (v${guidelineInfo.version})`,
     '',
     '─'.repeat(60),
-    'ASSESSMENT RESULT',
+    'RESULTADO DE EVALUACIÓN',
     '─'.repeat(60),
     '',
-    `Category: ${result.category}`,
-    `Recommendation: ${result.recommendation}`,
-    `Follow-up Interval: ${result.followUpInterval}`,
-    result.imagingModality ? `Imaging Modality: ${result.imagingModality}` : null,
-    result.malignancyRisk ? `Estimated Malignancy Risk: ${result.malignancyRisk}` : null,
+    `Categoría: ${result.category}`,
+    `Recomendación: ${result.recommendation}`,
+    `Intervalo de Seguimiento: ${result.followUpInterval}`,
+    result.imagingModality ? `Modalidad de Imagen: ${result.imagingModality}` : null,
+    result.malignancyRisk ? `Riesgo Estimado de Malignidad: ${result.malignancyRisk}` : null,
     '',
-    `Rationale: ${result.rationale}`,
+    `Racional: ${result.rationale}`,
   ].filter(Boolean);
 
   if (result.warnings && result.warnings.length > 0) {
-    lines.push('', '─'.repeat(60), 'WARNINGS', '─'.repeat(60), '');
+    lines.push('', '─'.repeat(60), 'ADVERTENCIAS', '─'.repeat(60), '');
     result.warnings.forEach(w => lines.push(`  ⚠ ${w}`));
   }
 
@@ -94,29 +94,29 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
     lines.push(
       '',
       '─'.repeat(60),
-      'INPUT PARAMETERS',
+      'PARÁMETROS DE ENTRADA',
       '─'.repeat(60),
       '',
-      `Clinical Context: ${input.clinicalContext === 'incidental' ? 'Incidental Finding' : 'Lung Cancer Screening'}`,
-      `Patient Age: ${input.patient.age} years`,
-      input.patient.riskLevel ? `Risk Level: ${input.patient.riskLevel}` : null,
+      `Contexto Clínico: ${input.clinicalContext === 'incidental' ? 'Hallazgo Incidental' : 'Cribado Cáncer Pulmón'}`,
+      `Edad del Paciente: ${input.patient.age} años`,
+      input.patient.riskLevel ? `Nivel de Riesgo: ${input.patient.riskLevel}` : null,
       '',
-      `Nodule Type: ${formatNoduleType(input.nodule.type)}`,
-      `Diameter: ${formatMeasurement(input.nodule.diameterMm)} mm`,
+      `Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
+      `Diámetro: ${formatMeasurement(input.nodule.diameterMm)} mm`,
       input.nodule.solidComponentMm !== undefined
-        ? `Solid Component: ${formatMeasurement(input.nodule.solidComponentMm)} mm`
+        ? `Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)} mm`
         : null,
-      `Multiple Nodules: ${input.nodule.isMultiple ? 'Yes' : 'No'}`,
+      `Nódulos Múltiples: ${input.nodule.isMultiple ? 'Sí' : 'No'}`,
     );
 
     const predictiveSummaries = getPredictiveSummaries(input);
     if (predictiveSummaries.length > 0) {
-      lines.push('', '─'.repeat(60), 'PREDICTIVE MODELS', '─'.repeat(60), '');
+      lines.push('', '─'.repeat(60), 'MODELOS PREDICTIVOS', '─'.repeat(60), '');
       predictiveSummaries.forEach((summary) => {
         lines.push(`${summary.label}: ${PREDICTIVE_STATUS_LABELS[summary.status]}`);
         if (summary.probability !== undefined && summary.riskBand) {
           lines.push(
-            `  Probability: ${formatProbability(summary.probability)} (${PREDICTIVE_RISK_LABELS[summary.riskBand]})`
+            `  Probabilidad: ${formatProbability(summary.probability)} (${PREDICTIVE_RISK_LABELS[summary.riskBand]})`
           );
         }
         if (summary.preTestProbability !== undefined && summary.preTestModelId) {
@@ -125,10 +125,10 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
           );
         }
         if (summary.reason) {
-          lines.push(`  Note: ${summary.reason}`);
+          lines.push(`  Nota: ${summary.reason}`);
         }
         if (summary.missingFields && summary.missingFields.length > 0) {
-          lines.push(`  Missing: ${summary.missingFields.join(', ')}`);
+          lines.push(`  Faltante: ${summary.missingFields.join(', ')}`);
         }
         if (summary.notes && summary.notes.length > 0) {
           summary.notes.forEach((note) => lines.push(`  • ${note}`));
@@ -141,13 +141,13 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
   lines.push(
     '',
     '═'.repeat(60),
-    'DISCLAIMER',
+    'AVISO LEGAL',
     '═'.repeat(60),
     '',
     DISCLAIMERS.general,
     '',
     '─'.repeat(60),
-    `Reference: ${guidelineInfo.citation}`,
+    `Referencia: ${guidelineInfo.citation}`,
     '═'.repeat(60),
   );
 
@@ -155,8 +155,8 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
 }
 
 function formatAsJSON(result: AssessmentResult, input: AssessmentInput | null): string {
-  const guidelineInfo = result.guideline === 'fleischner-2017' 
-    ? GUIDELINE_VERSIONS.fleischner 
+  const guidelineInfo = result.guideline === 'fleischner-2017'
+    ? GUIDELINE_VERSIONS.fleischner
     : GUIDELINE_VERSIONS.lungRads;
   const predictiveSummaries = input ? getPredictiveSummaries(input) : [];
   const recommendedModel = input ? getRecommendedPredictiveModel(input) : null;
@@ -200,7 +200,7 @@ export default function ExportResults({ result, input }: ExportResultsProps) {
 
   const handleExport = async (format: ExportFormat) => {
     try {
-      const content = format === 'json' 
+      const content = format === 'json'
         ? formatAsJSON(result, input)
         : formatAsText(result, input);
 
@@ -208,8 +208,8 @@ export default function ExportResults({ result, input }: ExportResultsProps) {
         await navigator.clipboard.writeText(content);
         analytics.resultCopied(result.guideline, result.category);
       } else {
-        const blob = new Blob([content], { 
-          type: format === 'json' ? 'application/json' : 'text/plain' 
+        const blob = new Blob([content], {
+          type: format === 'json' ? 'application/json' : 'text/plain'
         });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -278,8 +278,8 @@ export default function ExportResults({ result, input }: ExportResultsProps) {
       )}
 
       {isOpen && (
-        <div 
-          className="fixed inset-0 z-0" 
+        <div
+          className="fixed inset-0 z-0"
           onClick={() => setIsOpen(false)}
         />
       )}

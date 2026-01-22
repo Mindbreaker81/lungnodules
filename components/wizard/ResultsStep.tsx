@@ -11,6 +11,7 @@ import {
 } from "@lib/predictive";
 import { analytics } from "@lib/analytics";
 import { DISCLAIMERS, APP_VERSION, GUIDELINE_VERSIONS } from "@config/guidelines";
+import { UI_TEXTS } from "@config/i18n";
 import GuidelineVersion from "@components/GuidelineVersion";
 import { Button } from "@components/ui/button";
 
@@ -21,7 +22,7 @@ interface Props {
 
 const NODULE_TYPE_LABELS: Record<string, string> = {
   solid: "Sólido",
-  "ground-glass": "Vidrio esmerilado (GGN / no sólido)",
+  "ground-glass": "Vidrio deslustrado (GGN / no sólido)",
   "part-solid": "Parte-sólido (sub-sólido)",
 };
 
@@ -68,37 +69,37 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
     return value.toString();
   };
   const lines = [
-    `LUNG NODULE ASSESSMENT REPORT`,
-    `Generated: ${new Date().toISOString()}`,
-    `Tool Version: ${APP_VERSION}`,
+    `REPORTE DE EVALUACIÓN DE NÓDULO PULMONAR`,
+    `Generado: ${new Date().toISOString()}`,
+    `Versión de Herramienta: ${APP_VERSION}`,
     ``,
-    `GUIDELINE: ${guidelineInfo.label} (v${guidelineInfo.version})`,
-    `CATEGORY: ${result.category}`,
+    `GUÍA: ${guidelineInfo.label} (v${guidelineInfo.version})`,
+    `CATEGORÍA: ${result.category}`,
     ``,
-    `RECOMMENDATION: ${result.recommendation}`,
-    `FOLLOW-UP INTERVAL: ${result.followUpInterval}`,
-    result.imagingModality ? `IMAGING MODALITY: ${result.imagingModality}` : null,
-    result.malignancyRisk ? `ESTIMATED MALIGNANCY RISK: ${result.malignancyRisk}` : null,
+    `RECOMENDACIÓN: ${result.recommendation}`,
+    `INTERVALO DE SEGUIMIENTO: ${result.followUpInterval}`,
+    result.imagingModality ? `MODALIDAD DE IMAGEN: ${result.imagingModality}` : null,
+    result.malignancyRisk ? `RIESGO ESTIMADO DE MALIGNIDAD: ${result.malignancyRisk}` : null,
     ``,
-    `RATIONALE: ${result.rationale}`,
+    `RACIONAL: ${result.rationale}`,
   ].filter(Boolean);
 
   if (result.warnings && result.warnings.length > 0) {
-    lines.push(``, `WARNINGS:`);
+    lines.push(``, `ADVERTENCIAS:`);
     result.warnings.forEach(w => lines.push(`  - ${w}`));
   }
 
   if (input) {
     lines.push(
       ``,
-      `INPUT DATA:`,
-      `  Context: ${input.clinicalContext}`,
-      `  Nodule Type: ${formatNoduleType(input.nodule.type)}`,
-      `  Diameter: ${formatMeasurement(input.nodule.diameterMm)}mm`,
+      `DATOS DE ENTRADA:`,
+      `  Contexto: ${input.clinicalContext}`,
+      `  Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
+      `  Diámetro: ${formatMeasurement(input.nodule.diameterMm)}mm`,
       input.nodule.solidComponentMm !== undefined
-        ? `  Solid Component: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
+        ? `  Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
         : null,
-      `  Multiple: ${input.nodule.isMultiple ? 'Yes' : 'No'}`,
+      `  Múltiple: ${input.nodule.isMultiple ? 'Sí' : 'No'}`,
     );
   }
 
@@ -203,7 +204,7 @@ export default function ResultsStep({ result, input }: Props) {
 
       {result.warnings && result.warnings.length > 0 && (
         <div className="rounded-md border border-amber-900/50 bg-amber-900/20 p-3 text-sm text-amber-200" role="alert">
-          <p className="font-semibold">Warnings</p>
+          <p className="font-semibold">Advertencias</p>
           <ul className="list-disc space-y-1 pl-5">
             {result.warnings.map((w) => (
               <li key={w}>{w}</li>
@@ -218,8 +219,8 @@ export default function ResultsStep({ result, input }: Props) {
           onClick={() => setShowPredictive((prev) => !prev)}
           className="flex w-full items-center justify-between text-left text-sm font-medium text-slate-200"
         >
-          <span>Modelos predictivos (beta)</span>
-          <span className="text-slate-400">{showPredictive ? "Ocultar" : "Ver"}</span>
+          <span>{UI_TEXTS.results.predictiveModels.title}</span>
+          <span className="text-slate-400">{showPredictive ? UI_TEXTS.results.predictiveModels.hide : UI_TEXTS.results.predictiveModels.show}</span>
         </button>
         {showPredictive && (
           <div className="mt-3 space-y-3">
@@ -244,13 +245,13 @@ export default function ResultsStep({ result, input }: Props) {
                   </div>
                   {summary.probability !== undefined && summary.riskBand && (
                     <p className="mt-2 text-sm text-slate-200">
-                      Probabilidad: <span className="font-semibold text-white">{formatProbability(summary.probability)}</span>
+                      {UI_TEXTS.results.predictiveModels.probability}: <span className="font-semibold text-white">{formatProbability(summary.probability)}</span>
                       <span className="ml-2 text-xs text-slate-400">{PREDICTIVE_RISK_LABELS[summary.riskBand]}</span>
                     </p>
                   )}
                   {summary.preTestProbability !== undefined && summary.preTestModelId && (
                     <p className="mt-2 text-xs text-slate-400">
-                      Pre-test ({PREDICTIVE_MODEL_LABELS[summary.preTestModelId]}): {formatProbability(summary.preTestProbability)}
+                      {UI_TEXTS.results.predictiveModels.preTest} ({PREDICTIVE_MODEL_LABELS[summary.preTestModelId]}): {formatProbability(summary.preTestProbability)}
                     </p>
                   )}
                   {summary.reason && (
@@ -258,7 +259,7 @@ export default function ResultsStep({ result, input }: Props) {
                   )}
                   {summary.missingFields && summary.missingFields.length > 0 && (
                     <div className="mt-2 text-xs text-slate-400">
-                      <p className="font-medium text-slate-300">Campos requeridos:</p>
+                      <p className="font-medium text-slate-300">{UI_TEXTS.results.predictiveModels.missingFields}</p>
                       <ul className="mt-1 list-disc space-y-1 pl-4">
                         {summary.missingFields.map((field) => (
                           <li key={field}>{field}</li>
@@ -277,8 +278,7 @@ export default function ResultsStep({ result, input }: Props) {
               ))}
             </div>
             <p className="text-xs text-slate-500">
-              Modelos calculados con coeficientes publicados (Mayo/Brock/Herder). Verifica la aplicabilidad clínica y
-              complementa con juicio médico.
+              {UI_TEXTS.results.predictiveModels.disclaimer}
             </p>
           </div>
         )}
@@ -286,8 +286,7 @@ export default function ResultsStep({ result, input }: Props) {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1 rounded-md border border-slate-700 bg-slate-800/50 p-3 text-xs text-slate-400">
-          ⚠️ MEDICAL DISCLAIMER: Decision support only; verificar contra guías actuales. No aplica a &lt;35 años,
-          inmunocomprometidos o cáncer conocido.
+          {UI_TEXTS.results.medicalDisclaimer}
         </div>
         <Button
           type="button"
@@ -297,7 +296,7 @@ export default function ResultsStep({ result, input }: Props) {
           onClick={handleCopy}
           className={`shrink-0 ${copyStatus === 'copied' ? 'bg-green-900/20 text-green-400 border-green-800' : copyStatus === 'error' ? 'bg-red-900/20 text-red-400 border-red-800' : ''}`}
         >
-          {copyStatus === 'copied' ? '✓ Copiado' : copyStatus === 'error' ? 'Error' : 'Copiar'}
+          {copyStatus === 'copied' ? UI_TEXTS.results.copyButton.copied : copyStatus === 'error' ? UI_TEXTS.results.copyButton.error : UI_TEXTS.results.copyButton.idle}
         </Button>
       </div>
     </section>

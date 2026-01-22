@@ -25,19 +25,19 @@ const riskFactorSchema = z.object({
 });
 
 const diameterSchema = z
-  .number({ invalid_type_error: 'Enter diameter between 1-100 mm' })
-  .min(1, 'Enter diameter between 1-100 mm')
-  .max(100, 'Enter diameter between 1-100 mm');
+  .number({ invalid_type_error: 'Ingresa un diámetro entre 1 y 100 mm' })
+  .min(1, 'Ingresa un diámetro entre 1 y 100 mm')
+  .max(100, 'Ingresa un diámetro entre 1 y 100 mm');
 
 const solidComponentSchema = z
-  .number({ invalid_type_error: 'Solid component cannot exceed total diameter' })
-  .min(0, 'Solid component cannot exceed total diameter')
-  .max(100, 'Solid component cannot exceed total diameter')
+  .number({ invalid_type_error: 'El componente sólido no puede exceder el total' })
+  .min(0, 'El componente sólido no puede exceder el total')
+  .max(100, 'El componente sólido no puede exceder el total')
   .optional();
 
 export const patientSchema = z.object({
   clinicalContext: z.enum(clinicalContextValues),
-  age: z.number().min(0, 'Age must be positive'),
+  age: z.number().min(0, 'La edad debe ser positiva'),
   riskLevel: z.enum(riskLevelValues).optional(), // Fleischner only
   riskFactors: riskFactorSchema.optional(),
   hasKnownMalignancy: z.boolean().optional(),
@@ -95,15 +95,15 @@ const fleischnerCoreSchema = z.object({
 
 export const fleischnerInputSchema = fleischnerCoreSchema
   .refine((data: z.infer<typeof fleischnerCoreSchema>) => data.patient.clinicalContext === 'incidental', {
-    message: 'Fleischner applies to incidental findings',
+    message: 'Fleischner aplica a hallazgos incidentales',
     path: ['patient', 'clinicalContext'],
   })
   .refine((data: z.infer<typeof fleischnerCoreSchema>) => data.patient.age >= 35, {
-    message: 'Fleischner guidelines apply to patients ≥35 years',
+    message: 'Las guías Fleischner aplican a pacientes ≥35 años',
     path: ['patient', 'age'],
   })
   .refine((data: z.infer<typeof fleischnerCoreSchema>) => data.patient.riskLevel !== undefined, {
-    message: 'Risk level is required for Fleischner',
+    message: 'El nivel de riesgo es requerido para Fleischner',
     path: ['patient', 'riskLevel'],
   })
   .refine(
@@ -112,7 +112,7 @@ export const fleischnerInputSchema = fleischnerCoreSchema
       data.nodule.solidComponentMm === undefined ||
       data.nodule.solidComponentMm <= data.nodule.diameterMm,
     {
-      message: 'Solid component cannot exceed total diameter',
+      message: 'El componente sólido no puede exceder el diámetro total',
       path: ['nodule', 'solidComponentMm'],
     },
   )
@@ -140,7 +140,7 @@ const lungRadsCoreSchema = z.object({
 
 export const lungRadsInputSchema = lungRadsCoreSchema
   .refine((data: z.infer<typeof lungRadsCoreSchema>) => data.patient.clinicalContext === 'screening', {
-    message: 'Lung-RADS applies to screening context',
+    message: 'Lung-RADS aplica al contexto de screening',
     path: ['patient', 'clinicalContext'],
   })
   .refine(
@@ -149,7 +149,7 @@ export const lungRadsInputSchema = lungRadsCoreSchema
       data.nodule.solidComponentMm === undefined ||
       data.nodule.solidComponentMm <= data.nodule.diameterMm,
     {
-      message: 'Solid component cannot exceed total diameter',
+      message: 'El componente sólido no puede exceder el diámetro total',
       path: ['nodule', 'solidComponentMm'],
     },
   )
@@ -161,7 +161,7 @@ export const lungRadsInputSchema = lungRadsCoreSchema
       return true;
     },
     {
-      message: 'Prior diameter and interval are required for follow-up scans',
+      message: 'Diámetro e intervalo previos son requeridos para seguimiento',
       path: ['nodule', 'priorDiameterMm'],
     },
   );

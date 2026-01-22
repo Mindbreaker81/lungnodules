@@ -59,6 +59,14 @@ export default function HomePage() {
       <p className="text-sm text-slate-500 max-w-lg">
         Toda la lógica de procesamiento es local. Los datos del paciente no se envían a ningún servidor ni se almacenan de forma persistente.
       </p>
+
+      {/* Footer */}
+      <footer className="w-full border-t border-slate-800/50 pt-8 mt-12">
+        <div className="flex flex-col items-center justify-center gap-2 text-sm text-slate-500">
+          <p>© 2026 Lung Nodule Tracker v1.0.0</p>
+          <p className="text-xs">Desarrollado con ❤️ por <a href="https://github.com/mindbreaker81" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">mindbreaker81</a></p>
+        </div>
+      </footer>
     </div>
   );
 }

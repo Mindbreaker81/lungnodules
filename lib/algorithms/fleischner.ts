@@ -14,13 +14,13 @@ const roundToNearestMm = (value: number) => Math.round(value);
 
 export function checkFleischnerApplicability(patient: PatientProfile): ApplicabilityResult {
   if (patient.age < 35) {
-    return { applicable: false, reason: 'Fleischner guidelines apply to patients ≥35 years' };
+    return { applicable: false, reason: 'Las guías Fleischner aplican a pacientes ≥35 años' };
   }
   if (patient.hasKnownMalignancy) {
-    return { applicable: false, reason: 'Known malignancy — use disease-specific guidance' };
+    return { applicable: false, reason: 'Malignidad conocida — usar guías específicas de la enfermedad' };
   }
   if (patient.isImmunocompromised) {
-    return { applicable: false, reason: 'Immunocompromised — guideline not applicable' };
+    return { applicable: false, reason: 'Inmunocomprometido — guía no aplicable' };
   }
   return { applicable: true };
 }
@@ -38,52 +38,54 @@ function assessSubsolidMultiple(options: {
   if (diameter < 6) {
     return {
       guideline: GUIDELINE,
-      category: `${type === 'ground-glass' ? 'Ground-glass' : 'Part-solid'} <6mm (multiple)`,
-      recommendation: riskLevel === 'high' ? highRiskFollowup : lowRiskFollowup,
-      followUpInterval: riskLevel === 'high' ? '3-6 months (consider 2 & 4 years)' : '3-6 months',
-      rationale: 'Multiple subsolid nodules <6mm warrant short-term confirmation; consider infectious causes',
+      category: `${type === 'ground-glass' ? 'Vidrio deslustrado' : 'Parte-sólido'} <6mm (múltiples)`,
+      recommendation: riskLevel === 'high'
+        ? 'TC a los 3-6 meses; si es estable considerar TC a los 2 y 4 años'
+        : 'TC a los 3-6 meses para confirmar persistencia; sin seguimiento de rutina si es estable',
+      followUpInterval: riskLevel === 'high' ? '3-6 meses (considerar 2 y 4 años)' : '3-6 meses',
+      rationale: 'Múltiples nódulos subsólidos <6mm requieren confirmación a corto plazo; considerar causas infecciosas',
     };
   }
 
   if (type === 'ground-glass') {
     return {
       guideline: GUIDELINE,
-      category: 'Ground-glass ≥6mm (multiple)',
-      recommendation: 'CT at 3-6 months; subsequent management based on most suspicious nodule',
-      followUpInterval: '3-6 months',
-      rationale: 'Dominant nodule guides management; persistent multiple GGNs may represent multifocal disease',
+      category: 'Vidrio deslustrado ≥6mm (múltiples)',
+      recommendation: 'TC a los 3-6 meses; manejo posterior basado en el nódulo más sospechoso',
+      followUpInterval: '3-6 meses',
+      rationale: 'El nódulo dominante guía el manejo; GGNs múltiples persistentes pueden representar enfermedad multifocal',
     };
   }
 
   if (solidComponent === undefined) {
     return {
       guideline: GUIDELINE,
-      category: 'Part-solid ≥6mm (multiple, solid unknown)',
-      recommendation: 'Measure solid component; CT at 3-6 months; manage based on dominant nodule',
-      followUpInterval: '3-6 months',
-      rationale: 'Solid component size drives risk stratification for part-solid nodules',
-      warnings: ['Solid component size required for part-solid assessment'],
+      category: 'Parte-sólido ≥6mm (múltiples, componente sólido desconocido)',
+      recommendation: 'Medir componente sólido; TC a los 3-6 meses; manejo basado en nódulo dominante',
+      followUpInterval: '3-6 meses',
+      rationale: 'El tamaño del componente sólido determina la estratificación de riesgo',
+      warnings: ['Se requiere tamaño del componente sólido para evaluación precisa'],
     };
   }
 
   if (solidComponent < 6) {
     return {
       guideline: GUIDELINE,
-      category: 'Part-solid ≥6mm, solid <6mm (multiple)',
-      recommendation: 'CT at 3-6 months; if persistent, annual CT for 5 years (dominant nodule)',
-      followUpInterval: '3-6 months; then annual x5y',
-      rationale: 'Persistent part-solid nodules with small solid components need long-term surveillance',
+      category: 'Parte-sólido ≥6mm, sólido <6mm (múltiples)',
+      recommendation: 'TC a los 3-6 meses; si persiste, TC anual por 5 años (nódulo dominante)',
+      followUpInterval: '3-6 meses; luego anual x5a',
+      rationale: 'Nódulos parte-sólidos persistentes con componente sólido pequeño requieren vigilancia a largo plazo',
     };
   }
 
   return {
     guideline: GUIDELINE,
-    category: 'Part-solid ≥6mm, solid ≥6mm (multiple)',
-    recommendation: 'CT at 3-6 months; consider PET/CT, biopsy, or surgical excision if persistent',
-    followUpInterval: '3-6 months (then diagnostic workup)',
-    malignancyRisk: 'High suspicion',
-    rationale: 'Solid component ≥6mm is highly suspicious even in multiple nodules',
-    warnings: ['HIGHLY SUSPICIOUS — consider tissue diagnosis'],
+    category: 'Parte-sólido ≥6mm, sólido ≥6mm (múltiples)',
+    recommendation: 'TC a los 3-6 meses; considerar PET/CT, biopsia o escisión',
+    followUpInterval: '3-6 meses (luego diagnóstico)',
+    malignancyRisk: 'Alta sospecha',
+    rationale: 'Componente sólido ≥6mm es altamente sospechoso incluso en nódulos múltiples',
+    warnings: ['ALTAMENTE SOSPECHOSO — considerar diagnóstico de tejido'],
   };
 }
 
@@ -91,46 +93,46 @@ function assessSolidSingle(diameter: number, riskLevel: RiskLevel): AssessmentRe
   if (diameter < 6) {
     return riskLevel === 'low'
       ? {
-          guideline: GUIDELINE,
-          category: 'Solid <6mm (single, low risk)',
-          recommendation: 'No routine follow-up',
-          followUpInterval: 'None',
-          rationale: 'Malignancy risk <1% in low-risk patients',
-        }
+        guideline: GUIDELINE,
+        category: 'Sólido <6mm (único, riesgo bajo)',
+        recommendation: 'Sin seguimiento de rutina',
+        followUpInterval: 'Ninguno',
+        rationale: 'Riesgo de malignidad <1% en pacientes de bajo riesgo',
+      }
       : {
-          guideline: GUIDELINE,
-          category: 'Solid <6mm (single, high risk)',
-          recommendation: 'Optional CT at 12 months',
-          followUpInterval: '12 months (optional)',
-          rationale: 'Higher pretest probability — consider if suspicious morphology',
-        };
+        guideline: GUIDELINE,
+        category: 'Sólido <6mm (único, riesgo alto)',
+        recommendation: 'TC opcional a los 12 meses',
+        followUpInterval: '12 meses (opcional)',
+        rationale: 'Mayor probabilidad pre-test — considerar si morfología es sospechosa',
+      };
   }
 
   if (diameter >= 6 && diameter <= 8) {
     return riskLevel === 'low'
       ? {
-          guideline: GUIDELINE,
-          category: 'Solid 6-8mm (single, low risk)',
-          recommendation: 'CT at 6-12 months; consider CT at 18-24 months',
-          followUpInterval: '6-12 months (consider 18-24)',
-          rationale: 'Establish stability; malignancy risk ~0.5-2%',
-        }
+        guideline: GUIDELINE,
+        category: 'Sólido 6-8mm (único, riesgo bajo)',
+        recommendation: 'TC a los 6-12 meses; considerar TC a los 18-24 meses',
+        followUpInterval: '6-12 meses (considerar 18-24)',
+        rationale: 'Establecer estabilidad; riesgo de malignidad ~0.5-2%',
+      }
       : {
-          guideline: GUIDELINE,
-          category: 'Solid 6-8mm (single, high risk)',
-          recommendation: 'CT at 6-12 months; then CT at 18-24 months',
-          followUpInterval: '6-12 months; then 18-24 months',
-          rationale: 'Higher risk warrants two follow-up scans',
-        };
+        guideline: GUIDELINE,
+        category: 'Sólido 6-8mm (único, riesgo alto)',
+        recommendation: 'TC a los 6-12 meses; luego TC a los 18-24 meses',
+        followUpInterval: '6-12 meses; luego 18-24 meses',
+        rationale: 'Mayor riesgo justifica dos escaneos de seguimiento',
+      };
   }
 
   return {
     guideline: GUIDELINE,
-    category: 'Solid >8mm (single)',
-    recommendation: 'Consider CT at 3 months, PET/CT, or tissue sampling',
-    followUpInterval: '3 months (or as indicated)',
+    category: 'Sólido >8mm (único)',
+    recommendation: 'Considerar TC a los 3 meses, PET/CT o muestreo de tejido',
+    followUpInterval: '3 meses (o según indicación)',
     malignancyRisk: '~3%',
-    rationale: 'Larger solid nodules merit aggressive evaluation',
+    rationale: 'Nódulos sólidos más grandes merecen evaluación agresiva',
   };
 }
 
@@ -138,54 +140,54 @@ function assessSolidMultiple(diameter: number, riskLevel: RiskLevel): Assessment
   if (diameter < 6) {
     return riskLevel === 'low'
       ? {
-          guideline: GUIDELINE,
-          category: 'Solid <6mm (multiple, low risk)',
-          recommendation: 'No routine follow-up',
-          followUpInterval: 'None',
-          rationale: 'Very low malignancy risk in low-risk patients',
-        }
+        guideline: GUIDELINE,
+        category: 'Sólido <6mm (múltiples, riesgo bajo)',
+        recommendation: 'Sin seguimiento de rutina',
+        followUpInterval: 'Ninguno',
+        rationale: 'Riesgo de malignidad muy bajo en pacientes de bajo riesgo',
+      }
       : {
-          guideline: GUIDELINE,
-          category: 'Solid <6mm (multiple, high risk)',
-          recommendation: 'Optional CT at 12 months',
-          followUpInterval: '12 months (optional)',
-          rationale: 'Higher baseline risk; consider if suspicious morphology',
-        };
+        guideline: GUIDELINE,
+        category: 'Sólido <6mm (múltiples, riesgo alto)',
+        recommendation: 'TC opcional a los 12 meses',
+        followUpInterval: '12 meses (opcional)',
+        rationale: 'Riesgo basal mayor; considerar si morfología es sospechosa',
+      };
   }
 
   return riskLevel === 'low'
     ? {
-        guideline: GUIDELINE,
-        category: 'Solid ≥6mm (multiple, low risk)',
-        recommendation: 'CT at 3-6 months; consider CT at 18-24 months',
-        followUpInterval: '3-6 months (consider 18-24)',
-        rationale: 'Multiple nodules need short-term follow-up to assess stability',
-      }
+      guideline: GUIDELINE,
+      category: 'Sólido ≥6mm (múltiples, riesgo bajo)',
+      recommendation: 'TC a los 3-6 meses; considerar TC a los 18-24 meses',
+      followUpInterval: '3-6 meses (considerar 18-24)',
+      rationale: 'Múltiples nódulos requieren seguimiento a corto plazo para evaluar estabilidad',
+    }
     : {
-        guideline: GUIDELINE,
-        category: 'Solid ≥6mm (multiple, high risk)',
-        recommendation: 'CT at 3-6 months; then CT at 18-24 months',
-        followUpInterval: '3-6 months; then 18-24 months',
-        rationale: 'High-risk patients need two follow-up scans',
-      };
+      guideline: GUIDELINE,
+      category: 'Sólido ≥6mm (múltiples, riesgo alto)',
+      recommendation: 'TC a los 3-6 meses; luego TC a los 18-24 meses',
+      followUpInterval: '3-6 meses; luego 18-24 meses',
+      rationale: 'Pacientes de alto riesgo requieren dos escaneos de seguimiento',
+    };
 }
 
 function assessGroundGlass(diameter: number): AssessmentResult {
   if (diameter < 6) {
     return {
       guideline: GUIDELINE,
-      category: 'Ground-glass <6mm',
-      recommendation: 'No routine follow-up',
-      followUpInterval: 'None',
-      rationale: 'Very low malignancy risk; overtreatment to be avoided',
+      category: 'Vidrio deslustrado <6mm',
+      recommendation: 'Sin seguimiento de rutina',
+      followUpInterval: 'Ninguno',
+      rationale: 'Riesgo de malignidad muy bajo; evitar sobretratamiento',
     };
   }
   return {
     guideline: GUIDELINE,
-    category: 'Ground-glass ≥6mm',
-    recommendation: 'CT at 6-12 months, then CT every 2 years until 5 years',
-    followUpInterval: '6-12 months; then q2y until 5y',
-    rationale: 'Persistent GGNs ≥6mm warrant surveillance',
+    category: 'Vidrio deslustrado ≥6mm',
+    recommendation: 'TC a los 6-12 meses, luego TC cada 2 años hasta los 5 años',
+    followUpInterval: '6-12 meses; luego c/2a hasta 5a',
+    rationale: 'GGNs persistentes ≥6mm justifican vigilancia',
   };
 }
 
@@ -193,42 +195,42 @@ function assessPartSolid(diameter: number, solidComponent?: number): AssessmentR
   if (diameter < 6) {
     return {
       guideline: GUIDELINE,
-      category: 'Part-solid <6mm',
-      recommendation: 'No routine follow-up',
-      followUpInterval: 'None',
-      rationale: 'Small part-solid nodules rarely malignant',
+      category: 'Parte-sólido <6mm',
+      recommendation: 'Sin seguimiento de rutina',
+      followUpInterval: 'Ninguno',
+      rationale: 'Nódulos parte-sólidos pequeños raramente son malignos',
     };
   }
 
   if (solidComponent === undefined) {
     return {
       guideline: GUIDELINE,
-      category: 'Part-solid (solid component unknown)',
-      recommendation: 'Measure solid component; management depends on solid size',
-      followUpInterval: 'Pending measurement',
-      rationale: 'Solid component size drives risk stratification',
-      warnings: ['Solid component size required for part-solid assessment'],
+      category: 'Parte-sólido (componente sólido desconocido)',
+      recommendation: 'Medir componente sólido; manejo depende del tamaño sólido',
+      followUpInterval: 'Pendiente de medición',
+      rationale: 'El tamaño del componente sólido determina la estratificación de riesgo',
+      warnings: ['Se requiere tamaño del componente sólido para evaluación precisa'],
     };
   }
 
   if (solidComponent < 6) {
     return {
       guideline: GUIDELINE,
-      category: 'Part-solid ≥6mm, solid <6mm',
-      recommendation: 'CT at 3-6 months, then annual CT for 5 years',
-      followUpInterval: '3-6 months; then annual x5y',
-      rationale: 'Risk rises with persistence; annual surveillance advised',
+      category: 'Parte-sólido ≥6mm, sólido <6mm',
+      recommendation: 'TC a los 3-6 meses, luego TC anual por 5 años',
+      followUpInterval: '3-6 meses; luego anual x5a',
+      rationale: 'El riesgo aumenta con la persistencia; vigilancia anual recomendada',
     };
   }
 
   return {
     guideline: GUIDELINE,
-    category: 'Part-solid, solid ≥6mm',
-    recommendation: 'PET/CT, biopsy, or surgical excision',
-    followUpInterval: 'As indicated',
-    malignancyRisk: 'High suspicion',
-    rationale: 'Solid component ≥6mm is highly suspicious',
-    warnings: ['HIGHLY SUSPICIOUS — consider tissue diagnosis'],
+    category: 'Parte-sólido, sólido ≥6mm',
+    recommendation: 'PET/CT, biopsia o escisión quirúrgica',
+    followUpInterval: 'Según indicación',
+    malignancyRisk: 'Alta sospecha',
+    rationale: 'Componente sólido ≥6mm es altamente sospechoso',
+    warnings: ['ALTAMENTE SOSPECHOSO — considerar diagnóstico de tejido'],
   };
 }
 
@@ -237,10 +239,10 @@ export function assessFleischner({ patient, nodule }: FleischnerAssessmentInput)
   if (!applicability.applicable) {
     return {
       guideline: GUIDELINE,
-      category: 'Not applicable',
-      recommendation: 'Use alternative clinical guidance',
+      category: 'No aplicable',
+      recommendation: 'Usar guía clínica alternativa',
       followUpInterval: 'N/A',
-      rationale: applicability.reason ?? 'Guideline exclusions apply',
+      rationale: applicability.reason ?? 'Exclusiones de guía aplican',
       warnings: applicability.reason ? [applicability.reason] : undefined,
     };
   }
@@ -253,10 +255,10 @@ export function assessFleischner({ patient, nodule }: FleischnerAssessmentInput)
   if (type === 'solid' && isPerifissural) {
     return {
       guideline: GUIDELINE,
-      category: 'Perifissural nodule (benign morphology)',
-      recommendation: 'No routine follow-up',
-      followUpInterval: 'None',
-      rationale: 'Perifissural nodules with typical benign morphology rarely malignant',
+      category: 'Nódulo perifisural (morfología benigna)',
+      recommendation: 'Sin seguimiento de rutina',
+      followUpInterval: 'Ninguno',
+      rationale: 'Nódulos perifisurales con morfología benigna típica raramente son malignos',
     };
   }
 
@@ -278,18 +280,18 @@ export function assessFleischner({ patient, nodule }: FleischnerAssessmentInput)
 
   return {
     guideline: GUIDELINE,
-    category: 'Unsupported nodule type',
-    recommendation: 'Review input data',
+    category: 'Tipo de nódulo no soportado',
+    recommendation: 'Revisar datos de entrada',
     followUpInterval: 'N/A',
-    rationale: 'Type not recognized',
-    warnings: ['Unknown nodule type'],
+    rationale: 'Tipo no reconocido',
+    warnings: ['Tipo de nódulo desconocido'],
   };
 }
 
 export function getFleischnerWarnings(nodule: NoduleCharacteristics): string[] {
   const warnings: string[] = [];
   if (nodule.solidComponentMm !== undefined && nodule.solidComponentMm > nodule.diameterMm) {
-    warnings.push('Solid component cannot exceed total diameter');
+    warnings.push('El componente sólido no puede exceder el diámetro total');
   }
   return warnings;
 }

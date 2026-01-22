@@ -62,7 +62,7 @@ function classifyGroundGlass(diameter: number): string {
 
 function classifyPartSolid(diameter: number, solidComponent?: number): { category: string; warnings?: string[] } {
   if (solidComponent === undefined) {
-    return { category: '3', warnings: ['Solid component size required for part-solid assessment'] };
+    return { category: '3', warnings: ['Se requiere tamaño del componente sólido para evaluación parte-sólida'] };
   }
   if (solidComponent >= 6) {
     return { category: '4B' };
@@ -88,20 +88,20 @@ function applySteppedManagement(currentCategory: string, priorCategory?: string,
 
 function buildResult(category: string, rationale: string, warnings?: string[]): AssessmentResult {
   const followUps: Record<string, { timing: string; recommendation: string; modality: string }> = {
-    '0': { timing: '1-3 months', recommendation: 'Additional imaging or LDCT', modality: 'LDCT' },
-    '1': { timing: '12 months', recommendation: 'Continue annual LDCT', modality: 'LDCT' },
-    '2': { timing: '12 months', recommendation: 'Continue annual LDCT', modality: 'LDCT' },
-    '3': { timing: '6 months', recommendation: 'LDCT', modality: 'LDCT' },
-    '4A': { timing: '3 months', recommendation: 'LDCT; PET/CT if solid ≥8mm', modality: 'LDCT or PET/CT' },
-    '4B': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy', modality: 'CT/PET/Biopsy' },
-    '4X': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy; consider multidisciplinary review', modality: 'CT/PET/Biopsy/MDT' },
-    'S': { timing: 'As indicated', recommendation: 'Manage significant findings per clinical judgment', modality: 'As indicated' },
+    '0': { timing: '1-3 meses', recommendation: 'Imagen adicional o TCBD (LDCT)', modality: 'TCBD' },
+    '1': { timing: '12 meses', recommendation: 'Continuar detección anual con TCBD', modality: 'TCBD' },
+    '2': { timing: '12 meses', recommendation: 'Continuar detección anual con TCBD', modality: 'TCBD' },
+    '3': { timing: '6 meses', recommendation: 'TCBD (LDCT)', modality: 'TCBD' },
+    '4A': { timing: '3 meses', recommendation: 'TCBD; PET/CT si sólido ≥8mm', modality: 'TCBD o PET/CT' },
+    '4B': { timing: 'Según indicación', recommendation: 'TC diagnóstico; PET/CT; biopsia', modality: 'TC/PET/Biopsia' },
+    '4X': { timing: 'Según indicación', recommendation: 'TC diagnóstico; PET/CT; biopsia; considerar revisión multidisciplinar', modality: 'TC/PET/Biopsia/Comité' },
+    'S': { timing: 'Según indicación', recommendation: 'Manejo de hallazgos significativos según juicio clínico', modality: 'Según indicación' },
   };
 
   const follow = followUps[category] ?? {
     timing: 'As indicated',
-    recommendation: 'Clinical judgment',
-    modality: 'As indicated',
+    recommendation: 'Juicio clínico',
+    modality: 'Según indicación',
   };
 
   return {
@@ -123,14 +123,14 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
   if (nodule.hasSignificantFinding) {
     return {
       category: 'S',
-      rationale: 'Significant finding flagged; manage per clinical judgment',
+      rationale: 'Hallazgo significativo detectado; manejar según juicio clínico',
     };
   }
 
   if (nodule.isBenign) {
     return {
       category: '1',
-      rationale: 'No nodules or definitely benign findings',
+      rationale: 'Sin nódulos o hallazgos definitivamente benignos',
     };
   }
 
@@ -140,9 +140,9 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
       category,
       rationale:
         category === '0'
-          ? 'Inflammatory/infectious pattern warrants short-term follow-up'
-          : 'Inflammatory/infectious pattern likely benign',
-      warnings: nodule.inflammatoryCategory ? undefined : ['Inflammatory category not specified'],
+          ? 'Patrón inflamatorio/infeccioso justifica seguimiento a corto plazo'
+          : 'Patrón inflamatorio/infeccioso probablemente benigno',
+      warnings: nodule.inflammatoryCategory ? undefined : ['Categoría inflamatoria no especificada'],
     };
   }
 
@@ -150,39 +150,39 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
     if (nodule.airwayPersistent) {
       return {
         category: '4B',
-        rationale: 'Persistent airway nodule on 3-month follow-up',
+        rationale: 'Nódulo de vía aérea persistente en seguimiento a 3 meses',
       };
     }
     if (nodule.airwayLocation === 'segmental-proximal') {
       return {
         category: '4A',
-        rationale: 'Segmental or proximal airway nodule',
+        rationale: 'Nódulo de vía aérea segmental o proximal',
       };
     }
     if (nodule.airwayLocation === 'subsegmental') {
       return {
         category: '2',
-        rationale: 'Subsegmental airway nodule with benign features',
+        rationale: 'Nódulo de vía aérea subsegmental con características benignas',
       };
     }
     return {
       category: '4A',
-      rationale: 'Airway nodule (location unspecified)',
-      warnings: ['Airway location not specified'],
+      rationale: 'Nódulo de vía aérea (localización no especificada)',
+      warnings: ['Localización de vía aérea no especificada'],
     };
   }
 
   if (nodule.isAtypicalCyst) {
     const map = {
-      category3: { category: '3', rationale: 'Atypical cyst with growing cystic component' },
-      category4A: { category: '4A', rationale: 'Atypical cyst with thick wall or multiloculated morphology' },
-      category4B: { category: '4B', rationale: 'Atypical cyst with growth or nodularity' },
+      category3: { category: '3', rationale: 'Quiste atípico con componente quístico en crecimiento' },
+      category4A: { category: '4A', rationale: 'Quiste atípico con pared gruesa o multiloculado' },
+      category4B: { category: '4B', rationale: 'Quiste atípico con crecimiento o nodularidad' },
     } as const;
     if (!nodule.atypicalCystCategory || !map[nodule.atypicalCystCategory]) {
       return {
         category: '3',
-        rationale: 'Atypical cyst flagged; pending detailed characterization',
-        warnings: ['Atypical cyst category not specified'],
+        rationale: 'Quiste atípico marcado; pendiente de caracterización detallada',
+        warnings: ['Categoría de quiste atípico no especificada'],
       };
     }
     return map[nodule.atypicalCystCategory];
@@ -194,7 +194,7 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
     if (isBenignJuxta) {
       return {
         category: '2',
-        rationale: 'Yuxtapleural/perifissural benign morphology (≤10mm, smooth margins)',
+        rationale: 'Morfología benigna yuxtapleural/perifisural (≤10mm, márgenes lisos)',
       };
     }
   }
@@ -206,11 +206,11 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
   if (patient.clinicalContext !== 'screening') {
     return {
       guideline: GUIDELINE,
-      category: 'Not applicable',
-      recommendation: 'Use Fleischner or other guidance for incidental findings',
+      category: 'No aplicable',
+      recommendation: 'Usar Fleischner u otra guía para hallazgos incidentales',
       followUpInterval: 'N/A',
-      rationale: 'Lung-RADS applies to screening populations',
-      warnings: ['Screening context required for Lung-RADS'],
+      rationale: 'Lung-RADS aplica a poblaciones de screening',
+      warnings: ['Se requiere contexto de screening para Lung-RADS'],
     };
   }
 
@@ -246,16 +246,16 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
   category = applySteppedManagement(category, priorCategory, priorStatus);
 
   if (nodule.solidComponentMm !== undefined && nodule.solidComponentMm > nodule.diameterMm) {
-    warnings = [...(warnings ?? []), 'Solid component cannot exceed total diameter'];
+    warnings = [...(warnings ?? []), 'El componente sólido no puede exceder el diámetro total'];
   }
 
   const rationaleParts = [
-    `Context: ${nodule.scanType}`,
-    isGrowing ? 'Growth >1.5mm/12m detected' : 'No significant growth detected',
-    isNew ? 'New nodule' : 'Existing nodule',
+    `Contexto: ${nodule.scanType}`,
+    isGrowing ? 'Crecimiento >1.5mm/12m detectado' : 'Sin crecimiento significativo (>1.5mm/12m)',
+    isNew ? 'Nódulo nuevo' : 'Nódulo existente',
   ];
   if (nodule.hasSpiculation && category === '4X') {
-    rationaleParts.push('Spiculated margins (4X)');
+    rationaleParts.push('Márgenes espiculados (4X)');
   }
 
   return buildResult(category, rationaleParts.join(' | '), warnings);
