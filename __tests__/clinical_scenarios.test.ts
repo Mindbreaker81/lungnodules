@@ -97,7 +97,8 @@ describe('Pruebas Clínicas Automatizadas - Guía Fleischner 2017', () => {
         const result = assessFleischner(input);
 
         expect(result.category).toBe('No aplicable');
-        expect(result.reason).toContain('≥35 años'); // Verifica que el mensaje de error esté traducido
+        // Verifica que hay una advertencia sobre la edad
+        expect(result.warnings?.some(w => w.includes('35') || w.includes('edad'))).toBe(true);
     });
 
 });

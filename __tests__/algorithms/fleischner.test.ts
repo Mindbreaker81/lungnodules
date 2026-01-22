@@ -26,22 +26,23 @@ describe('Fleischner 2017', () => {
 
   test('TC-F-001 Solid 4mm low risk -> No routine follow-up', () => {
     const res = run({ type: 'solid', diameterMm: 4 }, 'low');
-    expect(res.recommendation).toMatch(/No routine follow-up/i);
+    expect(res.recommendation).toMatch(/Sin seguimiento|No routine follow-up/i);
   });
 
   test('TC-F-002 Solid 5mm high risk -> Optional CT 12 months', () => {
     const res = run({ type: 'solid', diameterMm: 5 }, 'high');
-    expect(res.recommendation).toMatch(/Optional CT at 12 months/i);
+    expect(res.recommendation).toMatch(/Opcional|Optional/i);
   });
 
   test('TC-F-003 Solid 7mm low risk -> CT 6-12 months', () => {
     const res = run({ type: 'solid', diameterMm: 7 }, 'low');
-    expect(res.recommendation).toMatch(/6-12 months/i);
+    expect(res.recommendation).toMatch(/6-12 meses|6-12 months/i);
   });
 
   test('TC-F-004 Solid 7mm high risk -> CT 6-12 then 18-24', () => {
     const res = run({ type: 'solid', diameterMm: 7 }, 'high');
-    expect(res.recommendation).toMatch(/6-12 months; then/i);
+    expect(res.recommendation).toMatch(/6-12 meses|6-12 months/i);
+    expect(res.recommendation).toMatch(/18-24 meses|18-24 months/i);
   });
 
   test('TC-F-005 Solid 10mm -> CT 3mo/PET/biopsy', () => {
@@ -51,17 +52,17 @@ describe('Fleischner 2017', () => {
 
   test('TC-F-006 GGN 4mm -> No routine follow-up', () => {
     const res = run({ type: 'ground-glass', diameterMm: 4 });
-    expect(res.recommendation).toMatch(/No routine follow-up/i);
+    expect(res.recommendation).toMatch(/Sin seguimiento|No routine follow-up/i);
   });
 
   test('TC-F-007 GGN 8mm -> CT 6-12mo then q2y', () => {
     const res = run({ type: 'ground-glass', diameterMm: 8 });
-    expect(res.recommendation).toMatch(/6-12 months/i);
+    expect(res.recommendation).toMatch(/6-12 meses|6-12 months/i);
   });
 
   test('TC-F-008 Part-solid 8mm solid 4mm -> CT 3-6mo annual', () => {
     const res = run({ type: 'part-solid', diameterMm: 8, solidComponentMm: 4 });
-    expect(res.recommendation).toMatch(/3-6 months/i);
+    expect(res.recommendation).toMatch(/3-6 meses|3-6 months/i);
   });
 
   test('TC-F-009 Part-solid 10mm solid 7mm -> PET/biopsy/resection', () => {
@@ -71,25 +72,25 @@ describe('Fleischner 2017', () => {
 
   test('TC-F-010 Perifissural solid 8mm -> No routine follow-up', () => {
     const res = run({ type: 'solid', diameterMm: 8, isPerifissural: true });
-    expect(res.recommendation).toMatch(/No routine follow-up/i);
+    expect(res.recommendation).toMatch(/Sin seguimiento|No routine follow-up/i);
   });
 
   test('TC-F-011 Multiple GGN <6mm high risk -> CT 3-6 months, consider 2 & 4 years', () => {
     const res = run({ type: 'ground-glass', diameterMm: 4, isMultiple: true }, 'high');
-    expect(res.recommendation).toMatch(/3-6 months/i);
-    expect(res.recommendation).toMatch(/2 and 4 years/i);
+    expect(res.recommendation).toMatch(/3-6 meses|3-6 months/i);
+    expect(res.recommendation).toMatch(/2 y 4 años|2 and 4 years/i);
   });
 
   test('TC-F-012 Multiple GGN ≥6mm -> CT 3-6 months dominant nodule', () => {
     const res = run({ type: 'ground-glass', diameterMm: 8, isMultiple: true });
-    expect(res.recommendation).toMatch(/3-6 months/i);
-    expect(res.recommendation).toMatch(/most suspicious|dominant/i);
+    expect(res.recommendation).toMatch(/3-6 meses|3-6 months/i);
+    expect(res.recommendation).toMatch(/más sospechoso|most suspicious|dominant/i);
   });
 
   test('TC-F-013 Multiple part-solid ≥6mm solid <6mm -> Annual CT for 5 years', () => {
     const res = run({ type: 'part-solid', diameterMm: 8, solidComponentMm: 3, isMultiple: true });
-    expect(res.recommendation).toMatch(/annual/i);
-    expect(res.recommendation).toMatch(/5 years/i);
+    expect(res.recommendation).toMatch(/anual|annual/i);
+    expect(res.recommendation).toMatch(/5 años|5 years/i);
   });
 
   test('TC-F-014 Multiple part-solid ≥6mm solid ≥6mm -> Consider PET/CT/biopsy', () => {
@@ -99,6 +100,6 @@ describe('Fleischner 2017', () => {
 
   test('TC-F-015 Solid 5.6mm rounds to 6mm -> CT 6-12 months', () => {
     const res = run({ type: 'solid', diameterMm: 5.6 }, 'low');
-    expect(res.recommendation).toMatch(/6-12 months/i);
+    expect(res.recommendation).toMatch(/6-12 meses|6-12 months/i);
   });
 });

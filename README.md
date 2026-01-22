@@ -2,6 +2,17 @@
 
 Aplicación clínica para recomendar seguimiento de nódulos pulmonares según Fleischner 2017 y Lung-RADS v2022.
 
+[![Security: Status](https://img.shields.io/badge/Security-Active-brightgreen.svg)](SECURITY.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+## :rotating_light: Seguridad y Disclaimer Médico
+
+**⚠️ Importante:** Esta herramienta es solo para soporte de decisiones clínicas. Ver [MEDICAL_DISCLAIMER.md](MEDICAL_DISCLAIMER.md) para información importante sobre su uso.
+
+**🔒 Seguridad:** ¿Encontraste una vulnerabilidad? Por favor repórtala de forma privada:
+- Revisa nuestra [Política de Seguridad](SECURITY.md)
+- Usa el [GitHub Security Advisory](../../security/advisories) para reportes confidenciales
+
 ## Estado
 - PRD: `PRD-LungNoduleTracker.md`
 - TODO operativo: `TODO.md`
