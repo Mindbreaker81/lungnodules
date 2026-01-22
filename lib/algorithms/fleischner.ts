@@ -32,8 +32,7 @@ function assessSubsolidMultiple(options: {
   riskLevel: RiskLevel;
 }): AssessmentResult {
   const { type, diameter, solidComponent, riskLevel } = options;
-  const highRiskFollowup = 'CT at 3-6 months; if stable consider CT at 2 and 4 years';
-  const lowRiskFollowup = 'CT at 3-6 months to confirm persistence; no routine follow-up if stable';
+
 
   if (diameter < 6) {
     return {
