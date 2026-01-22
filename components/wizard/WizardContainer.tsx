@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { assessmentInputSchema, AssessmentInput } from "@lib/schemas/noduleInput";
-import { assessFleischner, assessLungRads, AssessmentResult, RiskLevel, ClinicalContext } from "@lib/algorithms";
+import { assessFleischner, assessLungRads, AssessmentResult, ClinicalContext } from "@lib/algorithms";
 import { analytics } from "@lib/analytics";
 import ContextStep from "./ContextStep";
 import RiskStep from "./RiskStep";

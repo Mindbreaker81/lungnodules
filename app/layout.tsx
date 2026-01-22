@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen bg-background text-slate-100 font-display">
         <ServiceWorkerRegister />
         <OfflineBanner />
-        <main className="mx-auto max-w-md px-4 py-6 pb-24">{children}</main>
+        <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-24 lg:max-w-4xl">{children}</main>
       </body>
     </html>
   );

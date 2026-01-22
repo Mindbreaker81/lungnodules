@@ -284,7 +284,7 @@ export default function ResultsStep({ result, input }: Props) {
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1 rounded-md border border-slate-700 bg-slate-800/50 p-3 text-xs text-slate-400">
           ⚠️ MEDICAL DISCLAIMER: Decision support only; verificar contra guías actuales. No aplica a &lt;35 años,
           inmunocomprometidos o cáncer conocido.
@@ -295,7 +295,7 @@ export default function ResultsStep({ result, input }: Props) {
           size="sm"
           aria-label="Copiar recomendación"
           onClick={handleCopy}
-          className={copyStatus === 'copied' ? 'bg-green-900/20 text-green-400 border-green-800' : copyStatus === 'error' ? 'bg-red-900/20 text-red-400 border-red-800' : ''}
+          className={`shrink-0 ${copyStatus === 'copied' ? 'bg-green-900/20 text-green-400 border-green-800' : copyStatus === 'error' ? 'bg-red-900/20 text-red-400 border-red-800' : ''}`}
         >
           {copyStatus === 'copied' ? '✓ Copiado' : copyStatus === 'error' ? 'Error' : 'Copiar'}
         </Button>

@@ -9,7 +9,7 @@ export default function HomePage() {
         <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20">
           Support Tool v1.0
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-6xl">
+        <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
           Lung Nodule Decision Support
         </h1>
         <p className="text-xl text-slate-400">
