@@ -1,5 +1,5 @@
 import { assessFleischner } from '../lib/algorithms/fleischner';
-import { FleischnerAssessmentInput, RiskLevel } from '../lib/algorithms/types';
+import { FleischnerAssessmentInput } from '../lib/algorithms/types';
 
 describe('Pruebas Clínicas Automatizadas - Guía Fleischner 2017', () => {
 

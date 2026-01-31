@@ -103,7 +103,7 @@ class Analytics {
     this.eventQueue.push({ event, properties: enrichedProperties });
 
     if (this.config.debug) {
-      console.log(`[Analytics] ${event}`, enrichedProperties);
+      console.warn(`[Analytics] ${event}`, enrichedProperties);
     }
 
     if (this.eventQueue.length >= this.config.batchSize) {
@@ -185,7 +185,7 @@ class Analytics {
       localStorage.setItem('analytics_events', JSON.stringify(trimmedEvents));
 
       if (this.config.debug) {
-        console.log(`[Analytics] Flushed ${eventsToSend.length} events`);
+        console.warn(`[Analytics] Flushed ${eventsToSend.length} events`);
       }
 
       // If endpoint is configured, send to backend
@@ -208,7 +208,7 @@ class Analytics {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ events }),
       });
-    } catch (error) {
+    } catch {
       // Silently fail - events are already stored in localStorage
     }
   }
