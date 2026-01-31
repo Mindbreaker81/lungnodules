@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { GUIDELINE_VERSIONS } from '@config/guidelines';
+import { GUIDELINE_VERSIONS, APP_VERSION } from '@config/guidelines';
 
 export default function HomePage() {
   return (
@@ -7,7 +7,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="max-w-3xl space-y-6">
         <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20">
-          Support Tool v1.0
+          Support Tool v{APP_VERSION}
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
           Lung Nodule Decision Support
@@ -63,7 +63,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="w-full border-t border-slate-800/50 pt-8 mt-12">
         <div className="flex flex-col items-center justify-center gap-2 text-sm text-slate-500">
-          <p>© 2026 Lung Nodule Tracker v1.0.0</p>
+          <p>© 2026 Lung Nodule Tracker v{APP_VERSION}</p>
           <p className="text-xs">Desarrollado con ❤️ por <a href="https://github.com/mindbreaker81" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">mindbreaker81</a></p>
         </div>
       </footer>
