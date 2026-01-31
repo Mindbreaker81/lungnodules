@@ -5,6 +5,7 @@ Aplicación clínica para recomendar seguimiento de nódulos pulmonares según F
 [![Security: Status](https://img.shields.io/badge/Security-Active-brightgreen.svg)](SECURITY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+[![Version: 1.0.1](https://img.shields.io/badge/Version-1.0.1-blue.svg)](CHANGELOG.md)
 ## :rotating_light: Seguridad y Disclaimer Médico
 
 **⚠️ Importante:** Esta herramienta es solo para soporte de decisiones clínicas. Ver [MEDICAL_DISCLAIMER.md](MEDICAL_DISCLAIMER.md) para información importante sobre su uso.
