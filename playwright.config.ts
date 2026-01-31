@@ -8,6 +8,12 @@ export default defineConfig({
   expect: {
     timeout: 5000,
   },
+  webServer: {
+    command: process.env.CI ? "npm run start" : "npm run dev",
+    url: baseURL,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
   use: {
     baseURL,
     trace: "on-first-retry",

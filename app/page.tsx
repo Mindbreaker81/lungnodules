@@ -64,7 +64,7 @@ export default function HomePage() {
       <footer className="w-full border-t border-slate-800/50 pt-8 mt-12">
         <div className="flex flex-col items-center justify-center gap-2 text-sm text-slate-500">
           <p>© 2026 Lung Nodule Tracker v{APP_VERSION}</p>
-          <p className="text-xs">Desarrollado con ❤️ por <a href="https://github.com/mindbreaker81" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">mindbreaker81</a></p>
+          <p className="text-xs">Desarrollado por <a href="https://github.com/mindbreaker81" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">mindbreaker81</a></p>
         </div>
       </footer>
     </div>
