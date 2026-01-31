@@ -25,13 +25,6 @@ export const viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body className={`${manrope.className} min-h-screen bg-background text-slate-100 font-display`}>
         <ServiceWorkerRegister />
         <OfflineBanner />

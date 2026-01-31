@@ -91,9 +91,15 @@ jobs:
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
+        id: download-artifact
         with:
           name: build-output
           path: .next/
+
+      - name: Build application (if artifact missing)
+        if: steps.download-artifact.outcome == 'failure'
+        run: npm run build
 
       - name: Run E2E tests
         run: npm run test:e2e
@@ -129,9 +135,15 @@ jobs:
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
+        id: download-artifact
         with:
           name: build-output
           path: .next/
+
+      - name: Build application (if artifact missing)
+        if: steps.download-artifact.outcome == 'failure'
+        run: npm run build
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v11
