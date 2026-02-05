@@ -202,6 +202,12 @@ export default function WizardContainer() {
         const solidComponent = methods.getValues("nodule.solidComponentMm");
         if (solidComponent !== undefined && Number.isNaN(solidComponent)) {
           methods.setValue("nodule.solidComponentMm", undefined);
+        } else if (solidComponent !== undefined && solidComponent <= 0) {
+          methods.setError("nodule.solidComponentMm" as any, {
+            type: "manual",
+            message: "Un nódulo semi-sólido con componente sólido 0 mm es vidrio esmerilado; cambia el tipo o ingresa un valor >0",
+          });
+          return false;
         } else if (solidComponent !== undefined && solidComponent > diameter) {
           methods.setError("nodule.solidComponentMm" as any, {
             type: "manual",
