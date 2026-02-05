@@ -235,7 +235,7 @@ export const UI_COLORS = {
 export const NODULE_TYPE_LABELS = {
   solid: 'Sólido',
   'ground-glass': 'Vidrio deslustrado (GGN)',
-  'part-solid': 'Parte Sólido',
+  'part-solid': 'Semi-sólido',
 } as const;
 
 export const SCAN_TYPE_LABELS = {

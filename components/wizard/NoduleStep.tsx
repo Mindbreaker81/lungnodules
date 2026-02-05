@@ -12,7 +12,7 @@ interface Props {
 const NODULE_TYPE_TOOLTIP =
   "Sólido: opacidad que oculta vasos/bronquios. " +
   "Vidrio esmerilado (GGN/no sólido): aumento de atenuación sin ocultar estructuras. " +
-  "Parte-sólido (sub-sólido): combina vidrio esmerilado y componente sólido.";
+  "Semi-sólido: combina vidrio esmerilado y componente sólido.";
 
 export default function NoduleStep({ clinicalContext }: Props) {
   const { register, watch, setValue } = useFormContext<AssessmentInput>();
@@ -47,6 +47,12 @@ export default function NoduleStep({ clinicalContext }: Props) {
     }
   }, [isMultiple, setValue]);
 
+  useEffect(() => {
+    if (type !== "part-solid") {
+      setValue("nodule.solidComponentMm", undefined);
+    }
+  }, [type, setValue]);
+
   return (
     <div className="space-y-4">
       <div>
@@ -63,7 +69,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
         >
           <option value="solid" className="bg-surface">Sólido</option>
           <option value="ground-glass" className="bg-surface">Vidrio esmerilado (GGN / no sólido)</option>
-          <option value="part-solid" className="bg-surface">Parte-sólido (sub-sólido)</option>
+          <option value="part-solid" className="bg-surface">Semi-sólido</option>
         </select>
       </div>
 
@@ -107,7 +113,11 @@ export default function NoduleStep({ clinicalContext }: Props) {
               aria-label="Número de nódulos"
               className="mt-1"
               {...register("nodule.noduleCount", {
-                setValueAs: (value) => (value === "" ? undefined : Number(value)),
+                setValueAs: (v: unknown) => {
+                  if (v === "" || v === undefined || v === null) return undefined;
+                  const n = Number(v);
+                  return Number.isNaN(n) ? undefined : n;
+                },
               })}
             />
           </div>
@@ -138,7 +148,13 @@ export default function NoduleStep({ clinicalContext }: Props) {
             step="0.1"
             aria-label="Componente sólido en milímetros"
             className="mt-1"
-            {...register("nodule.solidComponentMm", { valueAsNumber: true })}
+            {...register("nodule.solidComponentMm", {
+              setValueAs: (v: unknown) => {
+                if (v === "" || v === undefined || v === null) return undefined;
+                const n = Number(v);
+                return Number.isNaN(n) ? undefined : n;
+              },
+            })}
           />
           {solidExceeds && (
             <p className="mt-1 text-sm text-amber-400">

@@ -128,15 +128,15 @@ export default function WizardContainer() {
         const isImmunocompromised = methods.getValues("patient.isImmunocompromised");
 
         if (age === undefined || Number.isNaN(age)) {
-          methods.setError("patient.age", { type: "manual", message: "Age must be positive" });
+          methods.setError("patient.age", { type: "manual", message: "La edad debe ser positiva" });
           return false;
         }
         if (age < 35) {
-          methods.setError("patient.age", { type: "manual", message: "Fleischner guidelines apply to patients ≥35 years" });
+          methods.setError("patient.age", { type: "manual", message: "Las guías Fleischner aplican a pacientes ≥35 años" });
           return false;
         }
         if (!riskLevel) {
-          methods.setError("patient.riskLevel" as any, { type: "manual", message: "Risk level is required for Fleischner" });
+          methods.setError("patient.riskLevel" as any, { type: "manual", message: "El nivel de riesgo es requerido para Fleischner" });
           return false;
         }
         if (hasKnownMalignancy) {
@@ -164,10 +164,11 @@ export default function WizardContainer() {
       if (scanType === "follow-up") {
         const priorDiameter = methods.getValues("nodule.priorDiameterMm" as any);
         const priorMonths = methods.getValues("nodule.priorScanMonthsAgo" as any);
-        if (priorDiameter === undefined || priorMonths === undefined) {
+        if (priorDiameter === undefined || Number.isNaN(priorDiameter) ||
+            priorMonths === undefined || Number.isNaN(priorMonths)) {
           methods.setError("nodule.priorDiameterMm" as any, {
             type: "manual",
-            message: "Prior diameter and interval are required for follow-up scans",
+            message: "El diámetro previo y el intervalo son requeridos para seguimiento",
           });
           return false;
         }
@@ -178,6 +179,10 @@ export default function WizardContainer() {
           methods.setError("priorStatus" as any, { type: "manual", message: "Estado Lung-RADS previo requerido" });
           return false;
         }
+        if (priorStatus && !priorCategory) {
+          methods.setError("priorCategory" as any, { type: "manual", message: "Categoría Lung-RADS previa requerida" });
+          return false;
+        }
       }
       return true;
     }
@@ -185,12 +190,31 @@ export default function WizardContainer() {
     if (step === "nodule") {
       const diameter = methods.getValues("nodule.diameterMm");
       if (diameter === undefined || Number.isNaN(diameter)) {
-        methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Enter diameter between 1-100 mm" });
+        methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Ingresa un diámetro entre 1 y 100 mm" });
         return false;
       }
       if (diameter < 1 || diameter > 100) {
-        methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Enter diameter between 1-100 mm" });
+        methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Ingresa un diámetro entre 1 y 100 mm" });
         return false;
+      }
+      const type = methods.getValues("nodule.type");
+      if (type === "part-solid") {
+        const solidComponent = methods.getValues("nodule.solidComponentMm");
+        if (solidComponent !== undefined && Number.isNaN(solidComponent)) {
+          methods.setValue("nodule.solidComponentMm", undefined);
+        } else if (solidComponent !== undefined && solidComponent <= 0) {
+          methods.setError("nodule.solidComponentMm" as any, {
+            type: "manual",
+            message: "Un nódulo semi-sólido con componente sólido 0 mm es vidrio esmerilado; cambia el tipo o ingresa un valor >0",
+          });
+          return false;
+        } else if (solidComponent !== undefined && solidComponent > diameter) {
+          methods.setError("nodule.solidComponentMm" as any, {
+            type: "manual",
+            message: "El componente sólido no puede exceder el diámetro total",
+          });
+          return false;
+        }
       }
       const isMultiple = methods.getValues("nodule.isMultiple");
       if (isMultiple) {
@@ -230,13 +254,17 @@ export default function WizardContainer() {
       analytics.assessmentCompleted("lung-rads-2022", assessment.category, data.nodule.type);
     },
     (validationErrors) => {
-      // Log validation errors for debugging
-      console.error("Form validation failed:", JSON.stringify(validationErrors, null, 2));
-      const flatErrors = Object.entries(validationErrors)
-        .map(([key, value]) => `${key}: ${(value as any)?.message || JSON.stringify(value)}`)
-        .join("; ");
-      if (flatErrors) {
-        analytics.errorDisplayed("validation", flatErrors);
+      // Log validation errors for debugging (avoid JSON.stringify — refs can be circular)
+      console.error("Form validation failed:", validationErrors);
+      try {
+        const flatErrors = Object.entries(validationErrors)
+          .map(([key, value]) => `${key}: ${(value as any)?.message || "invalid"}`)
+          .join("; ");
+        if (flatErrors) {
+          analytics.errorDisplayed("validation", flatErrors);
+        }
+      } catch {
+        analytics.errorDisplayed("validation", "Form validation failed");
       }
     }
   );
@@ -292,9 +320,19 @@ export default function WizardContainer() {
     }
   }, [context, currentStep, result, lastInput]);
 
-  const firstErrorMessage =
-    Object.values(errors).find((e) => (e as any)?.message)?.message ??
-    Object.values(errors).flatMap((e) => (e as any)?.root?.message ?? [])?.[0];
+  const extractFirstError = (errs: Record<string, unknown>, depth = 0): string | undefined => {
+    if (depth > 5) return undefined;
+    for (const value of Object.values(errs)) {
+      if (!value || typeof value !== "object") continue;
+      const val = value as Record<string, unknown>;
+      if (typeof val.message === "string") return val.message;
+      if (val.root && typeof (val.root as any).message === "string") return (val.root as any).message;
+      const nested = extractFirstError(val as Record<string, unknown>, depth + 1);
+      if (nested) return nested;
+    }
+    return undefined;
+  };
+  const firstErrorMessage = extractFirstError(errors as Record<string, unknown>);
 
   return (
     <FormProvider {...methods}>
