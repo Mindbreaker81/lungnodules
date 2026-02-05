@@ -314,13 +314,14 @@ export default function WizardContainer() {
     }
   }, [context, currentStep, result, lastInput]);
 
-  const extractFirstError = (errs: Record<string, unknown>): string | undefined => {
+  const extractFirstError = (errs: Record<string, unknown>, depth = 0): string | undefined => {
+    if (depth > 5) return undefined;
     for (const value of Object.values(errs)) {
       if (!value || typeof value !== "object") continue;
       const val = value as Record<string, unknown>;
       if (typeof val.message === "string") return val.message;
       if (val.root && typeof (val.root as any).message === "string") return (val.root as any).message;
-      const nested = extractFirstError(val as Record<string, unknown>);
+      const nested = extractFirstError(val as Record<string, unknown>, depth + 1);
       if (nested) return nested;
     }
     return undefined;
