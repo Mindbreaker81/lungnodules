@@ -29,9 +29,8 @@ function assessSubsolidMultiple(options: {
   type: 'ground-glass' | 'part-solid';
   diameter: number;
   solidComponent?: number;
-  riskLevel: RiskLevel;
 }): AssessmentResult {
-  const { type, diameter, riskLevel } = options;
+  const { type, diameter } = options;
   // Treat NaN as undefined (unknown solid component)
   const solidComponent = options.solidComponent !== undefined && Number.isNaN(options.solidComponent)
     ? undefined
@@ -273,13 +272,13 @@ export function assessFleischner({ patient, nodule }: FleischnerAssessmentInput)
 
   if (type === 'ground-glass') {
     return isMultiple
-      ? assessSubsolidMultiple({ type, diameter: roundedDiameter, riskLevel })
+      ? assessSubsolidMultiple({ type, diameter: roundedDiameter })
       : assessGroundGlass(roundedDiameter);
   }
 
   if (type === 'part-solid') {
     return isMultiple
-      ? assessSubsolidMultiple({ type, diameter: roundedDiameter, solidComponent: roundedSolidComponent, riskLevel })
+      ? assessSubsolidMultiple({ type, diameter: roundedDiameter, solidComponent: roundedSolidComponent })
       : assessPartSolid(roundedDiameter, roundedSolidComponent);
   }
 
