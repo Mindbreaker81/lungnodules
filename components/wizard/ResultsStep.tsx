@@ -23,7 +23,7 @@ interface Props {
 const NODULE_TYPE_LABELS: Record<string, string> = {
   solid: "Sólido",
   "ground-glass": "Vidrio deslustrado (GGN / no sólido)",
-  "part-solid": "Parte-sólido (sub-sólido)",
+  "part-solid": "Semi-sólido",
 };
 
 const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {

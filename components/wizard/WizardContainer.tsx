@@ -128,15 +128,15 @@ export default function WizardContainer() {
         const isImmunocompromised = methods.getValues("patient.isImmunocompromised");
 
         if (age === undefined || Number.isNaN(age)) {
-          methods.setError("patient.age", { type: "manual", message: "Age must be positive" });
+          methods.setError("patient.age", { type: "manual", message: "La edad debe ser positiva" });
           return false;
         }
         if (age < 35) {
-          methods.setError("patient.age", { type: "manual", message: "Fleischner guidelines apply to patients ≥35 years" });
+          methods.setError("patient.age", { type: "manual", message: "Las guías Fleischner aplican a pacientes ≥35 años" });
           return false;
         }
         if (!riskLevel) {
-          methods.setError("patient.riskLevel" as any, { type: "manual", message: "Risk level is required for Fleischner" });
+          methods.setError("patient.riskLevel" as any, { type: "manual", message: "El nivel de riesgo es requerido para Fleischner" });
           return false;
         }
         if (hasKnownMalignancy) {
@@ -177,6 +177,10 @@ export default function WizardContainer() {
         const priorStatus = methods.getValues("priorStatus");
         if (priorCategory && !priorStatus) {
           methods.setError("priorStatus" as any, { type: "manual", message: "Estado Lung-RADS previo requerido" });
+          return false;
+        }
+        if (priorStatus && !priorCategory) {
+          methods.setError("priorCategory" as any, { type: "manual", message: "Categoría Lung-RADS previa requerida" });
           return false;
         }
       }

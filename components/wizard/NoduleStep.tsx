@@ -12,7 +12,7 @@ interface Props {
 const NODULE_TYPE_TOOLTIP =
   "Sólido: opacidad que oculta vasos/bronquios. " +
   "Vidrio esmerilado (GGN/no sólido): aumento de atenuación sin ocultar estructuras. " +
-  "Parte-sólido (sub-sólido): combina vidrio esmerilado y componente sólido.";
+  "Semi-sólido: combina vidrio esmerilado y componente sólido.";
 
 export default function NoduleStep({ clinicalContext }: Props) {
   const { register, watch, setValue } = useFormContext<AssessmentInput>();
@@ -69,7 +69,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
         >
           <option value="solid" className="bg-surface">Sólido</option>
           <option value="ground-glass" className="bg-surface">Vidrio esmerilado (GGN / no sólido)</option>
-          <option value="part-solid" className="bg-surface">Parte-sólido (sub-sólido)</option>
+          <option value="part-solid" className="bg-surface">Semi-sólido</option>
         </select>
       </div>
 

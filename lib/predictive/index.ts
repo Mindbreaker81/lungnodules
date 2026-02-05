@@ -323,7 +323,9 @@ function buildHerderSummary(
     };
   }
 
-  const preTestOdds = preTestProbability / (1 - preTestProbability);
+  // Clamp to avoid division by zero (preTest=1.0) or negative odds (preTest<0)
+  const clampedPreTest = Math.min(Math.max(preTestProbability, 0.001), 0.999);
+  const preTestOdds = clampedPreTest / (1 - clampedPreTest);
   const postTestOdds = preTestOdds * likelihoodRatio;
   const probability = postTestOdds / (1 + postTestOdds);
 

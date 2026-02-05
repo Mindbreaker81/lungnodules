@@ -11,11 +11,8 @@ function calculateGrowth(currentDiameter: number, priorDiameter?: number, interv
   if (priorDiameter === undefined || priorDiameter <= 0 || currentDiameter <= 0) return false;
   if (!intervalMonths || intervalMonths <= 0) return false;
   const delta = currentDiameter - priorDiameter;
-  if (intervalMonths <= 12) {
-    return delta > GROWTH_THRESHOLD_MM_PER_12M;
-  }
-  const annualizedChange = (delta / intervalMonths) * 12;
-  return annualizedChange > GROWTH_THRESHOLD_MM_PER_12M;
+  // Lung-RADS v2022: growth defined as absolute increase ≥1.5mm (not annualized)
+  return delta >= GROWTH_THRESHOLD_MM_PER_12M;
 }
 
 function classifySolidLungRADS(options: {
@@ -61,14 +58,17 @@ function classifyGroundGlass(diameter: number): string {
 }
 
 function classifyPartSolid(diameter: number, solidComponent?: number): { category: string; warnings?: string[] } {
-  if (solidComponent === undefined) {
-    return { category: '3', warnings: ['Se requiere tamaño del componente sólido para evaluación parte-sólida'] };
+  if (diameter < 6) {
+    return { category: '2' };
   }
-  if (solidComponent >= 6) {
+  if (solidComponent === undefined) {
+    return { category: '3', warnings: ['Se requiere tamaño del componente sólido para evaluación semi-sólida'] };
+  }
+  // Lung-RADS v2022: part-solid classification driven by solid component size
+  if (solidComponent >= 8) {
     return { category: '4B' };
   }
-  // Baseline heuristic: treat as probably benign unless size large
-  if (diameter >= 8) {
+  if (solidComponent >= 6) {
     return { category: '4A' };
   }
   return { category: '3' };
@@ -239,11 +239,12 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     warnings = result.warnings;
   }
 
+  // Apply stepped management BEFORE spiculation upgrade so 4X is never stepped down
+  category = applySteppedManagement(category, priorCategory, priorStatus);
+
   if (nodule.hasSpiculation && ['3', '4A', '4B'].includes(category)) {
     category = '4X';
   }
-
-  category = applySteppedManagement(category, priorCategory, priorStatus);
 
   if (nodule.solidComponentMm !== undefined && nodule.solidComponentMm > nodule.diameterMm) {
     warnings = [...(warnings ?? []), 'El componente sólido no puede exceder el diámetro total'];

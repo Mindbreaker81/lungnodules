@@ -31,17 +31,18 @@ function assessSubsolidMultiple(options: {
   solidComponent?: number;
   riskLevel: RiskLevel;
 }): AssessmentResult {
-  const { type, diameter, solidComponent, riskLevel } = options;
-
+  const { type, diameter, riskLevel } = options;
+  // Treat NaN as undefined (unknown solid component)
+  const solidComponent = options.solidComponent !== undefined && Number.isNaN(options.solidComponent)
+    ? undefined
+    : options.solidComponent;
 
   if (diameter < 6) {
     return {
       guideline: GUIDELINE,
-      category: `${type === 'ground-glass' ? 'Vidrio deslustrado' : 'Parte-sólido'} <6mm (múltiples)`,
-      recommendation: riskLevel === 'high'
-        ? 'TC a los 3-6 meses; si es estable considerar TC a los 2 y 4 años'
-        : 'TC a los 3-6 meses para confirmar persistencia; sin seguimiento de rutina si es estable',
-      followUpInterval: riskLevel === 'high' ? '3-6 meses (considerar 2 y 4 años)' : '3-6 meses',
+      category: `${type === 'ground-glass' ? 'Vidrio deslustrado' : 'Semi-sólido'} <6mm (múltiples)`,
+      recommendation: 'TC a los 3-6 meses para confirmar persistencia; si es estable considerar TC a los 2 y 4 años',
+      followUpInterval: '3-6 meses (considerar 2 y 4 años)',
       rationale: 'Múltiples nódulos subsólidos <6mm requieren confirmación a corto plazo; considerar causas infecciosas',
     };
   }
@@ -59,7 +60,7 @@ function assessSubsolidMultiple(options: {
   if (solidComponent === undefined) {
     return {
       guideline: GUIDELINE,
-      category: 'Parte-sólido ≥6mm (múltiples, componente sólido desconocido)',
+      category: 'Semi-sólido ≥6mm (múltiples, componente sólido desconocido)',
       recommendation: 'Medir componente sólido; TC a los 3-6 meses; manejo basado en nódulo dominante',
       followUpInterval: '3-6 meses',
       rationale: 'El tamaño del componente sólido determina la estratificación de riesgo',
@@ -70,16 +71,16 @@ function assessSubsolidMultiple(options: {
   if (solidComponent < 6) {
     return {
       guideline: GUIDELINE,
-      category: 'Parte-sólido ≥6mm, sólido <6mm (múltiples)',
+      category: 'Semi-sólido ≥6mm, sólido <6mm (múltiples)',
       recommendation: 'TC a los 3-6 meses; si persiste, TC anual por 5 años (nódulo dominante)',
       followUpInterval: '3-6 meses; luego anual x5a',
-      rationale: 'Nódulos parte-sólidos persistentes con componente sólido pequeño requieren vigilancia a largo plazo',
+      rationale: 'Nódulos semi-sólidos persistentes con componente sólido pequeño requieren vigilancia a largo plazo',
     };
   }
 
   return {
     guideline: GUIDELINE,
-    category: 'Parte-sólido ≥6mm, sólido ≥6mm (múltiples)',
+    category: 'Semi-sólido ≥6mm, sólido ≥6mm (múltiples)',
     recommendation: 'TC a los 3-6 meses; considerar PET/CT, biopsia o escisión',
     followUpInterval: '3-6 meses (luego diagnóstico)',
     malignancyRisk: 'Alta sospecha',
@@ -194,17 +195,22 @@ function assessPartSolid(diameter: number, solidComponent?: number): AssessmentR
   if (diameter < 6) {
     return {
       guideline: GUIDELINE,
-      category: 'Parte-sólido <6mm',
+      category: 'Semi-sólido <6mm',
       recommendation: 'Sin seguimiento de rutina',
       followUpInterval: 'Ninguno',
-      rationale: 'Nódulos parte-sólidos pequeños raramente son malignos',
+      rationale: 'Nódulos semi-sólidos pequeños raramente son malignos',
     };
   }
 
-  if (solidComponent === undefined) {
+  // Treat NaN as undefined (unknown solid component)
+  const safeSolidComponent = solidComponent !== undefined && Number.isNaN(solidComponent)
+    ? undefined
+    : solidComponent;
+
+  if (safeSolidComponent === undefined) {
     return {
       guideline: GUIDELINE,
-      category: 'Parte-sólido (componente sólido desconocido)',
+      category: 'Semi-sólido (componente sólido desconocido)',
       recommendation: 'Medir componente sólido; manejo depende del tamaño sólido',
       followUpInterval: 'Pendiente de medición',
       rationale: 'El tamaño del componente sólido determina la estratificación de riesgo',
@@ -212,10 +218,10 @@ function assessPartSolid(diameter: number, solidComponent?: number): AssessmentR
     };
   }
 
-  if (solidComponent < 6) {
+  if (safeSolidComponent < 6) {
     return {
       guideline: GUIDELINE,
-      category: 'Parte-sólido ≥6mm, sólido <6mm',
+      category: 'Semi-sólido ≥6mm, sólido <6mm',
       recommendation: 'TC a los 3-6 meses, luego TC anual por 5 años',
       followUpInterval: '3-6 meses; luego anual x5a',
       rationale: 'El riesgo aumenta con la persistencia; vigilancia anual recomendada',
@@ -224,7 +230,7 @@ function assessPartSolid(diameter: number, solidComponent?: number): AssessmentR
 
   return {
     guideline: GUIDELINE,
-    category: 'Parte-sólido, sólido ≥6mm',
+    category: 'Semi-sólido, sólido ≥6mm',
     recommendation: 'PET/CT, biopsia o escisión quirúrgica',
     followUpInterval: 'Según indicación',
     malignancyRisk: 'Alta sospecha',
@@ -251,13 +257,13 @@ export function assessFleischner({ patient, nodule }: FleischnerAssessmentInput)
   const roundedDiameter = roundToNearestMm(diameterMm);
   const roundedSolidComponent = solidComponentMm === undefined ? undefined : roundToNearestMm(solidComponentMm);
 
-  if (type === 'solid' && isPerifissural) {
+  if (type === 'solid' && isPerifissural && roundedDiameter <= 10) {
     return {
       guideline: GUIDELINE,
       category: 'Nódulo perifisural (morfología benigna)',
       recommendation: 'Sin seguimiento de rutina',
       followUpInterval: 'Ninguno',
-      rationale: 'Nódulos perifisurales con morfología benigna típica raramente son malignos',
+      rationale: 'Nódulos perifisurales ≤10mm con morfología benigna típica raramente son malignos',
     };
   }
 

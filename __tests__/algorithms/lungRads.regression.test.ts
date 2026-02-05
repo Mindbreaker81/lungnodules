@@ -104,8 +104,8 @@ describe('Lung-RADS Regression: Growth Calculation', () => {
       expect(calculateLungRadsGrowth(8, 6, 12)).toBe(true);
     });
 
-    test('TC-GR-002 Growth =1.5mm in 12 months -> false (threshold is >)', () => {
-      expect(calculateLungRadsGrowth(7.5, 6, 12)).toBe(false);
+    test('TC-GR-002 Growth =1.5mm in 12 months -> true (threshold is >=)', () => {
+      expect(calculateLungRadsGrowth(7.5, 6, 12)).toBe(true);
     });
 
     test('TC-GR-003 Growth <1.5mm in 12 months -> false', () => {
@@ -117,9 +117,9 @@ describe('Lung-RADS Regression: Growth Calculation', () => {
       expect(calculateLungRadsGrowth(8, 6, 6)).toBe(true);
     });
 
-    test('TC-GR-005 Annualized growth <1.5mm (24 months) -> false', () => {
-      // 2mm growth in 24 months = 1mm/year < 1.5mm threshold
-      expect(calculateLungRadsGrowth(8, 6, 24)).toBe(false);
+    test('TC-GR-005 Absolute growth ≥1.5mm over 24 months -> true', () => {
+      // 2mm absolute growth in 24 months ≥1.5mm threshold (no annualization per Lung-RADS v2022)
+      expect(calculateLungRadsGrowth(8, 6, 24)).toBe(true);
     });
 
     test('TC-GR-006 No prior diameter -> false', () => {
@@ -206,7 +206,7 @@ describe('Lung-RADS Regression: Part-solid & GGN Growth', () => {
     age: 60,
   };
 
-  test('TC-PS-001 Part-solid with solid ≥6mm -> 4B', () => {
+  test('TC-PS-001 Part-solid with solid 6-<8mm -> 4A', () => {
     const result = assessLungRads({
       patient: basePatient,
       nodule: {
@@ -217,10 +217,24 @@ describe('Lung-RADS Regression: Part-solid & GGN Growth', () => {
         scanType: 'baseline',
       },
     });
+    expect(result.category).toBe('4A');
+  });
+
+  test('TC-PS-001b Part-solid with solid ≥8mm -> 4B', () => {
+    const result = assessLungRads({
+      patient: basePatient,
+      nodule: {
+        type: 'part-solid',
+        diameterMm: 15,
+        solidComponentMm: 9,
+        isMultiple: false,
+        scanType: 'baseline',
+      },
+    });
     expect(result.category).toBe('4B');
   });
 
-  test('TC-PS-002 Part-solid with solid <6mm, large size -> 4A', () => {
+  test('TC-PS-002 Part-solid with solid <6mm -> Cat 3 (solid component drives classification)', () => {
     const result = assessLungRads({
       patient: basePatient,
       nodule: {
@@ -231,7 +245,7 @@ describe('Lung-RADS Regression: Part-solid & GGN Growth', () => {
         scanType: 'baseline',
       },
     });
-    expect(result.category).toBe('4A');
+    expect(result.category).toBe('3');
   });
 
   test('TC-PS-003 Part-solid missing solid component -> warning', () => {
