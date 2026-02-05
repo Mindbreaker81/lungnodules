@@ -98,7 +98,8 @@ describe("WizardContainer", () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
 
-    expect(screen.getByText(/Fleischner no aplica en pacientes con cáncer conocido/i)).toBeInTheDocument();
+    // The error message now appears in both the RiskStep inline alert and the form error banner
+    expect(screen.getAllByText(/Fleischner no aplica en pacientes con cáncer conocido/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Exclusiones Fleischner/i)).toBeInTheDocument();
     expect(screen.queryByRole("combobox", { name: /Tipo de nódulo/i })).not.toBeInTheDocument();
   });

@@ -47,6 +47,12 @@ export default function NoduleStep({ clinicalContext }: Props) {
     }
   }, [isMultiple, setValue]);
 
+  useEffect(() => {
+    if (type !== "part-solid") {
+      setValue("nodule.solidComponentMm", undefined);
+    }
+  }, [type, setValue]);
+
   return (
     <div className="space-y-4">
       <div>
@@ -107,7 +113,11 @@ export default function NoduleStep({ clinicalContext }: Props) {
               aria-label="Número de nódulos"
               className="mt-1"
               {...register("nodule.noduleCount", {
-                setValueAs: (value) => (value === "" ? undefined : Number(value)),
+                setValueAs: (v: unknown) => {
+                  if (v === "" || v === undefined || v === null) return undefined;
+                  const n = Number(v);
+                  return Number.isNaN(n) ? undefined : n;
+                },
               })}
             />
           </div>
@@ -138,7 +148,13 @@ export default function NoduleStep({ clinicalContext }: Props) {
             step="0.1"
             aria-label="Componente sólido en milímetros"
             className="mt-1"
-            {...register("nodule.solidComponentMm", { valueAsNumber: true })}
+            {...register("nodule.solidComponentMm", {
+              setValueAs: (v: unknown) => {
+                if (v === "" || v === undefined || v === null) return undefined;
+                const n = Number(v);
+                return Number.isNaN(n) ? undefined : n;
+              },
+            })}
           />
           {solidExceeds && (
             <p className="mt-1 text-sm text-amber-400">

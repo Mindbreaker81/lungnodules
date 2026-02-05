@@ -136,7 +136,13 @@ export default function RiskStep({ clinicalContext }: Props) {
                   min={0}
                   aria-label="Diámetro previo en mm"
                   className="mt-1"
-                  {...register("nodule.priorDiameterMm", { valueAsNumber: true })}
+                  {...register("nodule.priorDiameterMm", {
+                    setValueAs: (v: unknown) => {
+                      if (v === "" || v === undefined || v === null) return undefined;
+                      const n = Number(v);
+                      return Number.isNaN(n) ? undefined : n;
+                    },
+                  })}
                 />
               </div>
               <div>
@@ -146,7 +152,13 @@ export default function RiskStep({ clinicalContext }: Props) {
                   min={0}
                   aria-label="Meses desde el scan previo"
                   className="mt-1"
-                  {...register("nodule.priorScanMonthsAgo", { valueAsNumber: true })}
+                  {...register("nodule.priorScanMonthsAgo", {
+                    setValueAs: (v: unknown) => {
+                      if (v === "" || v === undefined || v === null) return undefined;
+                      const n = Number(v);
+                      return Number.isNaN(n) ? undefined : n;
+                    },
+                  })}
                 />
               </div>
             </div>
