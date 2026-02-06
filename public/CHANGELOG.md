@@ -1,3 +1,28 @@
+## [1.0.2] - 2026-02-06
+
+### Added
+- **Landing**: Aviso visible de que la aplicación está en proceso de desarrollo; se recomienda usar siempre criterio clínico y guías oficiales.
+- **Documentación**: Estado "en desarrollo" en README y versión actualizada (1.0.2).
+
+### Bug Fixes
+
+- remove unused riskLevel from assessSubsolidMultiple (599ee7d)
+- correct algorithm logic errors and rename parte-sólido to semi-sólido (c34b01b)
+- prevent form freeze when subsolid nodule has empty solid diameter (670b7ce)
+- stabilize e2e and update app (9fca358)
+- improve CI artifact handling and icons (3b73a9a)
+
+### Chore
+
+- add tsbuildinfo to gitignore (250fcbd)
+- update next types (da699eb)
+
+### Other
+
+- Merge pull request #2 from Mindbreaker81/claude/fix-fleischner-nodule-form-1Whqp (528f3c3)
+- Reject solid component 0mm for part-solid nodules (fecabe8)
+- Add depth limit to extractFirstError to guard against circular refs (47e7af4)
+
 ## [1.0.1] - 2026-01-31
 
 ### Features

@@ -4,6 +4,17 @@ import { GUIDELINE_VERSIONS, APP_VERSION } from '@config/guidelines';
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center space-y-12 py-12 text-center">
+      {/* Development notice */}
+      <div
+        className="w-full max-w-2xl rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-center text-sm text-amber-200/95"
+        role="status"
+        aria-live="polite"
+      >
+        <span className="font-medium">Aplicación en proceso de desarrollo.</span>
+        {' '}
+        La funcionalidad puede cambiar. Utilice siempre criterio clínico y guías oficiales.
+      </div>
+
       {/* Hero Section */}
       <div className="max-w-3xl space-y-6">
         <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20">
