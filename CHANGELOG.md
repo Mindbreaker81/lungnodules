@@ -1,3 +1,8 @@
+## [1.1.2] - 2026-02-15
+
+### Fixed
+- **Build/Vercel**: Error de TypeScript en `lib/eligibility/registry.ts` (EligibilityModel genérico no asignable a `EligibilityModel[]`). Corregido con aserción de tipo en el array del registro para que el build y el deploy en Vercel pasen.
+
 ## [1.1.1] - 2026-02-15
 
 ### Added

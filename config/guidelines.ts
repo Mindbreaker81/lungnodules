@@ -19,7 +19,7 @@ export const GUIDELINE_VERSIONS = {
   },
 } as const;
 
-export const APP_VERSION = '1.1.1';
+export const APP_VERSION = '1.1.2';
 
 // =============================================================================
 // CLINICAL THRESHOLDS

@@ -15,7 +15,7 @@ const plcom2012Model: EligibilityModel<Plcom2012Input, SchemaWithParse<Plcom2012
   version: "2012",
 };
 
-export const eligibilityModels: EligibilityModel[] = [plcom2012Model];
+export const eligibilityModels: EligibilityModel[] = [plcom2012Model] as EligibilityModel[];
 
 export function getEligibilityModel(modelId: string): EligibilityModel | undefined {
   return eligibilityModels.find((m) => m.id === modelId);
