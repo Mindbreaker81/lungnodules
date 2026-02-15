@@ -38,13 +38,14 @@ const RACE_LABELS: Record<Plcom2012Input["race"], string> = {
   american_indian_alaskan_native: "Indígena americano / Nativo de Alaska",
 };
 
+/** Escala PLCO 1–6: NEJM 2013 Tammemägi et al. Traducción al español coherente con cuestionarios de salud (diferenciar “sin título” vs “titulado”). */
 const EDUCATION_LABELS: Record<number, string> = {
-  1: "Menos que secundaria",
-  2: "Secundaria",
-  3: "Formación post-secundaria",
-  4: "Alguna universidad",
-  5: "Universidad",
-  6: "Posgrado",
+  1: "Sin graduado en secundaria",
+  2: "Graduado en secundaria (bachillerato)",
+  3: "Formación tras secundaria (sin estudios universitarios)",
+  4: "Estudios universitarios sin terminar (sin título)",
+  5: "Graduado universitario (titulado)",
+  6: "Posgrado o título profesional",
 };
 
 export default function EligibilityPage() {

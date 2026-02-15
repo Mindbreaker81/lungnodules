@@ -1,3 +1,8 @@
+## [1.1.4] - 2026-02-15
+
+### Changed
+- **PLCOm2012 / Elegibilidad**: Traducción al español de la escala de educación (1–6) revisada: distinción clara entre nivel 4 (estudios universitarios sin terminar) y 5 (graduado universitario); etiquetas alineadas con NEJM 2013 y cuestionarios de salud en español.
+
 ## [1.1.3] - 2026-02-15
 
 ### Chore
