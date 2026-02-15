@@ -1,3 +1,8 @@
+## [1.1.3] - 2026-02-15
+
+### Chore
+- **next-env.d.ts**: Incluido en el repositorio (declaraciones de tipos de Next.js, incl. rutas).
+
 ## [1.1.2] - 2026-02-15
 
 ### Fixed
