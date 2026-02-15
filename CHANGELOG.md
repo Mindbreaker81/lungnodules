@@ -1,3 +1,8 @@
+## [1.1.1] - 2026-02-15
+
+### Added
+- **AGENTS.md**: Instrucciones para agentes (td al inicio/cierre de sesión, handoff con detalle, commits con skill smart-commit-with-versioning).
+
 ## [1.1.0] - 2026-02-15
 
 ### Added
