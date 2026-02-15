@@ -1,3 +1,13 @@
+## [1.1.5] - 2026-02-15
+
+### Added
+- **Navegación**: Enlace «Inicio» en cabecera de `/eligibility` y `/assessment`; botón Inicio en el bloque de resultado de elegibilidad junto a «Evaluar nódulo».
+- **Landing**: Hero con imagen de fondo (`/icons/fondo.jpg`), logo (`/icons/icon.svg`) y overlay; integración con next/image.
+- **Footer**: Versión de la app siempre visible en copyright y enlazada a `/CHANGELOG.md`.
+
+### Changed
+- **Viewport**: `layout.tsx` exporta viewport explícito (`width: device-width`, `initialScale: 1`) para documentar y garantizar comportamiento responsive.
+
 ## [1.1.4] - 2026-02-15
 
 ### Changed

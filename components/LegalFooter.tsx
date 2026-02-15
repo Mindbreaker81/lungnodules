@@ -132,8 +132,16 @@ export default function LegalFooter() {
             >
               mindbreaker81
             </a>
-            <span className="hidden text-slate-700 xs:inline">•</span>
-            <span className="hidden xs:inline">v{APP_VERSION}</span>
+            <span className="text-slate-700">·</span>
+            <Link
+              href="/CHANGELOG.md"
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-slate-300"
+              title="Ver historial de cambios"
+            >
+              v{APP_VERSION}
+            </Link>
           </div>
 
           <nav className="flex flex-wrap items-center justify-center gap-3 xs:justify-end" aria-label="Legal navigation">

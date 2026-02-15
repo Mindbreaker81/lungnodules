@@ -72,6 +72,13 @@ export default function EligibilityPage() {
 
   return (
     <section className="space-y-8">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-sm text-slate-500 transition-colors hover:text-slate-300"
+        aria-label="Volver al inicio"
+      >
+        <span aria-hidden>←</span> Inicio
+      </Link>
       <header className="space-y-1">
         <p className="text-sm text-slate-500">Elegibilidad para cribado • Riesgo a 6 años</p>
         <h1 className="text-2xl font-semibold text-primary">Elegibilidad para cribado</h1>
@@ -294,11 +301,18 @@ export default function EligibilityPage() {
           <p className="text-sm text-slate-500 italic">
             Este riesgo se usa para elegibilidad de cribado. No sustituye Fleischner ni Lung-RADS para el manejo del nódulo.
           </p>
-          <Link href="/assessment">
-            <Button variant="outline" size="sm">
-              Evaluar un nódulo (Fleischner / Lung-RADS)
-            </Button>
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/">
+              <Button variant="outline" size="sm">
+                Inicio
+              </Button>
+            </Link>
+            <Link href="/assessment">
+              <Button variant="outline" size="sm">
+                Evaluar un nódulo (Fleischner / Lung-RADS)
+              </Button>
+            </Link>
+          </div>
         </div>
       )}
 

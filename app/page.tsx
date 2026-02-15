@@ -1,9 +1,42 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { GUIDELINE_VERSIONS, APP_VERSION } from '@config/guidelines';
 
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center space-y-12 py-12 text-center">
+      {/* Hero con imagen de fondo */}
+      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900/80">
+        <div className="absolute inset-0">
+          <Image
+            src="/icons/fondo.jpg"
+            alt=""
+            fill
+            className="object-cover opacity-40"
+            sizes="(max-width: 768px) 100vw, 896px"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/50 to-slate-950/80" aria-hidden />
+        </div>
+        <div className="relative z-10 flex flex-col items-center gap-6 px-6 py-10 sm:py-12">
+          <img
+            src="/icons/icon.svg"
+            alt=""
+            className="h-14 w-14 shrink-0 sm:h-16 sm:w-16"
+            width={64}
+            height={64}
+          />
+          <div className="space-y-4">
+            <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20">
+              Support Tool v{APP_VERSION}
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              Lung Nodule Decision Support
+            </h1>
+          </div>
+        </div>
+      </div>
+
       {/* Development notice */}
       <div
         className="w-full max-w-2xl rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-center text-sm text-amber-200/95"
@@ -15,14 +48,8 @@ export default function HomePage() {
         La funcionalidad puede cambiar. Utilice siempre criterio clínico y guías oficiales.
       </div>
 
-      {/* Hero Section */}
+      {/* Hero text + CTA */}
       <div className="max-w-3xl space-y-6">
-        <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20">
-          Support Tool v{APP_VERSION}
-        </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
-          Lung Nodule Decision Support
-        </h1>
         <p className="text-xl text-slate-400">
           Asistente clínico inteligente para el seguimiento de nódulos pulmonares basado en guías internacionales estandarizadas.
         </p>
