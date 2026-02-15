@@ -1,3 +1,11 @@
+## [1.0.3] - 2026-02-15
+
+### Added
+- **Research**: Script R del modelo PLCOm2012 (`research/plcom2012.R`), documentación (`research/plcom2012_research.md`) y PDF de criterios de selección para cribado (`research/pdf/`).
+
+### Chore
+- **.gitignore**: Añadido `.todos/` para ignorar base de tareas local.
+
 ## [1.0.2] - 2026-02-06
 
 ### Added
