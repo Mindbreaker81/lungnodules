@@ -224,11 +224,12 @@ If you identify any:
 
 ## Version Information
 
-**Current Version:** 1.0.2
+**Current Version:** 1.1.0
 **Guideline Versions:**
 - Fleischner Society: 2017
 - Lung-RADS: v2022 (November 2022)
-**Last Updated:** January 2026
+- PLCOm2012 (elegibilidad): 2012 (NEJM 2013)
+**Last Updated:** February 2026
 
 ---
 

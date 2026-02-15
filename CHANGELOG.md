@@ -1,3 +1,16 @@
+## [1.1.0] - 2026-02-15
+
+### Added
+- **Elegibilidad para cribado**: Módulo de riesgo a 6 años (PLCOm2012) para valorar elegibilidad para cribado con LDCT, separado del flujo de evaluación de nódulos.
+- **Entrada dual en Home**: Dos acciones principales — «Elegibilidad para cribado» (`/eligibility`) y «Evaluar nódulo» (`/assessment`).
+- **`lib/eligibility/`**: Tipos, `computePlcom2012`, schema Zod, registro extensible de modelos (`eligibilityModels`, `computeEligibility`, `getEligibilityModel`), umbral por defecto 1,51%.
+- **Ruta `/eligibility`**: Formulario PLCOm2012 (edad, IMC, raza, educación, EPOC, historias, tabaquismo), resultado (riesgo %, elegible/no elegible), disclaimer y enlace a «Evaluar nódulo».
+- **Tests**: Suite `__tests__/eligibility/plcom2012.test.ts` (ejemplo de referencia, smoking_intensity=0, razas).
+- **Documentación**: `research/plcom2012-implementation-tasks.md`, referencias a PLCOm2012 en MEDICAL_DISCLAIMER.md.
+
+### Changed
+- **MEDICAL_DISCLAIMER.md**: Inclusión de PLCOm2012 en guías/modelos implementados y en referencias útiles.
+
 ## [1.0.3] - 2026-02-15
 
 ### Added

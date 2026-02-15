@@ -26,12 +26,22 @@ export default function HomePage() {
         <p className="text-xl text-slate-400">
           Asistente clínico inteligente para el seguimiento de nódulos pulmonares basado en guías internacionales estandarizadas.
         </p>
+        <p className="text-sm text-slate-500">
+          Calcule elegibilidad para cribado (riesgo a 6 años) o evalúe un nódulo ya detectado (Fleischner / Lung-RADS).
+        </p>
         <div className="flex flex-wrap justify-center gap-4 pt-4">
           <Link
-            href="/assessment"
-            className="inline-flex items-center justify-center rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-white transition-all hover:bg-accent hover:shadow-lg active:scale-95 shadow-primary/20 shadow-xl"
+            href="/eligibility"
+            className="inline-flex items-center justify-center rounded-2xl border-2 border-primary/60 bg-primary/10 px-6 py-3.5 text-base font-bold text-primary transition-all hover:bg-primary/20 hover:border-primary active:scale-95"
           >
-            Comenzar Valoración
+            Elegibilidad para cribado
+            <span className="material-symbols-outlined ml-2">person_search</span>
+          </Link>
+          <Link
+            href="/assessment"
+            className="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-3.5 text-base font-bold text-white transition-all hover:bg-accent hover:shadow-lg active:scale-95 shadow-primary/20 shadow-xl"
+          >
+            Evaluar nódulo
             <span className="material-symbols-outlined ml-2">arrow_forward</span>
           </Link>
         </div>
