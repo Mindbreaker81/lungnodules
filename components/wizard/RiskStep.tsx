@@ -42,6 +42,7 @@ export default function RiskStep({ clinicalContext }: Props) {
               type="number"
               min={0}
               aria-label="Edad del paciente"
+              placeholder="Edad del paciente"
               className="mt-1"
               {...register("patient.age", { valueAsNumber: true })}
             />
@@ -183,7 +184,6 @@ export default function RiskStep({ clinicalContext }: Props) {
                     <option value="4A" className="bg-surface">4A</option>
                     <option value="4B" className="bg-surface">4B</option>
                     <option value="4X" className="bg-surface">4X</option>
-                    <option value="S" className="bg-surface">S</option>
                   </select>
                 </div>
                 <div>

@@ -16,6 +16,7 @@ The **Lung Nodule Follow-Up Decision Support Tool** is designed to assist health
 - :white_check_mark: Calculating follow-up recommendations based on published criteria
 - :white_check_mark: Providing standardized categorization according to clinical guidelines
 - :white_check_mark: Supporting clinical decision-making with current medical literature
+- :white_check_mark: Estimating 6-year lung cancer risk for screening eligibility (e.g. PLCOm2012) as decision support only; eligibility does not replace nodule management (Fleischner / Lung-RADS)
 
 ### What This Tool Does NOT Do
 
@@ -33,10 +34,11 @@ The **Lung Nodule Follow-Up Decision Support Tool** is designed to assist health
 
 This tool implements recommendations from:
 
-| Guideline | Version | Year | Reference |
-|-----------|---------|------|-----------|
+| Guideline / Model | Version | Year | Reference |
+|-------------------|---------|------|-----------|
 | **Fleischner Society Guidelines** | 2017 | 2017 | MacMahon H, et al. *Radiology*. 2017;284(1):228-243 |
 | **Lung-RADS** | v2022 | 2022 | American College of Radiology. November 2022 |
+| **PLCOm2012** (elegibilidad cribado) | 2012 | 2013 | Tammemägi MC, et al. *N Engl J Med*. 2013;368:728-736 |
 
 ### :warning: Patient Exclusions
 
@@ -217,6 +219,7 @@ If you identify any:
 
 - [Fleischner Society 2017 Guidelines](https://pubs.rsna.org/doi/10.1148/radiol.2017161659)
 - [ACR Lung-RADS v2022](https://www.acr.org/-/media/ACR/Files/RADS/Lung-RADS/LungRADS-2022.pdf)
+- [PLCOm2012 – Selection Criteria for Lung-Cancer Screening (NEJM 2013)](https://www.nejm.org/doi/full/10.1056/NEJMoa1211776)
 - [American Thoracic Society Guidelines](https://www.thoracic.org/statements/resources/pulmonary-nodules/)
 - [Radiopaedia - Pulmonary Nodules](https://radiopaedia.org/articles/pulmonary-nodule)
 
@@ -224,12 +227,11 @@ If you identify any:
 
 ## Version Information
 
-**Current Version:** 1.1.6
+**Current Version:** 1.2.0
 **Guideline Versions:**
 - Fleischner Society: 2017
 - Lung-RADS: v2022 (November 2022)
-- PLCOm2012 (elegibilidad): 2012 (NEJM 2013)
-**Last Updated:** February 2026
+**Last Updated:** January 2026
 
 ---
 

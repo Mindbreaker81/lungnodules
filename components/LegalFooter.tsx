@@ -50,6 +50,7 @@ export default function LegalFooter() {
               onClick={() => setShowDisclaimer(!showDisclaimer)}
               className="group flex-shrink-0 rounded-md border border-slate-700 bg-slate-900/50 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-amber-700/50 hover:bg-amber-950/30 hover:text-amber-200"
               aria-label="Toggle disclaimer details"
+              aria-expanded={showDisclaimer}
             >
               <span className="flex items-center gap-1.5">
                 {showDisclaimer ? (

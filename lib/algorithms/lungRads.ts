@@ -7,12 +7,20 @@ import {
 const GUIDELINE: GuidelineId = 'lung-rads-2022';
 const GROWTH_THRESHOLD_MM_PER_12M = 1.5;
 
-function calculateGrowth(currentDiameter: number, priorDiameter?: number, intervalMonths?: number): boolean {
-  if (priorDiameter === undefined || priorDiameter <= 0 || currentDiameter <= 0) return false;
-  if (!intervalMonths || intervalMonths <= 0) return false;
+const LONG_INTERVAL_THRESHOLD_MONTHS = 18;
+
+interface GrowthResult {
+  isGrowing: boolean;
+  isLongInterval: boolean;
+}
+
+function calculateGrowth(currentDiameter: number, priorDiameter?: number, intervalMonths?: number): GrowthResult {
+  if (priorDiameter === undefined || priorDiameter <= 0 || currentDiameter <= 0) return { isGrowing: false, isLongInterval: false };
+  if (!intervalMonths || intervalMonths <= 0) return { isGrowing: false, isLongInterval: false };
   const delta = currentDiameter - priorDiameter;
+  const isLongInterval = intervalMonths > LONG_INTERVAL_THRESHOLD_MONTHS;
   // Lung-RADS v2022: growth defined as absolute increase ≥1.5mm (not annualized)
-  return delta >= GROWTH_THRESHOLD_MM_PER_12M;
+  return { isGrowing: delta >= GROWTH_THRESHOLD_MM_PER_12M, isLongInterval };
 }
 
 function classifySolidLungRADS(options: {
@@ -52,19 +60,50 @@ function classifySolidLungRADS(options: {
   return '2';
 }
 
-function classifyGroundGlass(diameter: number): string {
+function classifyGroundGlass(options: {
+  diameter: number;
+  scanType: 'baseline' | 'follow-up';
+  isNew: boolean;
+  isGrowing: boolean;
+}): string {
+  const { diameter, scanType, isNew, isGrowing } = options;
+
   if (diameter < 30) return '2';
+
+  // GGN >=30mm: Cat 3 at baseline or if new/growing; stable follow-up handled by stepped management
+  if (scanType === 'follow-up' && !isNew && !isGrowing) {
+    // Stable large GGN — keep Cat 3 but stepped management will handle downgrade
+    return '3';
+  }
   return '3';
 }
 
-function classifyPartSolid(diameter: number, solidComponent?: number): { category: string; warnings?: string[] } {
+function classifyPartSolid(options: {
+  diameter: number;
+  solidComponent?: number;
+  scanType: 'baseline' | 'follow-up';
+  isNew: boolean;
+  isGrowing: boolean;
+}): { category: string; warnings?: string[] } {
+  const { diameter, solidComponent, scanType, isNew, isGrowing } = options;
+
   if (diameter < 6) {
+    // New part-solid <6mm in follow-up -> Cat 3 (more conservative than baseline)
+    if (scanType === 'follow-up' && isNew) return { category: '3' };
     return { category: '2' };
   }
   if (solidComponent === undefined) {
     return { category: '3', warnings: ['Se requiere tamaño del componente sólido para evaluación semi-sólida'] };
   }
-  // Lung-RADS v2022: part-solid classification driven by solid component size
+
+  // Follow-up: new or growing part-solid -> escalate
+  if (scanType === 'follow-up' && (isNew || isGrowing)) {
+    if (solidComponent >= 6) return { category: '4B' };
+    if (solidComponent >= 4 || isGrowing) return { category: '4A' };
+    return { category: '3' };
+  }
+
+  // Baseline or stable follow-up: classify by solid component size
   if (solidComponent >= 8) {
     return { category: '4B' };
   }
@@ -95,19 +134,26 @@ function buildResult(category: string, rationale: string, warnings?: string[]): 
     '4A': { timing: '3 meses', recommendation: 'TCBD; PET/CT si sólido ≥8mm', modality: 'TCBD o PET/CT' },
     '4B': { timing: 'Según indicación', recommendation: 'TC diagnóstico; PET/CT; biopsia', modality: 'TC/PET/Biopsia' },
     '4X': { timing: 'Según indicación', recommendation: 'TC diagnóstico; PET/CT; biopsia; considerar revisión multidisciplinar', modality: 'TC/PET/Biopsia/Comité' },
-    'S': { timing: 'Según indicación', recommendation: 'Manejo de hallazgos significativos según juicio clínico', modality: 'Según indicación' },
   };
 
-  const follow = followUps[category] ?? {
+  // For S-suffixed categories (e.g. "2S", "4AS"), look up the base category
+  const baseCategory = category.endsWith('S') ? category.slice(0, -1) : category;
+  const isModifierS = category.endsWith('S') && baseCategory !== '';
+
+  const follow = followUps[baseCategory] ?? followUps[category] ?? {
     timing: 'As indicated',
     recommendation: 'Juicio clínico',
     modality: 'Según indicación',
   };
 
+  const recommendation = isModifierS
+    ? `${follow.recommendation}; además, manejo de hallazgos significativos según juicio clínico`
+    : follow.recommendation;
+
   return {
     guideline: GUIDELINE,
     category,
-    recommendation: follow.recommendation,
+    recommendation,
     followUpInterval: follow.timing,
     imagingModality: follow.modality,
     rationale,
@@ -120,10 +166,14 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
   rationale: string;
   warnings?: string[];
 } | null {
-  if (nodule.hasSignificantFinding) {
+  // Note: hasSignificantFinding is handled as the "S" modifier in assessLungRads(),
+  // not as a standalone category. See Lung-RADS v2022: S is an additive modifier.
+
+  if (nodule.isIncompleteStudy) {
     return {
-      category: 'S',
-      rationale: 'Hallazgo significativo detectado; manejar según juicio clínico',
+      category: '0',
+      rationale: 'Estudio incompleto o técnicamente inadecuado; requiere imagen adicional para clasificación',
+      warnings: ['Categoría 0: estudio incompleto — se requiere evaluación adicional'],
     };
   }
 
@@ -214,10 +264,15 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     };
   }
 
-  const isGrowing = calculateGrowth(nodule.diameterMm, nodule.priorDiameterMm, nodule.priorScanMonthsAgo);
+  const growthResult = calculateGrowth(nodule.diameterMm, nodule.priorDiameterMm, nodule.priorScanMonthsAgo);
+  const isGrowing = growthResult.isGrowing;
   const isNew = nodule.isNew ?? false;
   let category: string;
   let warnings: string[] | undefined;
+
+  if (growthResult.isGrowing && growthResult.isLongInterval) {
+    warnings = [...(warnings ?? []), 'Intervalo de seguimiento prolongado (>18 meses); interpretar crecimiento con cautela'];
+  }
 
   const specialCategory = getSpecialCategory(nodule);
   if (specialCategory) {
@@ -232,11 +287,22 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
       isNew,
     });
   } else if (nodule.type === 'ground-glass') {
-    category = classifyGroundGlass(nodule.diameterMm);
+    category = classifyGroundGlass({
+      diameter: nodule.diameterMm,
+      scanType: nodule.scanType,
+      isNew,
+      isGrowing,
+    });
   } else {
-    const result = classifyPartSolid(nodule.diameterMm, nodule.solidComponentMm);
+    const result = classifyPartSolid({
+      diameter: nodule.diameterMm,
+      solidComponent: nodule.solidComponentMm,
+      scanType: nodule.scanType,
+      isNew,
+      isGrowing,
+    });
     category = result.category;
-    warnings = result.warnings;
+    warnings = [...(warnings ?? []), ...(result.warnings ?? [])];
   }
 
   // Apply stepped management BEFORE spiculation upgrade so 4X is never stepped down
@@ -250,18 +316,28 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     warnings = [...(warnings ?? []), 'El componente sólido no puede exceder el diámetro total'];
   }
 
+  // Lung-RADS v2022: S is an additive modifier, not a standalone category.
+  // Append "S" suffix when significant findings are present.
+  if (nodule.hasSignificantFinding) {
+    category = `${category}S`;
+    warnings = [...(warnings ?? []), 'Hallazgo clínicamente significativo (modificador S)'];
+  }
+
   const rationaleParts = [
     `Contexto: ${nodule.scanType}`,
     isGrowing ? 'Crecimiento >1.5mm/12m detectado' : 'Sin crecimiento significativo (>1.5mm/12m)',
     isNew ? 'Nódulo nuevo' : 'Nódulo existente',
   ];
-  if (nodule.hasSpiculation && category === '4X') {
+  if (nodule.hasSpiculation && category.startsWith('4X')) {
     rationaleParts.push('Márgenes espiculados (4X)');
+  }
+  if (nodule.hasSignificantFinding) {
+    rationaleParts.push('Hallazgo significativo (modificador S)');
   }
 
   return buildResult(category, rationaleParts.join(' | '), warnings);
 }
 
 export function calculateLungRadsGrowth(currentDiameter: number, priorDiameter?: number, intervalMonths?: number): boolean {
-  return calculateGrowth(currentDiameter, priorDiameter, intervalMonths);
+  return calculateGrowth(currentDiameter, priorDiameter, intervalMonths).isGrowing;
 }

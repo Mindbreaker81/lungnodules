@@ -48,6 +48,7 @@ export interface LungRADSInput extends NoduleCharacteristics {
   scanType: ScanType;
   priorDiameterMm?: number;
   priorScanMonthsAgo?: number;
+  isIncompleteStudy?: boolean;
 }
 
 export type GuidelineId = 'fleischner-2017' | 'lung-rads-2022';

@@ -230,11 +230,11 @@ function assessPartSolid(diameter: number, solidComponent?: number): AssessmentR
   return {
     guideline: GUIDELINE,
     category: 'Semi-sólido, sólido ≥6mm',
-    recommendation: 'PET/CT, biopsia o escisión quirúrgica',
-    followUpInterval: 'Según indicación',
+    recommendation: 'TC a los 3-6 meses para confirmar persistencia; si persiste, considerar PET/CT, biopsia o escisión',
+    followUpInterval: '3-6 meses (luego según indicación)',
     malignancyRisk: 'Alta sospecha',
-    rationale: 'Componente sólido ≥6mm es altamente sospechoso',
-    warnings: ['ALTAMENTE SOSPECHOSO — considerar diagnóstico de tejido'],
+    rationale: 'Componente sólido ≥6mm es altamente sospechoso; confirmar persistencia antes de procedimiento invasivo',
+    warnings: ['SOSPECHOSO — confirmar persistencia antes de procedimiento invasivo'],
   };
 }
 

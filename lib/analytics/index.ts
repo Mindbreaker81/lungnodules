@@ -58,6 +58,7 @@ class Analytics {
   };
 
   private eventQueue: Array<{ event: AnalyticsEvent; properties: EventProperties }> = [];
+  private sessionEvents: Array<{ event: AnalyticsEvent; properties: EventProperties }> = [];
   private sessionId: string = '';
   private assessmentStartTime: number = 0;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
@@ -166,7 +167,7 @@ class Analytics {
     return Date.now() - this.assessmentStartTime;
   }
 
-  // Flush events to backend (or localStorage for offline)
+  // Flush events (in-memory only — no localStorage to comply with privacy claims)
   async flush(): Promise<void> {
     if (this.eventQueue.length === 0) return;
 
@@ -175,27 +176,20 @@ class Analytics {
 
     if (typeof window === 'undefined') return;
 
-    // Store in localStorage for persistence
-    try {
-      const storedEvents = JSON.parse(localStorage.getItem('analytics_events') || '[]');
-      const allEvents = [...storedEvents, ...eventsToSend];
-      
-      // Keep only last 1000 events
-      const trimmedEvents = allEvents.slice(-1000);
-      localStorage.setItem('analytics_events', JSON.stringify(trimmedEvents));
+    // Keep events in memory for session-level metrics only
+    this.sessionEvents.push(...eventsToSend);
+    // Cap at 1000 events per session
+    if (this.sessionEvents.length > 1000) {
+      this.sessionEvents = this.sessionEvents.slice(-1000);
+    }
 
-      if (this.config.debug) {
-        console.warn(`[Analytics] Flushed ${eventsToSend.length} events`);
-      }
+    if (this.config.debug) {
+      console.warn(`[Analytics] Flushed ${eventsToSend.length} events (in-memory only)`);
+    }
 
-      // If endpoint is configured, send to backend
-      if (this.config.endpoint && navigator.onLine) {
-        await this.sendToBackend(eventsToSend);
-      }
-    } catch (error) {
-      if (this.config.debug) {
-        console.error('[Analytics] Failed to flush events:', error);
-      }
+    // If endpoint is configured, send to backend
+    if (this.config.endpoint && navigator.onLine) {
+      await this.sendToBackend(eventsToSend);
     }
   }
 
@@ -213,14 +207,9 @@ class Analytics {
     }
   }
 
-  // Get stored events for analysis
+  // Get session events for analysis (in-memory only, not persisted)
   getStoredEvents(): Array<{ event: AnalyticsEvent; properties: EventProperties }> {
-    if (typeof window === 'undefined') return [];
-    try {
-      return JSON.parse(localStorage.getItem('analytics_events') || '[]');
-    } catch {
-      return [];
-    }
+    return [...this.sessionEvents];
   }
 
   // Calculate metrics from stored events
@@ -265,11 +254,9 @@ class Analytics {
     };
   }
 
-  // Clear stored events
+  // Clear session events
   clearStoredEvents(): void {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('analytics_events');
-    }
+    this.sessionEvents = [];
   }
 
   // Configure analytics

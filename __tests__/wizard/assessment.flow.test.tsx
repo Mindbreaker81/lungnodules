@@ -140,6 +140,13 @@ describe("WizardContainer", () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
 
+    // Fill in diameter (no longer pre-populated)
+    const diameterInput = screen.getByLabelText(/Diámetro en milímetros/i);
+    await act(async () => {
+      await user.clear(diameterInput);
+      await user.type(diameterInput, "5");
+    });
+
     // Nódulo -> Resultados
     await act(async () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);

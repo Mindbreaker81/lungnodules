@@ -1,3 +1,31 @@
+## [1.2.0] - 2026-04-10
+
+### Fixed (Clínica — P0)
+- **Lung-RADS S**: Convertido de categoría independiente a modificador aditivo (ej. `2S`, `4AS`) conforme a Lung-RADS v2022.
+- **Lung-RADS crecimiento**: Añadido warning para intervalos de seguimiento prolongados (>18 meses) donde el umbral absoluto de 1.5mm puede ser engañoso.
+- **Lung-RADS parte-sólidos**: Corregida clasificación en follow-up para nódulos nuevos y en crecimiento (escalado apropiado por componente sólido).
+- **Lung-RADS GGN ≥30mm**: Los GGN grandes estables en follow-up ahora se benefician correctamente del stepped management.
+- **Lung-RADS Categoría 0**: Modelado `isIncompleteStudy` para estudios técnicamente inadecuados.
+- **Fleischner parte-sólidos ≥6mm sólido**: Añadida TC de confirmación a 3-6 meses antes de PET/biopsia para confirmar persistencia.
+
+### Fixed (Privacidad / Seguridad — P0)
+- **Analytics**: Eliminada persistencia en `localStorage`; eventos solo se mantienen en memoria de sesión, alineando el comportamiento real con las declaraciones de privacidad del footer y disclaimer.
+- **Wizard defaults**: Eliminados valores por defecto clínicamente significativos (edad 50, diámetro 5mm, riesgo bajo); los campos ahora requieren entrada explícita del usuario.
+
+### Changed (UX / Accesibilidad — P1)
+- **Idioma HTML**: Corregido `lang="en"` a `lang="es"` en `app/layout.tsx`.
+- **ARIA**: Añadido `aria-expanded` al toggle del disclaimer en `LegalFooter.tsx`.
+- **Placeholders**: Añadidos placeholders descriptivos en campos de edad y diámetro.
+- **Service worker**: Migrado de cache-first a network-first para contenido clínico (HTML/JS), manteniendo cache-first solo para assets estáticos; nombre de caché versionado.
+- **Lung-RADS priorCategory**: Eliminada opción `S` del dropdown de categoría previa (ya no es categoría independiente).
+
+### Changed (CI/CD — P1)
+- **deploy-preview.yml**: Añadidos gates de `npm ci`, `lint`, `tsc --noEmit` y `test` antes del deploy.
+- **deploy-staging.yml**: Añadidos gates de `lint` y `tsc --noEmit` junto al `test` existente.
+
+### Added (Tests — P1)
+- **audit-regression.test.ts**: 18 tests de regresión cubriendo cada hallazgo clínico confirmado de la auditoría (TC-AUDIT-001 a TC-AUDIT-051).
+
 ## [1.1.6] - 2026-04-10
 
 ### Added

@@ -88,9 +88,10 @@ describe('Lung-RADS v2022', () => {
     expect(res.category).toBe('1');
   });
 
-  test('TC-LR-010 Significant findings -> Category S', () => {
+  test('TC-LR-010 Significant findings -> S modifier appended to base category', () => {
     const res = run({ hasSignificantFinding: true });
-    expect(res.category).toBe('S');
+    expect(res.category).toBe('2S');
+    expect(res.warnings).toEqual(expect.arrayContaining([expect.stringMatching(/modificador S/)]));
   });
 
   test('TC-LR-011 Inflammatory category 0 -> Category 0', () => {

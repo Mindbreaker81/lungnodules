@@ -132,6 +132,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
           max={100}
           step="0.1"
           aria-label="Diámetro en milímetros"
+          placeholder="Diámetro del nódulo (mm)"
           className="mt-1"
           {...register("nodule.diameterMm", { valueAsNumber: true })}
         />

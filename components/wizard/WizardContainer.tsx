@@ -25,8 +25,8 @@ const defaultValues = {
   clinicalContext: "incidental",
   patient: {
     clinicalContext: "incidental",
-    age: 50,
-    riskLevel: "low",
+    age: undefined as unknown as number, // intentionally empty — user must fill in
+    riskLevel: undefined,
     riskFactors: {
       age65: false,
       smoking30: false,
@@ -45,7 +45,7 @@ const defaultValues = {
   },
   nodule: {
     type: "solid",
-    diameterMm: 5,
+    diameterMm: undefined as unknown as number,
     solidComponentMm: undefined,
     isMultiple: false,
     isPerifissural: false,
@@ -68,7 +68,7 @@ const defaultValues = {
   },
   priorCategory: undefined,
   priorStatus: undefined,
-} satisfies AssessmentInput;
+} as unknown as AssessmentInput;
 
 export default function WizardContainer() {
   const methods = useForm<AssessmentInput>({
@@ -100,6 +100,11 @@ export default function WizardContainer() {
     methods.setValue("patient.clinicalContext", context);
     if (context === "screening") {
       methods.setValue("patient.riskLevel", undefined);
+      // Age is not shown in screening UI but required by schema; set a safe default
+      const currentAge = methods.getValues("patient.age");
+      if (!currentAge || Number.isNaN(currentAge)) {
+        methods.setValue("patient.age", 0);
+      }
       methods.setValue("nodule.scanType" as any, methods.getValues("nodule.scanType") ?? "baseline");
     } else {
       const riskFactors = methods.getValues("patient.riskFactors");
