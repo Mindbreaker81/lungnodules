@@ -1,6 +1,6 @@
 {
   "name": "lung-nodule-tracker",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,12 +12,12 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource/material-symbols-outlined": "^5.2.33",
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-slot": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "@fontsource/material-symbols-outlined": "^5.2.33",
-    "next": "^16.1.6",
+    "next": "^16.2.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.49.3",
@@ -25,27 +25,48 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^9.39.4",
     "@playwright/test": "^1.51.1",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.2",
-    "@types/jest": "^29.5.11",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.10.5",
     "@types/react": "^18.2.28",
     "@types/react-dom": "^18.2.13",
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
-    "@typescript-eslint/parser": "^8.54.0",
+    "@typescript-eslint/eslint-plugin": "^8.58.1",
+    "@typescript-eslint/parser": "^8.58.1",
     "autoprefixer": "^10.4.16",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.1.6",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.3",
     "eslint-config-prettier": "^9.1.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "postcss": "^8.4.31",
     "prettier": "^3.1.1",
     "tailwindcss": "^3.3.5",
-    "ts-jest": "^29.1.1",
-    "typescript": "^5.3.3"
+    "ts-jest": "^29.4.9",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.58.1"
+  },
+  "overrides": {
+    "flat-cache": {
+      "flatted": "^3.4.2"
+    },
+    "minimatch@3": {
+      "brace-expansion": "1.1.13"
+    },
+    "micromatch": {
+      "picomatch": "^2.3.2"
+    },
+    "anymatch": {
+      "picomatch": "^2.3.2"
+    },
+    "readdirp": {
+      "picomatch": "^2.3.2"
+    },
+    "tinyglobby": {
+      "picomatch": "^4.0.4"
+    }
   }
 }

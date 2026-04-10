@@ -1,3 +1,13 @@
+## [1.2.1] - 2026-04-10
+
+### Fixed
+- **Dependency security**: Actualizados `next`, `jest`, `jest-environment-jsdom`, `ts-jest`, `eslint` y `@typescript-eslint/*` a versiones parcheadas para eliminar vulnerabilidades reportadas por `npm audit`.
+- **Toolchain transitivo**: Añadidos `overrides` quirúrgicos para `flatted`, `brace-expansion` y `picomatch`, cerrando las vulnerabilidades restantes sin migrar `react`, `tailwindcss`, `zod` ni `typescript` a nuevas majors.
+
+### Changed
+- **Compatibilidad Next.js**: `tsconfig.json` adopta `moduleResolution: "bundler"` por requisito del build de Next.js 16.2.3.
+- **Validación**: Revalidados `lint`, `tsc`, tests unitarios, `build`, smoke e2e y la lógica de scores tras la actualización del árbol de dependencias.
+
 ## [1.2.0] - 2026-04-10
 
 ### Fixed (Clínica — P0)
