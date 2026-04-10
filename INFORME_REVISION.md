@@ -1,8 +1,8 @@
 # Informe de auditoría clínica y técnica: Lung Nodule Decision Support
 
-**Fecha:** 2026-04-10  
+**Fecha:** 2026-04-11  
 **Rama:** `main`  
-**Estado auditado:** código actual `1.2.0` tras alineación post-auditoría  
+**Estado auditado:** código actual `1.3.1` tras migración a Shadcn UI y mejoras en modelos predictivos  
 **Metodología:** revisión estática de código, contraste documento↔implementación y ejecución de validadores (`lint`, `tsc`, `jest`, `build`, `playwright`, `npm audit`).
 
 ---

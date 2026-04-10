@@ -5,7 +5,7 @@ Aplicación clínica para recomendar seguimiento de nódulos pulmonares según F
 [![Security: Status](https://img.shields.io/badge/Security-Active-brightgreen.svg)](SECURITY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-blue.svg)](CHANGELOG.md)
+[![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-blue.svg)](CHANGELOG.md)
 ## :rotating_light: Seguridad y Disclaimer Médico
 
 **⚠️ Importante:** Esta herramienta es solo para soporte de decisiones clínicas. Ver [MEDICAL_DISCLAIMER.md](MEDICAL_DISCLAIMER.md) para información importante sobre su uso.
@@ -27,10 +27,11 @@ Aplicación clínica para recomendar seguimiento de nódulos pulmonares según F
 
 ## Características
 - **Entrada dual**: Elegibilidad para cribado (riesgo a 6 años, PLCOm2012) y evaluación de nódulos (Fleischner / Lung-RADS)
-- **Wizard interactivo** con validación paso a paso
+- **UI Modernizada**: Interfaz construida con **Shadcn UI** (CSS variables y componentes accesibles)
+- **Wizard interactivo** con validación reactiva paso a paso
 - **Guías clínicas**: Fleischner 2017 (incidental) y Lung-RADS v2022 (screening)
 - **Elegibilidad**: PLCOm2012 (NEJM 2013) para riesgo a 6 años y umbral configurable (p. ej. 1,51 %)
-- **Modelos predictivos**: Mayo Clinic, Brock (Pan-Can), Herder (post-PET)
+- **Modelos predictivos**: Mayo Clinic, Brock (Pan-Can), Herder (post-PET) con validaciones contextuales
 - **UI responsiva** con PWA (offline-first)
 - **Exportación** de resultados en texto/JSON
 - **Analytics** de uso y errores

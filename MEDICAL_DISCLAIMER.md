@@ -227,11 +227,11 @@ If you identify any:
 
 ## Version Information
 
-**Current Version:** 1.2.1
+**Current Version:** 1.3.1
 **Guideline Versions:**
 - Fleischner Society: 2017
 - Lung-RADS: v2022 (November 2022)
-**Last Updated:** 2026-04-10
+**Last Updated:** 2026-04-11
 
 ---
 

@@ -1,3 +1,10 @@
+## [1.3.1] - 2026-04-11
+
+### Changed
+- **UX Modelos Predictivos**: Sincronización automática de la edad con el factor de riesgo "Edad >65 años" en el contexto de Fleischner.
+- **Formulario Inteligente**: Ocultamiento de campos de factores de riesgo duplicados (antecedentes familiares y enfisema) en el contexto incidental, mostrándolos únicamente en cribado (Lung-RADS).
+- **Resultados**: Adición de sugerencias clínicas orientativas basadas en las bandas de riesgo del modelo predictivo (riesgo bajo <5%, intermedio 5-65%, alto >65%) siguiendo recomendaciones del ACCP.
+
 ## [1.3.0] - 2026-04-10
 
 ### Added
