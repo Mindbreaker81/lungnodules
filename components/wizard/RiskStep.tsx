@@ -38,6 +38,13 @@ export default function RiskStep({ clinicalContext }: Props) {
     setValue("patient.riskLevel", hasHighRisk ? "high" : "low", { shouldValidate: true });
   }, [clinicalContext, hasHighRisk, setValue]);
 
+  const age = watch("patient.age");
+  useEffect(() => {
+    if (clinicalContext === "incidental" && age !== undefined && !Number.isNaN(age)) {
+      setValue("patient.riskFactors.age65", age > 65, { shouldValidate: true });
+    }
+  }, [clinicalContext, age, setValue]);
+
   return (
     <div className="space-y-4">
       {clinicalContext === "incidental" ? (
@@ -263,26 +270,28 @@ export default function RiskStep({ clinicalContext }: Props) {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <label className="flex items-center gap-2 text-white">
-            <input
-              type="checkbox"
-              aria-label="Antecedentes familiares de cáncer de pulmón"
-              {...register("patient.hasFamilyHistoryLungCancer")}
-              className="text-primary rounded focus:ring-primary"
-            />
-            Antecedentes familiares de cáncer de pulmón
-          </label>
-          <label className="flex items-center gap-2 text-white">
-            <input
-              type="checkbox"
-              aria-label="Enfisema en TC"
-              {...register("patient.hasEmphysema")}
-              className="text-primary rounded focus:ring-primary"
-            />
-            Enfisema en TC
-          </label>
-        </div>
+        {clinicalContext === "screening" && (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label className="flex items-center gap-2 text-white">
+              <input
+                type="checkbox"
+                aria-label="Antecedentes familiares de cáncer de pulmón"
+                {...register("patient.hasFamilyHistoryLungCancer")}
+                className="text-primary rounded focus:ring-primary"
+              />
+              Antecedentes familiares de cáncer de pulmón
+            </label>
+            <label className="flex items-center gap-2 text-white">
+              <input
+                type="checkbox"
+                aria-label="Enfisema en TC"
+                {...register("patient.hasEmphysema")}
+                className="text-primary rounded focus:ring-primary"
+              />
+              Enfisema en TC
+            </label>
+          </div>
+        )}
         {extrathoracicCancerHistory === "recent" && (
           <div className="rounded-md border border-amber-900/50 bg-amber-900/20 p-3 text-sm text-amber-200" role="alert">
             Mayo no aplica si el cáncer extratorácico fue diagnosticado en los últimos 5 años.

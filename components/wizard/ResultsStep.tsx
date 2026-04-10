@@ -247,10 +247,18 @@ export default function ResultsStep({ result, input }: Props) {
                     </span>
                   </div>
                   {summary.probability !== undefined && summary.riskBand && (
-                    <p className="mt-2 text-sm text-slate-200">
-                      {UI_TEXTS.results.predictiveModels.probability}: <span className="font-semibold text-white">{formatProbability(summary.probability)}</span>
-                      <span className="ml-2 text-xs text-slate-400">{PREDICTIVE_RISK_LABELS[summary.riskBand]}</span>
-                    </p>
+                    <>
+                      <p className="mt-2 text-sm text-slate-200">
+                        {UI_TEXTS.results.predictiveModels.probability}: <span className="font-semibold text-white">{formatProbability(summary.probability)}</span>
+                        <span className="ml-2 text-xs text-slate-400">{PREDICTIVE_RISK_LABELS[summary.riskBand]}</span>
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        <span className="font-semibold text-slate-300">Sugerencia clínica: </span>
+                        {summary.riskBand === 'low' && "Riesgo bajo (<5%). Se sugiere vigilancia activa con TC (watchful waiting)."}
+                        {summary.riskBand === 'intermediate' && "Riesgo intermedio (5-65%). Considerar PET-CT o biopsia no quirúrgica."}
+                        {summary.riskBand === 'high' && "Riesgo alto (>65%). Considerar evaluación para biopsia quirúrgica o escisión."}
+                      </p>
+                    </>
                   )}
                   {summary.preTestProbability !== undefined && summary.preTestModelId && (
                     <p className="mt-2 text-xs text-slate-400">
