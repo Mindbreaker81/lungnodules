@@ -203,7 +203,7 @@ class Analytics {
         body: JSON.stringify({ events }),
       });
     } catch {
-      // Silently fail - events are already stored in localStorage
+      // Silently fail - events remain available only for the current in-memory session
     }
   }
 

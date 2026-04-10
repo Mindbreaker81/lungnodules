@@ -25,7 +25,7 @@ const defaultValues = {
   clinicalContext: "incidental",
   patient: {
     clinicalContext: "incidental",
-    age: undefined as unknown as number, // intentionally empty — user must fill in
+    age: undefined,
     riskLevel: undefined,
     riskFactors: {
       age65: false,
@@ -45,7 +45,7 @@ const defaultValues = {
   },
   nodule: {
     type: "solid",
-    diameterMm: undefined as unknown as number,
+    diameterMm: undefined,
     solidComponentMm: undefined,
     isMultiple: false,
     isPerifissural: false,
@@ -58,6 +58,7 @@ const defaultValues = {
     isAirway: false,
     isAtypicalCyst: false,
     isBenign: false,
+    isIncompleteStudy: false,
     hasSignificantFinding: false,
     isInflammatory: false,
     inflammatoryCategory: undefined,
@@ -100,11 +101,6 @@ export default function WizardContainer() {
     methods.setValue("patient.clinicalContext", context);
     if (context === "screening") {
       methods.setValue("patient.riskLevel", undefined);
-      // Age is not shown in screening UI but required by schema; set a safe default
-      const currentAge = methods.getValues("patient.age");
-      if (!currentAge || Number.isNaN(currentAge)) {
-        methods.setValue("patient.age", 0);
-      }
       methods.setValue("nodule.scanType" as any, methods.getValues("nodule.scanType") ?? "baseline");
     } else {
       const riskFactors = methods.getValues("patient.riskFactors");
@@ -113,6 +109,7 @@ export default function WizardContainer() {
       methods.setValue("nodule.scanType" as any, undefined);
       methods.setValue("nodule.priorDiameterMm" as any, undefined);
       methods.setValue("nodule.priorScanMonthsAgo" as any, undefined);
+      methods.setValue("nodule.isIncompleteStudy" as any, false);
       methods.setValue("priorCategory", undefined);
       methods.setValue("priorStatus", undefined);
     }
@@ -162,11 +159,12 @@ export default function WizardContainer() {
       }
 
       const scanType = methods.getValues("nodule.scanType" as any);
+      const isIncompleteStudy = methods.getValues("nodule.isIncompleteStudy" as any);
       if (!scanType) {
         methods.setError("nodule.scanType" as any, { type: "manual", message: "Tipo de scan requerido" });
         return false;
       }
-      if (scanType === "follow-up") {
+      if (scanType === "follow-up" && !isIncompleteStudy) {
         const priorDiameter = methods.getValues("nodule.priorDiameterMm" as any);
         const priorMonths = methods.getValues("nodule.priorScanMonthsAgo" as any);
         if (priorDiameter === undefined || Number.isNaN(priorDiameter) ||
@@ -193,6 +191,10 @@ export default function WizardContainer() {
     }
 
     if (step === "nodule") {
+      const isIncompleteStudy = context === "screening" && methods.getValues("nodule.isIncompleteStudy" as any);
+      if (isIncompleteStudy) {
+        return true;
+      }
       const diameter = methods.getValues("nodule.diameterMm");
       if (diameter === undefined || Number.isNaN(diameter)) {
         methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Ingresa un diámetro entre 1 y 100 mm" });

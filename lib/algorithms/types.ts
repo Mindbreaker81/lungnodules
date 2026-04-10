@@ -8,7 +8,7 @@ export type ExtrathoracicCancerHistory = 'none' | 'over5y' | 'recent';
 export type PetUptake = 'absent' | 'faint' | 'moderate' | 'intense';
 
 export interface PatientProfile {
-  age: number;
+  age?: number;
   riskLevel?: RiskLevel; // Only for Fleischner
   clinicalContext: ClinicalContext;
   hasKnownMalignancy?: boolean;

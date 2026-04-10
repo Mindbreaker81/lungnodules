@@ -208,4 +208,35 @@ describe("WizardContainer", () => {
     });
     expect(await screen.findByRole("combobox", { name: /Tipo de nódulo/i })).toBeInTheDocument();
   });
+
+  test("permite categoría 0 por estudio incompleto sin exigir diámetro", async () => {
+    const user = userEvent.setup();
+
+    render(<WizardContainer />);
+
+    const screeningRadio = screen.getByLabelText(/Lung-RADS v2022/i);
+    await act(async () => {
+      await user.click(screeningRadio);
+    });
+
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    const incompleteCheckbox = await screen.findByLabelText(/Estudio incompleto o técnicamente inadecuado/i);
+    await act(async () => {
+      await user.click(incompleteCheckbox);
+    });
+
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    expect(await screen.findByText(/Continue annual LDCT/i)).toBeInTheDocument();
+    expect(screen.getByText(/Lung-RADS v2022/i)).toBeInTheDocument();
+  });
 });

@@ -14,10 +14,20 @@ const NODULE_TYPE_TOOLTIP =
   "Vidrio esmerilado (GGN/no sólido): aumento de atenuación sin ocultar estructuras. " +
   "Semi-sólido: combina vidrio esmerilado y componente sólido.";
 
+const parseOptionalNumber = (value: unknown) => {
+  if (value === "" || value === undefined || value === null) return undefined;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
+
+const parseBoolean = (value: unknown) =>
+  value === true || value === "true" || value === 1 || value === "1" || value === "on";
+
 export default function NoduleStep({ clinicalContext }: Props) {
   const { register, watch, setValue } = useFormContext<AssessmentInput>();
   const type = watch("nodule.type");
   const isMultiple = watch("nodule.isMultiple");
+  const isIncompleteStudy = watch("nodule.isIncompleteStudy");
   const isAirway = watch("nodule.isAirway");
   const isInflammatory = watch("nodule.isInflammatory");
   const isAtypicalCyst = watch("nodule.isAtypicalCyst");
@@ -113,11 +123,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
               aria-label="Número de nódulos"
               className="mt-1"
               {...register("nodule.noduleCount", {
-                setValueAs: (v: unknown) => {
-                  if (v === "" || v === undefined || v === null) return undefined;
-                  const n = Number(v);
-                  return Number.isNaN(n) ? undefined : n;
-                },
+                setValueAs: parseOptionalNumber,
               })}
             />
           </div>
@@ -134,9 +140,14 @@ export default function NoduleStep({ clinicalContext }: Props) {
           aria-label="Diámetro en milímetros"
           placeholder="Diámetro del nódulo (mm)"
           className="mt-1"
-          {...register("nodule.diameterMm", { valueAsNumber: true })}
+          {...register("nodule.diameterMm", { setValueAs: parseOptionalNumber })}
         />
         {diameterHint && <p className="mt-1 text-xs text-slate-400">{diameterHint}</p>}
+        {isScreening && isIncompleteStudy && (
+          <p className="mt-1 text-xs text-slate-400">
+            En categoría 0 por estudio incompleto, el diámetro puede omitirse si no es fiable.
+          </p>
+        )}
       </div>
 
       {type === "part-solid" && (
@@ -150,11 +161,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
             aria-label="Componente sólido en milímetros"
             className="mt-1"
             {...register("nodule.solidComponentMm", {
-              setValueAs: (v: unknown) => {
-                if (v === "" || v === undefined || v === null) return undefined;
-                const n = Number(v);
-                return Number.isNaN(n) ? undefined : n;
-              },
+                setValueAs: parseOptionalNumber,
             })}
           />
           {solidExceeds && (
@@ -226,7 +233,10 @@ export default function NoduleStep({ clinicalContext }: Props) {
               <input type="checkbox" aria-label="Benigno definitivo o sin nódulos" {...register("nodule.isBenign")} className="text-primary rounded focus:ring-primary" /> Sin nódulos o benigno definitivo (Cat 1)
             </label>
             <label className="flex items-center gap-2 text-white">
-              <input type="checkbox" aria-label="Hallazgo significativo" {...register("nodule.hasSignificantFinding")} className="text-primary rounded focus:ring-primary" /> Hallazgo significativo (Cat S)
+            <input type="checkbox" aria-label="Estudio incompleto o técnicamente inadecuado" {...register("nodule.isIncompleteStudy", { setValueAs: parseBoolean })} className="text-primary rounded focus:ring-primary" /> Estudio incompleto o técnicamente inadecuado (Cat 0)
+          </label>
+          <label className="flex items-center gap-2 text-white">
+            <input type="checkbox" aria-label="Hallazgo significativo" {...register("nodule.hasSignificantFinding")} className="text-primary rounded focus:ring-primary" /> Hallazgo significativo (modificador S)
             </label>
             <label className="flex items-center gap-2 text-white">
               <input type="checkbox" aria-label="Hallazgo inflamatorio" {...register("nodule.isInflammatory")} className="text-primary rounded focus:ring-primary" /> Hallazgo inflamatorio/infeccioso

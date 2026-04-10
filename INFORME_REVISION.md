@@ -2,138 +2,94 @@
 
 **Fecha:** 2026-04-10  
 **Rama:** `main`  
-**Estado auditado:** base `1.1.5`, documentado en `1.1.6`  
-**Metodología:** revisión estática de código, ejecución de validadores, pruebas manuales en navegador y revisión de configuración/CI.
+**Estado auditado:** código actual `1.2.0` tras alineación post-auditoría  
+**Metodología:** revisión estática de código, contraste documento↔implementación y ejecución de validadores (`lint`, `tsc`, `jest`, `build`, `playwright`, `npm audit`).
 
 ---
 
 ## 1. Resumen ejecutivo
 
 ### Veredicto
-La aplicación es un prototipo bien estructurado y funcional, pero **todavía no debería aprobarse para uso clínico/producción**. La principal razón no es la estabilidad técnica básica, sino la existencia de **desviaciones confirmadas respecto a Lung-RADS v2022 y Fleischner 2017**, junto con contradicciones de privacidad, riesgo de servir contenido clínico obsoleto desde caché y brechas de accesibilidad/gobernanza.
+La aplicación ha corregido la mayor parte de los hallazgos técnicos, de privacidad, accesibilidad y gobernanza señalados en la revisión previa. Sin embargo, **todavía no debería aprobarse para uso clínico/producción** mientras persistan ambigüedades o desviaciones clínicas en la implementación de `Lung-RADS` y mientras no exista validación radiológica externa de varios atajos morfológicos.
 
-### Fortalezas observadas
-- Separación razonable entre UI, esquemas, algoritmos clínicos y modelos predictivos.
-- Cobertura automatizada útil sobre algoritmos y flujos principales.
-- Flujos manuales principales operativos: landing, wizard incidental, wizard screening y calculadora de elegibilidad.
-- Validadores de calidad ejecutables localmente tras corregir pequeños bloqueos de lint/typecheck.
-
-### Decisión de auditoría
+### Decisión de auditoría actualizada
 - **Aprobación clínica:** No
-- **Aprobación técnica para prototipo interno supervisado:** Sí, con reservas
+- **Aprobación técnica para prototipo interno supervisado:** Sí
 - **Aprobación para producción clínica:** No
 
----
+### Estado general actualizado
+**Corregido desde la auditoría previa:**
+- `S` de Lung-RADS ya funciona como **modificador aditivo** y no como categoría independiente.
+- Fleischner para parte-sólidos con componente sólido `>=6 mm` ya exige **TC confirmatoria a 3-6 meses** antes de PET/biopsia.
+- Analytics ya no persiste datos en `localStorage`.
+- El service worker ya no usa estrategia clínica `cache-first` amplia.
+- El wizard ya no inicia con defaults clínicamente significativos.
+- `lang="es"`, `aria-expanded` y los gates de preview/staging ya están corregidos.
+- El flujo real ya soporta **categoría 0 por estudio incompleto** en wizard/schema.
+- Screening ya no inyecta `patient.age = 0`; la edad pasa a ser opcional y explícita para modelos predictivos.
 
-## 2. Alcance y metodología
-
-### Superficies revisadas
-- Algoritmos clínicos: `lib/algorithms/fleischner.ts`, `lib/algorithms/lungRads.ts`
-- Modelos predictivos: `lib/predictive/index.ts`
-- Elegibilidad PLCOm2012: `lib/eligibility/plcom2012.ts`, `lib/eligibility/plcom2012Schema.ts`
-- Validación de inputs: `lib/schemas/noduleInput.ts`
-- Wizard/UI: `components/wizard/*`, `components/LegalFooter.tsx`, `app/page.tsx`, `app/layout.tsx`
-- Persistencia/caché: `lib/analytics/index.ts`, `public/sw.js`
-- CI/CD y despliegue: `.github/workflows/*`
-- Documentación/legal: `MEDICAL_DISCLAIMER.md`, `public/MEDICAL_DISCLAIMER.md`, `config/guidelines.ts`
-
-### Métodos aplicados
-1. Revisión dirigida de código y configuración.
-2. Ejecución de validadores locales (`lint`, `tsc`, `jest`, `build`, `playwright`).
-3. Pruebas manuales en navegador de los flujos principales.
-4. Comparación de la lógica con el comportamiento esperado de Fleischner 2017 y Lung-RADS v2022.
+**Sigue abierto o parcial:**
+- Regla de crecimiento Lung-RADS todavía demasiado permisiva en seguimientos largos.
+- Manejo de GGN `>=30 mm` estable / slow growth todavía incompleto.
+- Atajos perifisural/yuxtapleural pendientes de validación clínica externa.
+- Persiste duplicación de validación entre Zod y lógica manual del wizard.
+- `npm audit` sigue reportando vulnerabilidades relevantes en dependencias.
 
 ---
 
-## 3. Hallazgos confirmados prioritarios
+## 2. Hallazgos resueltos desde la auditoría previa
 
-| Área | Severidad | Hallazgo | Evidencia | Impacto |
+| Área | Estado | Corrección observada | Evidencia |
+| :--- | :--- | :--- | :--- |
+| Clínica | Resuelto | `S` modelado como modificador (`2S`, `4AS`, etc.) | `lib/algorithms/lungRads.ts`, `__tests__/algorithms/audit-regression.test.ts` |
+| Clínica | Resuelto | Parte-sólidos Fleischner con sólido `>=6 mm` incluyen TC confirmatoria | `lib/algorithms/fleischner.ts` |
+| Privacidad | Resuelto | Analytics en memoria de sesión, sin `localStorage` | `lib/analytics/index.ts` |
+| Seguridad/Operación | Resuelto | `public/sw.js` usa `network-first` para contenido clínico y caché versionado | `public/sw.js` |
+| UX clínica | Resuelto | Eliminados defaults clínicos significativos del wizard | `components/wizard/WizardContainer.tsx` |
+| Accesibilidad | Resuelto | Documento HTML en español y toggle con `aria-expanded` | `app/layout.tsx`, `components/LegalFooter.tsx` |
+| Gobernanza | Resuelto | Preview/staging ya ejecutan `lint`, `tsc`, `test` y `build` antes de desplegar | `.github/workflows/deploy-preview.yml`, `.github/workflows/deploy-staging.yml` |
+| Flujo real | Resuelto | `isIncompleteStudy` ya está cableado en schema y wizard | `lib/schemas/noduleInput.ts`, `components/wizard/NoduleStep.tsx`, `components/wizard/WizardContainer.tsx` |
+| Consistencia interna | Resuelto | Eliminada la categoría standalone `S` de schema/config/UI residual | `lib/schemas/noduleInput.ts`, `config/guidelines.ts`, `components/wizard/NoduleStep.tsx` |
+| Modelos predictivos | Resuelto | Se eliminó la edad sintética en screening; la edad queda como input opcional real | `components/wizard/RiskStep.tsx`, `components/wizard/WizardContainer.tsx` |
+
+---
+
+## 3. Hallazgos aún abiertos o parciales
+
+| Área | Severidad | Hallazgo vigente | Evidencia | Impacto |
 | :--- | :--- | :--- | :--- | :--- |
-| Clínica | Alta | `S` de Lung-RADS está modelado como categoría independiente y no como modificador | `lib/algorithms/lungRads.ts` | Puede deformar la clasificación final y la recomendación de manejo |
-| Clínica | Alta | La regla de crecimiento de Lung-RADS es demasiado permisiva | `calculateGrowth()` en `lib/algorithms/lungRads.ts` | Riesgo de sobreelevar categorías en seguimientos largos |
-| Clínica | Alta | La clasificación de nódulos parte-sólidos en seguimiento no contempla correctamente umbrales de nuevo/en crecimiento | `classifyPartSolid()` en `lib/algorithms/lungRads.ts` | Puede infra/sobreclasificar riesgo |
-| Clínica | Alta | Los GGN estables o de crecimiento lento `>=30 mm` se sobredimensionan | `classifyGroundGlass()` en `lib/algorithms/lungRads.ts` | Riesgo de seguimiento o intervención innecesaria |
-| Clínica | Alta | La categoría `0` de Lung-RADS queda incompleta para hallazgos que requieren estudio adicional | `getSpecialCategory()` y flujo general de `lungRads.ts` | Gestión insuficiente de casos incompletos/inflamatorios |
-| Clínica | Alta | Fleischner para parte-sólidos con componente sólido `>=6 mm` omite la TC de confirmación a 3-6 meses | `assessPartSolid()` en `lib/algorithms/fleischner.ts` | Puede acelerar PET/biopsia antes de confirmar persistencia |
-| Privacidad | Alta | La app persiste analytics en `localStorage` pero el footer y los disclaimers afirman que no se almacena nada | `lib/analytics/index.ts`, `components/LegalFooter.tsx`, `MEDICAL_DISCLAIMER.md` | Riesgo de incumplimiento de expectativas de privacidad y claims engañosos |
-| Seguridad/Operación | Alta | El service worker usa estrategia cache-first amplia con nombre de caché fijo | `public/sw.js` | Puede servir recomendaciones clínicas obsoletas tras cambios de lógica o contenido |
-| UX clínica | Media-Alta | El wizard arranca con datos clínicos precargados (`edad 50`, `5 mm`, `low risk`) | `components/wizard/WizardContainer.tsx` | Favorece errores por omisión o confirmación insuficiente |
-| Accesibilidad | Media | El documento HTML sigue marcado con `lang="en"` aunque la UI está en español | `app/layout.tsx` | Peor experiencia con lectores de pantalla y herramientas de traducción/SEO |
-| Accesibilidad | Media | El toggle del disclaimer no expone `aria-expanded` | `components/LegalFooter.tsx` | Reduce usabilidad asistiva |
-| Gobernanza | Media | Preview/staging no imponen todas las puertas de calidad antes de desplegar | `.github/workflows/deploy-preview.yml`, `.github/workflows/deploy-staging.yml` | Riesgo de publicar previews con defectos clínicos o de interfaz |
+| Clínica | Alta | La regla de crecimiento de Lung-RADS sigue clasificando con `delta >= 1.5 mm` y solo añade warning en intervalos largos | `calculateGrowth()` en `lib/algorithms/lungRads.ts` | Riesgo de sobreelevar categorías en seguimientos prolongados |
+| Clínica | Alta | Los GGN `>=30 mm` dependen de `priorCategory/priorStatus` para step-down y no separan de forma explícita el escenario de slow growth | `classifyGroundGlass()` y `applySteppedManagement()` en `lib/algorithms/lungRads.ts` | Puede dejar manejo incompleto en seguimientos complejos |
+| Clínica | Media-Alta | Los atajos perifisural/yuxtapleural siguen necesitando revisión radiológica externa | `lib/algorithms/fleischner.ts`, `lib/algorithms/lungRads.ts` | Riesgo de aplicar excepciones benignas fuera del patrón típico |
+| Gobernanza | Media | Persiste mezcla de validación Zod + lógica manual por paso | `lib/schemas/noduleInput.ts`, `components/wizard/WizardContainer.tsx` | Riesgo de divergencia futura entre UI y dominio |
+| Dependencias | Alta | `npm audit` mantiene vulnerabilidades en dependencias transitivas y en `next` | `package-lock.json`, salida de `npm audit` | Riesgo de seguridad y necesidad de plan de actualización |
 
 ---
 
-## 4. Hallazgos posibles o pendientes de confirmación
-
-1. **Brock (Pan-Can):** la fórmula implementada requiere contraste final con la publicación original para confirmar que el tratamiento del tamaño coincide exactamente con el modelo validado.
-2. **Mayo Clinic:** el modelo se expone sin una restricción explícita de nódulo solitario, aunque ese era el contexto clásico de derivación.
-3. **Herder sobre Brock:** ya existe una advertencia, pero el encadenamiento Brock -> Herder sigue teniendo evidencia más limitada que Mayo -> Herder.
-4. **Perifissural/yuxtapleural:** los atajos morfológicos merecen revisión clínica adicional para asegurar que no se apliquen fuera del patrón benigno típico.
-5. **Validación de formularios:** la mezcla de validación Zod + lógica manual del wizard crea riesgo de divergencia futura.
-
----
-
-## 5. Estado de validación en esta auditoría
+## 4. Validación ejecutada en esta actualización
 
 | Comando | Resultado | Notas |
 | :--- | :--- | :--- |
-| `npm run lint` | Pasa | Se corrigió un bloqueo previo por constante sin uso |
-| `npx tsc --noEmit` | Pasa | Se corrigieron tests con `patient.id` no tipado |
-| `npm test --runInBand` | Pasa | `90/90` tests en verde |
+| `npm run lint` | Pasa | Sin errores |
+| `npx tsc --noEmit` | Pasa | Sin errores de tipos |
+| `npm test --runInBand` | Pasa | `111/111` tests en verde |
 | `npm run build` | Pasa | Build de producción correcta con Next.js 16.1.6 |
-| `npm run test:e2e` | Pasa | `4/4` smoke tests verdes tras instalar Chromium de Playwright |
-| `npm audit` | Falla | `11` vulnerabilidades (`1` crítica, `3` altas, `3` moderadas, `4` bajas) |
-
-### Pruebas manuales ejecutadas
-- Landing y navegación principal
-- Flujo incidental (Fleischner)
-- Flujo screening (Lung-RADS)
-- Calculadora de elegibilidad PLCOm2012
-- Vista móvil aproximada (`390x844`)
-- Comportamiento con coma/punto decimal
-- Manejo de follow-up sin datos previos completos
+| `npm run test:e2e` | Pasa | `4/4` smoke tests verdes tras instalar Chromium con `npx playwright install chromium` |
+| `npm audit` | Falla | `11` vulnerabilidades (`1` crítica, `4` altas, `2` moderadas, `4` bajas) |
 
 ---
 
-## 6. Mapa arquitectónico observado
+## 5. Alineaciones aplicadas en esta actualización
 
-- `app/`: rutas Next.js (`/`, `/assessment`, `/eligibility`)
-- `components/wizard/`: orquestación del formulario clínico y presentación de resultados
-- `lib/schemas/`: contratos Zod para entradas clínicas
-- `lib/algorithms/`: motores de recomendación Fleischner / Lung-RADS
-- `lib/predictive/`: Mayo, Brock, Herder
-- `lib/eligibility/`: PLCOm2012 y registro de elegibilidad
-- `lib/analytics/`: eventos locales y agregación simple
-- `public/sw.js`: soporte offline/caché
-- `.github/workflows/`: CI, previews y staging
-
-La arquitectura favorece mantenimiento y testeo, pero la **seguridad clínica depende de que la lógica normativa y la copia legal permanezcan sincronizadas**, algo que hoy no se cumple de forma consistente.
+- **Schema/UI Lung-RADS:** retirada la `S` standalone de categorías previas y etiquetado consistente como modificador.
+- **Categoría 0 real:** añadido soporte funcional a `isIncompleteStudy` en schema y wizard, permitiendo completar el flujo sin diámetro fiable.
+- **Modelos predictivos en screening:** eliminada la edad sintética; ahora la edad es opcional y explícita para Brock.
+- **Export/copy robustness:** resultados y exportaciones toleran ausencia de edad o diámetro cuando el caso es incompleto.
+- **Tablas/config:** `config/guidelines.ts` ya refleja la TC confirmatoria de Fleischner y separa categorías de modificadores.
+- **Textos residuales:** actualizados comentarios/metadatos obsoletos en analytics y disclaimers.
 
 ---
 
-## 7. Recomendaciones priorizadas
+## 6. Conclusión
 
-### P0 — Antes de cualquier uso clínico real
-1. Corregir las desviaciones confirmadas de `Lung-RADS` y `Fleischner`.
-2. Convertir `S` en modificador aditivo y revisar por completo el árbol de decisión de seguimiento.
-3. Reconciliar privacidad real vs claims legales/UI.
-4. Eliminar defaults clínicamente significativos del wizard o forzar confirmación explícita.
-
-### P1 — Antes de un despliegue más amplio
-1. Sustituir el service worker cache-first por estrategia versionada y más conservadora.
-2. Añadir tests de regresión para cada hallazgo clínico confirmado.
-3. Corregir `lang`, estados ARIA y asociaciones de labels.
-4. Endurecer gates de preview/staging para exigir al menos `lint`, `tsc`, `test` y `build`.
-
-### P2 — Fortalecimiento de producto
-1. Revisar dependencias vulnerables y actualizar `next` y transitive deps afectadas.
-2. Separar con mayor claridad validación de dominio vs validación de UI.
-3. Añadir tests de analytics, service worker y accesibilidad.
-4. Revisar con especialista radiológico la implementación final de Brock/Herder y shortcuts morfológicos.
-
----
-
-## 8. Conclusión
-
-La base técnica es buena y el proyecto ya demuestra valor como **prototipo clínico supervisado**, pero todavía no alcanza el listón de una herramienta de soporte a decisiones lista para producción. La prioridad no es rehacer la arquitectura, sino **alinear la lógica clínica con las guías, corregir las contradicciones legales/técnicas y endurecer las garantías de calidad antes de liberar**.
+El proyecto queda ahora **más consistente entre código, UI, configuración y documentación técnica** que en la auditoría previa. La deuda principal restante ya no está en privacidad o accesibilidad básica, sino en la **validación clínica fina de Lung-RADS/Fleischner y en el endurecimiento de dependencias** antes de cualquier liberación con aspiración asistencial real.

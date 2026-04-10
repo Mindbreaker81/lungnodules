@@ -13,7 +13,7 @@ const GUIDELINE: GuidelineId = 'fleischner-2017';
 const roundToNearestMm = (value: number) => Math.round(value);
 
 export function checkFleischnerApplicability(patient: PatientProfile): ApplicabilityResult {
-  if (patient.age < 35) {
+  if (patient.age === undefined || patient.age < 35) {
     return { applicable: false, reason: 'Las guías Fleischner aplican a pacientes ≥35 años' };
   }
   if (patient.hasKnownMalignancy) {

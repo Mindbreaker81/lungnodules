@@ -78,6 +78,39 @@ describe("Predictive models", () => {
     expect(summary.riskBand).toBe("low");
   });
 
+  test("Brock requires a real age in screening and does not use synthetic defaults", () => {
+    const input: AssessmentInput = {
+      clinicalContext: "screening",
+      patient: {
+        clinicalContext: "screening",
+        riskLevel: "low",
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: "female",
+        smokingStatus: "former",
+        extrathoracicCancerHistory: "none",
+        hasFamilyHistoryLungCancer: true,
+        hasEmphysema: true,
+      },
+      nodule: {
+        type: "part-solid",
+        diameterMm: 10,
+        solidComponentMm: 4,
+        isMultiple: true,
+        noduleCount: 3,
+        hasSpiculation: true,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+        scanType: "baseline",
+      },
+    };
+
+    const summary = getSummary(input, "brock");
+    expect(summary.status).toBe("insufficient_data");
+    expect(summary.missingFields).toContain("Edad");
+  });
+
   test("Herder requires pre-test probability ≥10%", () => {
     const input: AssessmentInput = {
       clinicalContext: "incidental",

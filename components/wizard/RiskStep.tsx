@@ -10,6 +10,12 @@ interface Props {
   clinicalContext: "incidental" | "screening";
 }
 
+const parseOptionalNumber = (value: unknown) => {
+  if (value === "" || value === undefined || value === null) return undefined;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
+
 export default function RiskStep({ clinicalContext }: Props) {
   const { register, watch, setValue } = useFormContext<AssessmentInput>();
   const scanType = watch("nodule.scanType");
@@ -44,7 +50,7 @@ export default function RiskStep({ clinicalContext }: Props) {
               aria-label="Edad del paciente"
               placeholder="Edad del paciente"
               className="mt-1"
-              {...register("patient.age", { valueAsNumber: true })}
+              {...register("patient.age", { setValueAs: parseOptionalNumber })}
             />
           </div>
           <div className="space-y-2">
@@ -138,11 +144,7 @@ export default function RiskStep({ clinicalContext }: Props) {
                   aria-label="Diámetro previo en mm"
                   className="mt-1"
                   {...register("nodule.priorDiameterMm", {
-                    setValueAs: (v: unknown) => {
-                      if (v === "" || v === undefined || v === null) return undefined;
-                      const n = Number(v);
-                      return Number.isNaN(n) ? undefined : n;
-                    },
+                    setValueAs: parseOptionalNumber,
                   })}
                 />
               </div>
@@ -154,11 +156,7 @@ export default function RiskStep({ clinicalContext }: Props) {
                   aria-label="Meses desde el scan previo"
                   className="mt-1"
                   {...register("nodule.priorScanMonthsAgo", {
-                    setValueAs: (v: unknown) => {
-                      if (v === "" || v === undefined || v === null) return undefined;
-                      const n = Number(v);
-                      return Number.isNaN(n) ? undefined : n;
-                    },
+                    setValueAs: parseOptionalNumber,
                   })}
                 />
               </div>
@@ -208,6 +206,21 @@ export default function RiskStep({ clinicalContext }: Props) {
       <div className="space-y-3 rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
         <p className="text-sm font-medium text-slate-300">Factores para modelos predictivos (opcional)</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {clinicalContext === "screening" && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300">
+                Edad (años) <span className="text-xs text-slate-400">(opcional, para Brock)</span>
+              </label>
+              <Input
+                type="number"
+                min={0}
+                aria-label="Edad del paciente para modelos predictivos"
+                placeholder="Edad del paciente"
+                className="mt-1"
+                {...register("patient.age", { setValueAs: parseOptionalNumber })}
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-slate-300">Sexo</label>
             <select

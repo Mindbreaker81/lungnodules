@@ -85,6 +85,7 @@ export function getPredictiveSummaries(
 
 function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
   const missingFields: string[] = [];
+  const age = input.patient.age;
   const diameter = input.nodule.diameterMm;
 
   if (input.clinicalContext !== "incidental") {
@@ -123,7 +124,7 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
     };
   }
 
-  if (!hasNumber(input.patient.age)) missingFields.push("Edad");
+  if (!hasNumber(age)) missingFields.push("Edad");
   if (!input.patient.smokingStatus) missingFields.push("Tabaquismo");
   if (!input.patient.extrathoracicCancerHistory) missingFields.push("Cáncer extratorácico (>5 años)");
   if (!hasNumber(diameter)) missingFields.push("Diámetro");
@@ -139,6 +140,9 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
     };
   }
 
+  const resolvedAge = age as number;
+  const resolvedDiameter = diameter as number;
+
   const smoking = input.patient.smokingStatus === "current" || input.patient.smokingStatus === "former" ? 1 : 0;
   const cancer = input.patient.extrathoracicCancerHistory === "over5y" ? 1 : 0;
   const spiculation = input.nodule.hasSpiculation ? 1 : 0;
@@ -146,10 +150,10 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
 
   const logOdds =
     MAYO_COEFFICIENTS.intercept +
-    MAYO_COEFFICIENTS.age * input.patient.age +
+    MAYO_COEFFICIENTS.age * resolvedAge +
     MAYO_COEFFICIENTS.smoking * smoking +
     MAYO_COEFFICIENTS.cancer * cancer +
-    MAYO_COEFFICIENTS.diameter * diameter +
+    MAYO_COEFFICIENTS.diameter * resolvedDiameter +
     MAYO_COEFFICIENTS.spiculation * spiculation +
     MAYO_COEFFICIENTS.upper * upper;
 
@@ -166,6 +170,7 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
 
 function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
   const missingFields: string[] = [];
+  const age = input.patient.age;
   const diameter = input.nodule.diameterMm;
   const resolvedNoduleCount =
     input.nodule.noduleCount ?? (input.nodule.isMultiple ? undefined : 1);
@@ -188,7 +193,7 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
     };
   }
 
-  if (!hasNumber(input.patient.age)) missingFields.push("Edad");
+  if (!hasNumber(age)) missingFields.push("Edad");
   if (!input.patient.sex) missingFields.push("Sexo");
   if (!hasBoolean(input.patient.hasFamilyHistoryLungCancer)) missingFields.push("Historia familiar");
   if (!hasBoolean(input.patient.hasEmphysema)) missingFields.push("Enfisema");
@@ -207,6 +212,9 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
     };
   }
 
+  const resolvedAge = age as number;
+  const resolvedDiameter = diameter as number;
+
   const sexFemale = input.patient.sex === "female" ? 1 : 0;
   const familyHistory = input.patient.hasFamilyHistoryLungCancer ? 1 : 0;
   const emphysema = input.patient.hasEmphysema ? 1 : 0;
@@ -219,11 +227,11 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
 
   const logOdds =
     BROCK_COEFFICIENTS.intercept +
-    BROCK_COEFFICIENTS.age * input.patient.age +
+    BROCK_COEFFICIENTS.age * resolvedAge +
     BROCK_COEFFICIENTS.sexFemale * sexFemale +
     BROCK_COEFFICIENTS.familyHistory * familyHistory +
     BROCK_COEFFICIENTS.emphysema * emphysema +
-    BROCK_COEFFICIENTS.diameter * diameter +
+    BROCK_COEFFICIENTS.diameter * resolvedDiameter +
     BROCK_COEFFICIENTS.noduleCount * additionalNodules +
     BROCK_COEFFICIENTS.spiculation * spiculation +
     BROCK_COEFFICIENTS.upper * upper +

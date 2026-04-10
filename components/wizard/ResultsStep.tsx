@@ -52,6 +52,7 @@ const PREDICTIVE_RISK_LABELS: Record<NonNullable<PredictiveModelSummary["riskBan
 
 const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
 const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
+const hasNumber = (value: unknown): value is number => typeof value === "number" && !Number.isNaN(value);
 
 function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo =
@@ -95,7 +96,7 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
       `DATOS DE ENTRADA:`,
       `  Contexto: ${input.clinicalContext}`,
       `  Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
-      `  Diámetro: ${formatMeasurement(input.nodule.diameterMm)}mm`,
+      hasNumber(input.nodule.diameterMm) ? `  Diámetro: ${formatMeasurement(input.nodule.diameterMm)}mm` : null,
       input.nodule.solidComponentMm !== undefined
         ? `  Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
         : null,
@@ -141,7 +142,9 @@ export default function ResultsStep({ result, input }: Props) {
   const screeningInput = input && input.clinicalContext === "screening" ? input : undefined;
   const isFollowUp = screeningInput?.nodule.scanType === "follow-up";
   const isGrowing =
-    isFollowUp && screeningInput
+    isFollowUp &&
+    screeningInput &&
+    hasNumber(screeningInput.nodule.diameterMm)
       ? calculateLungRadsGrowth(
         screeningInput.nodule.diameterMm,
         screeningInput.nodule.priorDiameterMm,

@@ -12,7 +12,7 @@ const petUptakeValues = ['absent', 'faint', 'moderate', 'intense'] as const;
 const airwayLocationValues = ['subsegmental', 'segmental-proximal'] as const;
 const inflammatoryCategoryValues = ['category0', 'category2'] as const;
 const atypicalCystCategoryValues = ['category3', 'category4A', 'category4B'] as const;
-const lungRadsCategoryValues = ['0', '1', '2', '3', '4A', '4B', '4X', 'S'] as const;
+const lungRadsCategoryValues = ['0', '1', '2', '3', '4A', '4B', '4X'] as const;
 const priorStatusValues = ['stable', 'progression'] as const;
 
 const riskFactorSchema = z.object({
@@ -29,6 +29,10 @@ const diameterSchema = z
   .min(1, 'Ingresa un diámetro entre 1 y 100 mm')
   .max(100, 'Ingresa un diámetro entre 1 y 100 mm');
 
+const ageSchema = z
+  .number({ invalid_type_error: 'La edad debe ser positiva' })
+  .min(0, 'La edad debe ser positiva');
+
 const solidComponentSchema = z
   .number({ invalid_type_error: 'El componente sólido no puede exceder el total' })
   .min(0, 'El componente sólido no puede exceder el total')
@@ -37,7 +41,7 @@ const solidComponentSchema = z
 
 export const patientSchema = z.object({
   clinicalContext: z.enum(clinicalContextValues),
-  age: z.number().min(0, 'La edad debe ser positiva'),
+  age: ageSchema.optional(),
   riskLevel: z.enum(riskLevelValues).optional(), // Fleischner only
   riskFactors: riskFactorSchema.optional(),
   hasKnownMalignancy: z.boolean().optional(),
@@ -51,7 +55,7 @@ export const patientSchema = z.object({
 
 export const noduleBaseSchema = z.object({
   type: z.enum(noduleTypeValues),
-  diameterMm: diameterSchema,
+  diameterMm: diameterSchema.optional(),
   solidComponentMm: solidComponentSchema,
   isMultiple: z.boolean(),
   isPerifissural: z.boolean().optional(),
@@ -68,6 +72,7 @@ export const noduleBaseSchema = z.object({
   isAirway: z.boolean().optional(),
   isAtypicalCyst: z.boolean().optional(),
   isBenign: z.boolean().optional(),
+  isIncompleteStudy: z.coerce.boolean().optional(),
   hasSignificantFinding: z.boolean().optional(),
   isInflammatory: z.boolean().optional(),
   inflammatoryCategory: z.enum(inflammatoryCategoryValues).optional(),
@@ -88,9 +93,20 @@ const steppedManagementSchema = z.object({
   priorStatus: z.enum(priorStatusValues).optional(),
 });
 
+const incidentalPatientSchema = patientSchema.extend({
+  age: ageSchema,
+  riskLevel: z.enum(riskLevelValues),
+});
+
+const incidentalNoduleSchema = noduleBaseSchema.extend({
+  diameterMm: diameterSchema,
+});
+
+const screeningNoduleSchema = noduleBaseSchema.merge(lungRadsExtension);
+
 const fleischnerCoreSchema = z.object({
-  patient: patientSchema,
-  nodule: noduleBaseSchema,
+  patient: incidentalPatientSchema,
+  nodule: incidentalNoduleSchema,
 });
 
 export const fleischnerInputSchema = fleischnerCoreSchema
@@ -110,6 +126,7 @@ export const fleischnerInputSchema = fleischnerCoreSchema
     (data: z.infer<typeof fleischnerCoreSchema>) =>
       data.nodule.type !== 'part-solid' ||
       data.nodule.solidComponentMm === undefined ||
+      data.nodule.diameterMm === undefined ||
       data.nodule.solidComponentMm <= data.nodule.diameterMm,
     {
       message: 'El componente sólido no puede exceder el diámetro total',
@@ -135,7 +152,7 @@ export const fleischnerInputSchema = fleischnerCoreSchema
 
 const lungRadsCoreSchema = z.object({
   patient: patientSchema,
-  nodule: noduleBaseSchema.merge(lungRadsExtension),
+  nodule: screeningNoduleSchema,
 });
 
 export const lungRadsInputSchema = lungRadsCoreSchema
@@ -147,6 +164,7 @@ export const lungRadsInputSchema = lungRadsCoreSchema
     (data: z.infer<typeof lungRadsCoreSchema>) =>
       data.nodule.type !== 'part-solid' ||
       data.nodule.solidComponentMm === undefined ||
+      data.nodule.diameterMm === undefined ||
       data.nodule.solidComponentMm <= data.nodule.diameterMm,
     {
       message: 'El componente sólido no puede exceder el diámetro total',
@@ -154,7 +172,16 @@ export const lungRadsInputSchema = lungRadsCoreSchema
     },
   )
   .refine(
+    (data: z.infer<typeof lungRadsCoreSchema>) =>
+      data.nodule.isIncompleteStudy || data.nodule.diameterMm !== undefined,
+    {
+      message: 'Ingresa un diámetro entre 1 y 100 mm',
+      path: ['nodule', 'diameterMm'],
+    },
+  )
+  .refine(
     (data: z.infer<typeof lungRadsCoreSchema>) => {
+      if (data.nodule.isIncompleteStudy) return true;
       if (data.nodule.scanType === 'follow-up') {
         return data.nodule.priorDiameterMm !== undefined && data.nodule.priorScanMonthsAgo !== undefined;
       }
@@ -168,14 +195,14 @@ export const lungRadsInputSchema = lungRadsCoreSchema
 
 const incidentalAssessmentSchema = z.object({
   clinicalContext: z.literal('incidental'),
-  patient: patientSchema.extend({ riskLevel: z.enum(riskLevelValues) }),
-  nodule: noduleBaseSchema,
+  patient: incidentalPatientSchema,
+  nodule: incidentalNoduleSchema,
 });
 
 const screeningAssessmentSchema = z.object({
   clinicalContext: z.literal('screening'),
   patient: patientSchema,
-  nodule: noduleBaseSchema.merge(lungRadsExtension),
+  nodule: screeningNoduleSchema,
 });
 
 export const assessmentInputSchema = z
@@ -199,6 +226,28 @@ export const assessmentInputSchema = z
           path: ['patient', 'isImmunocompromised'],
         });
       }
+      return;
+    }
+
+    if (!data.nodule.isIncompleteStudy && data.nodule.diameterMm === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Ingresa un diámetro entre 1 y 100 mm',
+        path: ['nodule', 'diameterMm'],
+      });
+    }
+
+    if (!data.nodule.isIncompleteStudy && data.nodule.scanType === 'follow-up') {
+      if (data.nodule.priorDiameterMm === undefined || data.nodule.priorScanMonthsAgo === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Diámetro e intervalo previos son requeridos para seguimiento',
+          path: ['nodule', 'priorDiameterMm'],
+        });
+      }
+    }
+
+    if (data.nodule.isIncompleteStudy) {
       return;
     }
 

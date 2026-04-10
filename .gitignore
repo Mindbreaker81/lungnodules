@@ -13,6 +13,8 @@ dist
 build
 
 # Testing
+.playwright
+.playwright-mcp
 playwright-report
 test-results
 coverage

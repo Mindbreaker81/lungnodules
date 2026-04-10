@@ -130,10 +130,12 @@ export const LUNGRADS_CATEGORIES = {
     malignancyProbability: 'Variable, mayor preocupación',
     color: 'red',
   },
-  'S': {
+} as const;
+
+export const LUNGRADS_MODIFIERS = {
+  S: {
     name: 'Hallazgos Significativos',
-    description: 'Hallazgos clínicamente significativos o potencialmente significativos no relacionados con cáncer de pulmón',
-    malignancyProbability: 'Variable',
+    description: 'Modificador aditivo para hallazgos clínicamente significativos no relacionados con cáncer de pulmón',
     color: 'gray',
   },
 } as const;
@@ -146,7 +148,6 @@ export const LUNGRADS_MANAGEMENT = {
   '4A': { timing: '3 months', recommendation: 'LDCT; PET/CT if solid ≥8mm', modality: 'LDCT or PET/CT' },
   '4B': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy', modality: 'CT/PET/Biopsy' },
   '4X': { timing: 'As indicated', recommendation: 'Diagnostic CT; PET/CT; biopsy; consider multidisciplinary review', modality: 'CT/PET/Biopsy/MDT' },
-  'S': { timing: 'As indicated', recommendation: 'Manage significant findings per clinical judgment', modality: 'As indicated' },
 } as const;
 
 // =============================================================================
@@ -187,7 +188,7 @@ export const FLEISCHNER_SUBSOLID = {
   partSolid: {
     '<6mm': { followUp: 'None', recommendation: 'No routine follow-up', rationale: 'Small part-solid nodules rarely malignant' },
     '≥6mm_solid<6mm': { followUp: '3-6 months; then annual x 5y', recommendation: 'CT at 3-6 months, then annual CT for 5 years', rationale: 'Risk rises with persistence; annual surveillance advised' },
-    '≥6mm_solid≥6mm': { followUp: 'As indicated', recommendation: 'PET/CT, biopsy, or surgical excision', rationale: 'Solid component ≥6mm is highly suspicious', malignancyRisk: 'High suspicion', warning: 'HIGHLY SUSPICIOUS — consider tissue diagnosis' },
+    '≥6mm_solid≥6mm': { followUp: '3-6 months; then as indicated', recommendation: 'CT at 3-6 months to confirm persistence; if persistent, consider PET/CT, biopsy, or surgical excision', rationale: 'Solid component ≥6mm is highly suspicious, but persistence should be confirmed before invasive workup', malignancyRisk: 'High suspicion', warning: 'HIGHLY SUSPICIOUS — confirm persistence before tissue diagnosis' },
   },
 } as const;
 

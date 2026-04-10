@@ -47,6 +47,7 @@ const PREDICTIVE_RISK_LABELS: Record<NonNullable<PredictiveModelSummary['riskBan
 
 const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
 const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
+const hasNumber = (value: unknown): value is number => typeof value === 'number' && !Number.isNaN(value);
 
 function formatAsText(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo = result.guideline === 'fleischner-2017'
@@ -98,11 +99,11 @@ function formatAsText(result: AssessmentResult, input: AssessmentInput | null): 
       '─'.repeat(60),
       '',
       `Contexto Clínico: ${input.clinicalContext === 'incidental' ? 'Hallazgo Incidental' : 'Cribado Cáncer Pulmón'}`,
-      `Edad del Paciente: ${input.patient.age} años`,
+      hasNumber(input.patient.age) ? `Edad del Paciente: ${input.patient.age} años` : null,
       input.patient.riskLevel ? `Nivel de Riesgo: ${input.patient.riskLevel}` : null,
       '',
       `Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
-      `Diámetro: ${formatMeasurement(input.nodule.diameterMm)} mm`,
+      hasNumber(input.nodule.diameterMm) ? `Diámetro: ${formatMeasurement(input.nodule.diameterMm)} mm` : null,
       input.nodule.solidComponentMm !== undefined
         ? `Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)} mm`
         : null,

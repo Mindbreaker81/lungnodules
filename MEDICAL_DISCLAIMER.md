@@ -231,7 +231,7 @@ If you identify any:
 **Guideline Versions:**
 - Fleischner Society: 2017
 - Lung-RADS: v2022 (November 2022)
-**Last Updated:** January 2026
+**Last Updated:** 2026-04-10
 
 ---
 
