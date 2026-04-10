@@ -1,3 +1,67 @@
+## [1.1.6] - 2026-04-10
+
+### Added
+- **Auditoría**: Actualizado `INFORME_REVISION.md` con una auditoría clínica y técnica integral del estado actual de la aplicación, hallazgos priorizados, validación y roadmap.
+
+### Fixed
+- **Lint**: Eliminada la constante sin uso en `lib/eligibility/plcom2012Schema.ts` para recuperar `npm run lint` en verde.
+- **TypeScript**: Corregidas las pruebas clínicas retirando propiedades `patient.id` no presentes en `PatientProfile`.
+- **Landing**: Sustituido el uso de `<img>` por `next/image` en `app/page.tsx` para eliminar la advertencia pendiente de lint.
+
+### Changed
+- **Versionado**: Sincronizadas versiones y metadatos en `package.json`, `package-lock.json`, `README.md`, `config/guidelines.ts`, `public/manifest.json` y disclaimers.
+
+## [1.1.5] - 2026-02-15
+
+### Added
+- **Navegación**: Enlace «Inicio» en cabecera de `/eligibility` y `/assessment`; botón Inicio en el bloque de resultado de elegibilidad junto a «Evaluar nódulo».
+- **Landing**: Hero con imagen de fondo (`/icons/fondo.jpg`), logo (`/icons/icon.svg`) y overlay; integración con next/image.
+- **Footer**: Versión de la app siempre visible en copyright y enlazada a `/CHANGELOG.md`.
+
+### Changed
+- **Viewport**: `layout.tsx` exporta viewport explícito (`width: device-width`, `initialScale: 1`) para documentar y garantizar comportamiento responsive.
+
+## [1.1.4] - 2026-02-15
+
+### Changed
+- **PLCOm2012 / Elegibilidad**: Traducción al español de la escala de educación (1–6) revisada: distinción clara entre nivel 4 (estudios universitarios sin terminar) y 5 (graduado universitario); etiquetas alineadas con NEJM 2013 y cuestionarios de salud en español.
+
+## [1.1.3] - 2026-02-15
+
+### Chore
+- **next-env.d.ts**: Incluido en el repositorio (declaraciones de tipos de Next.js, incl. rutas).
+
+## [1.1.2] - 2026-02-15
+
+### Fixed
+- **Build/Vercel**: Error de TypeScript en `lib/eligibility/registry.ts` (EligibilityModel genérico no asignable a `EligibilityModel[]`). Corregido con aserción de tipo en el array del registro para que el build y el deploy en Vercel pasen.
+
+## [1.1.1] - 2026-02-15
+
+### Added
+- **AGENTS.md**: Instrucciones para agentes (td al inicio/cierre de sesión, handoff con detalle, commits con skill smart-commit-with-versioning).
+
+## [1.1.0] - 2026-02-15
+
+### Added
+- **Elegibilidad para cribado**: Módulo de riesgo a 6 años (PLCOm2012) para valorar elegibilidad para cribado con LDCT, separado del flujo de evaluación de nódulos.
+- **Entrada dual en Home**: Dos acciones principales — «Elegibilidad para cribado» (`/eligibility`) y «Evaluar nódulo» (`/assessment`).
+- **`lib/eligibility/`**: Tipos, `computePlcom2012`, schema Zod, registro extensible de modelos (`eligibilityModels`, `computeEligibility`, `getEligibilityModel`), umbral por defecto 1,51%.
+- **Ruta `/eligibility`**: Formulario PLCOm2012 (edad, IMC, raza, educación, EPOC, historias, tabaquismo), resultado (riesgo %, elegible/no elegible), disclaimer y enlace a «Evaluar nódulo».
+- **Tests**: Suite `__tests__/eligibility/plcom2012.test.ts` (ejemplo de referencia, smoking_intensity=0, razas).
+- **Documentación**: `research/plcom2012-implementation-tasks.md`, referencias a PLCOm2012 en MEDICAL_DISCLAIMER.md.
+
+### Changed
+- **MEDICAL_DISCLAIMER.md**: Inclusión de PLCOm2012 en guías/modelos implementados y en referencias útiles.
+
+## [1.0.3] - 2026-02-15
+
+### Added
+- **Research**: Script R del modelo PLCOm2012 (`research/plcom2012.R`), documentación (`research/plcom2012_research.md`) y PDF de criterios de selección para cribado (`research/pdf/`).
+
+### Chore
+- **.gitignore**: Añadido `.todos/` para ignorar base de tareas local.
+
 ## [1.0.2] - 2026-02-06
 
 ### Added

@@ -1,3 +1,16 @@
+## [1.1.6] - 2026-04-10
+
+### Added
+- **Auditoría**: Actualizado `INFORME_REVISION.md` con una auditoría clínica y técnica integral del estado actual de la aplicación, hallazgos priorizados, validación y roadmap.
+
+### Fixed
+- **Lint**: Eliminada la constante sin uso en `lib/eligibility/plcom2012Schema.ts` para recuperar `npm run lint` en verde.
+- **TypeScript**: Corregidas las pruebas clínicas retirando propiedades `patient.id` no presentes en `PatientProfile`.
+- **Landing**: Sustituido el uso de `<img>` por `next/image` en `app/page.tsx` para eliminar la advertencia pendiente de lint.
+
+### Changed
+- **Versionado**: Sincronizadas versiones y metadatos en `package.json`, `package-lock.json`, `README.md`, `config/guidelines.ts`, `public/manifest.json` y disclaimers.
+
 ## [1.1.5] - 2026-02-15
 
 ### Added

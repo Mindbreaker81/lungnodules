@@ -1,136 +1,139 @@
-# Informe de Revisión Clínica y Técnica: Lung Nodule Decision Support
+# Informe de auditoría clínica y técnica: Lung Nodule Decision Support
 
-**Fecha:** 22/01/2026
-**Revisor:** Antigravity (AI Assistant)
-**Versión del Proyecto:** 1.0.0
-
----
-
-## 1. Resumen Ejecutivo
-
-### Estado General
-La aplicación es una herramienta robusta construida sobre un stack moderno (Next.js 14, TypeScript, Tailwind). La arquitectura es limpia, separando claramente la lógica clínica (`lib/algorithms`) de la interfaz de usuario (`components/wizard`). Desde el punto de vista clínico, implementa correctamente las guías **Fleischner 2017** (incidental) y **Lung-RADS 2022** (screening), además de modelos predictivos reconocidos (Mayo, Brock, Herder).
-
-### Riesgos Críticos
-1.  **Inconsistencia de Idioma (Severidad: Alta):** La aplicación sufre de un problema grave de "Spanglish". Mientras que la Landing Page y los formularios del Wizard están en Español, **todas las recomendaciones clínicas, racionales y disclaimers están hardcodeados en Inglés** en los archivos de configuración y lógica. Esto genera una experiencia de usuario fragmentada y potencialmente confusa.
-2.  **Validación de Edad (Severidad: Media):** Existen inconsistencias en la validación de edad entre los schemas de Zod (min: 0) y la configuración visual (min: 18 o 35).
-
-### Recomendaciones Top 5
-1.  **Centralizar y Traducir Textos:** Extraer todos los strings de `lib/algorithms` y `config/guidelines.ts` a un sistema de diccionarios (i18n) o traducirlos directamente al español si ese es el idioma objetivo único.
-2.  **Unificar Validación:** Sincronizar las reglas de validación en `noduleInput.ts` con las constantes de `config/guidelines.ts`.
-3.  **Clarificar Modelo Herder:** Añadir una nota clínica explícita sobre el uso de Herder (post-test) sobre el modelo de Brock (que ya incluye variables de malignidad), o restringir Herder solo para uso tras Mayo.
-4.  **Feedback en UI:** Mejorar el feedback visual cuando una guía no aplica (ej. edad < 35 en Fleischner) antes de llegar al paso final.
-5.  **Offline Banner:** Verificar la funcionalidad del Service Worker para garantizar que la app funcione 100% offline (crucial en entornos hospitalarios con mala conectividad).
+**Fecha:** 2026-04-10  
+**Rama:** `main`  
+**Estado auditado:** base `1.1.5`, documentado en `1.1.6`  
+**Metodología:** revisión estática de código, ejecución de validadores, pruebas manuales en navegador y revisión de configuración/CI.
 
 ---
 
-## 2. Alcance y Metodología
+## 1. Resumen ejecutivo
 
-**Revisado:**
-*   **Arquitectura:** Estructura de carpetas, manejo de estado y flujo de datos.
-*   **Lógica Clínica:** Archivos en `lib/algorithms` (Fleischner, Lung-RADS) y `lib/predictive`.
-*   **Seguridad:** Manejo de datos del paciente y dependencias.
-*   **UX/UI:** Flujos de usuario en el Wizard y Landing Page.
+### Veredicto
+La aplicación es un prototipo bien estructurado y funcional, pero **todavía no debería aprobarse para uso clínico/producción**. La principal razón no es la estabilidad técnica básica, sino la existencia de **desviaciones confirmadas respecto a Lung-RADS v2022 y Fleischner 2017**, junto con contradicciones de privacidad, riesgo de servir contenido clínico obsoleto desde caché y brechas de accesibilidad/gobernanza.
 
-**Limitaciones:**
-*   Revisión estática de código (no se ha ejecutado la app en un navegador real).
-*   No se han ejecutado los tests unitarios (`npm test` no invocado, solo inspección).
+### Fortalezas observadas
+- Separación razonable entre UI, esquemas, algoritmos clínicos y modelos predictivos.
+- Cobertura automatizada útil sobre algoritmos y flujos principales.
+- Flujos manuales principales operativos: landing, wizard incidental, wizard screening y calculadora de elegibilidad.
+- Validadores de calidad ejecutables localmente tras corregir pequeños bloqueos de lint/typecheck.
+
+### Decisión de auditoría
+- **Aprobación clínica:** No
+- **Aprobación técnica para prototipo interno supervisado:** Sí, con reservas
+- **Aprobación para producción clínica:** No
 
 ---
 
-## 3. Hallazgos Técnicos
+## 2. Alcance y metodología
 
-| Severidad | Hallazgo | Evidencia (Archivo) | Impacto | Recomendación |
+### Superficies revisadas
+- Algoritmos clínicos: `lib/algorithms/fleischner.ts`, `lib/algorithms/lungRads.ts`
+- Modelos predictivos: `lib/predictive/index.ts`
+- Elegibilidad PLCOm2012: `lib/eligibility/plcom2012.ts`, `lib/eligibility/plcom2012Schema.ts`
+- Validación de inputs: `lib/schemas/noduleInput.ts`
+- Wizard/UI: `components/wizard/*`, `components/LegalFooter.tsx`, `app/page.tsx`, `app/layout.tsx`
+- Persistencia/caché: `lib/analytics/index.ts`, `public/sw.js`
+- CI/CD y despliegue: `.github/workflows/*`
+- Documentación/legal: `MEDICAL_DISCLAIMER.md`, `public/MEDICAL_DISCLAIMER.md`, `config/guidelines.ts`
+
+### Métodos aplicados
+1. Revisión dirigida de código y configuración.
+2. Ejecución de validadores locales (`lint`, `tsc`, `jest`, `build`, `playwright`).
+3. Pruebas manuales en navegador de los flujos principales.
+4. Comparación de la lógica con el comportamiento esperado de Fleischner 2017 y Lung-RADS v2022.
+
+---
+
+## 3. Hallazgos confirmados prioritarios
+
+| Área | Severidad | Hallazgo | Evidencia | Impacto |
 | :--- | :--- | :--- | :--- | :--- |
-| **Alta** | **Mezcla de Idiomas (Spanglish)** | `config/guidelines.ts`, `lib/algorithms/*.ts` | El usuario ve la UI en ES pero recibe resultados en EN. Confuso y poco profesional. | Traducir `guidelines.ts` y lógica de retorno a ES o implementar i18n. |
-| **Media** | **Inconsistencia en rangos de validación** | `schema/noduleInput.ts` vs `config/guidelines.ts` | Zod permite `age: 0`, config dice `min: 18`. | Alinear Zod con `VALIDATION.age` de config. |
-| **Baja** | **Hardcoded Strings en UI** | `components/wizard/*.tsx` | Dificulta la mantenibilidad y futura traducción. | Mover textos de UI a constantes o archivos de recursos. |
-| **Baja** | **Lógica de "Warnings" duplicada** | `resultsStep.tsx` | La lógica de warnings se procesa tanto en algoritmo como en UI. | Centralizar toda la lógica de presentación en un helper. |
+| Clínica | Alta | `S` de Lung-RADS está modelado como categoría independiente y no como modificador | `lib/algorithms/lungRads.ts` | Puede deformar la clasificación final y la recomendación de manejo |
+| Clínica | Alta | La regla de crecimiento de Lung-RADS es demasiado permisiva | `calculateGrowth()` en `lib/algorithms/lungRads.ts` | Riesgo de sobreelevar categorías en seguimientos largos |
+| Clínica | Alta | La clasificación de nódulos parte-sólidos en seguimiento no contempla correctamente umbrales de nuevo/en crecimiento | `classifyPartSolid()` en `lib/algorithms/lungRads.ts` | Puede infra/sobreclasificar riesgo |
+| Clínica | Alta | Los GGN estables o de crecimiento lento `>=30 mm` se sobredimensionan | `classifyGroundGlass()` en `lib/algorithms/lungRads.ts` | Riesgo de seguimiento o intervención innecesaria |
+| Clínica | Alta | La categoría `0` de Lung-RADS queda incompleta para hallazgos que requieren estudio adicional | `getSpecialCategory()` y flujo general de `lungRads.ts` | Gestión insuficiente de casos incompletos/inflamatorios |
+| Clínica | Alta | Fleischner para parte-sólidos con componente sólido `>=6 mm` omite la TC de confirmación a 3-6 meses | `assessPartSolid()` en `lib/algorithms/fleischner.ts` | Puede acelerar PET/biopsia antes de confirmar persistencia |
+| Privacidad | Alta | La app persiste analytics en `localStorage` pero el footer y los disclaimers afirman que no se almacena nada | `lib/analytics/index.ts`, `components/LegalFooter.tsx`, `MEDICAL_DISCLAIMER.md` | Riesgo de incumplimiento de expectativas de privacidad y claims engañosos |
+| Seguridad/Operación | Alta | El service worker usa estrategia cache-first amplia con nombre de caché fijo | `public/sw.js` | Puede servir recomendaciones clínicas obsoletas tras cambios de lógica o contenido |
+| UX clínica | Media-Alta | El wizard arranca con datos clínicos precargados (`edad 50`, `5 mm`, `low risk`) | `components/wizard/WizardContainer.tsx` | Favorece errores por omisión o confirmación insuficiente |
+| Accesibilidad | Media | El documento HTML sigue marcado con `lang="en"` aunque la UI está en español | `app/layout.tsx` | Peor experiencia con lectores de pantalla y herramientas de traducción/SEO |
+| Accesibilidad | Media | El toggle del disclaimer no expone `aria-expanded` | `components/LegalFooter.tsx` | Reduce usabilidad asistiva |
+| Gobernanza | Media | Preview/staging no imponen todas las puertas de calidad antes de desplegar | `.github/workflows/deploy-preview.yml`, `.github/workflows/deploy-staging.yml` | Riesgo de publicar previews con defectos clínicos o de interfaz |
 
 ---
 
-## 4. Hallazgos Clínicos
+## 4. Hallazgos posibles o pendientes de confirmación
 
-### Modelo Detectado
-*   **Incidental:** Fleischner Society 2017 Guidelines.
-*   **Screening:** Lung-RADS v2022 Assessment Categories.
-*   **Probabilidad:** Mayo Clinic Model, Brock (Pan-Can) Model, Herder Model.
-
-### Matriz App vs Fuentes
-
-| Requisito/Regla | Implementación App | Concordancia | Observaciones |
-| :--- | :--- | :--- | :--- |
-| **Fleischner: Edad < 35** | `fleischner.ts`: `checkFleischnerApplicability` retorna error si < 35. | **Sí** | Correctamente excluido. |
-| **Fleischner: Solid < 6mm (Low Risk)** | `fleischner.ts`: "No routine follow-up". | **Sí** | Coincide con Tabla 1 de Fleischner 2017. |
-| **Fleischner: GGNs** | `fleischner.ts`: Distingue <6mm y >=6mm. | **Sí** | Coincide con guías de subsólidos. |
-| **Lung-RADS: Crecimiento** | `lungRads.ts`: Umbral > 1.5mm en 12 meses. | **Sí** | Correcta implementación de definición de crecimiento. |
-| **Predicción: Contexto** | `predictive/index.ts`: Usa Brock para Screening, Mayo para Incidental. | **Sí** | Correcta selección de modelo según población. |
-| **Herder: Pre-test** | `predictive/index.ts`: Permite usar Brock como pre-test para Herder. | **Parcial** | Herder original se validó sobre Mayo. Usarlo sobre Brock es teóricamente posible pero requiere validación clínica. |
-
-### Riesgos de Mala Aplicación
-*   **Herder sobre Brock:** Aunque matemáticamente válido (odds post-test), la validación original de Herder usaba el modelo de Mayo como pre-test. Usarlo sobre Brock (que ya es muy completo) podría sobreestimar o subestimar riesgos. Se recomienda añadir una nota de "Evidencia limitada" para esta combinación específica.
+1. **Brock (Pan-Can):** la fórmula implementada requiere contraste final con la publicación original para confirmar que el tratamiento del tamaño coincide exactamente con el modelo validado.
+2. **Mayo Clinic:** el modelo se expone sin una restricción explícita de nódulo solitario, aunque ese era el contexto clásico de derivación.
+3. **Herder sobre Brock:** ya existe una advertencia, pero el encadenamiento Brock -> Herder sigue teniendo evidencia más limitada que Mayo -> Herder.
+4. **Perifissural/yuxtapleural:** los atajos morfológicos merecen revisión clínica adicional para asegurar que no se apliquen fuera del patrón benigno típico.
+5. **Validación de formularios:** la mezcla de validación Zod + lógica manual del wizard crea riesgo de divergencia futura.
 
 ---
 
-## 5. Revisión de Traducciones y Terminología
+## 5. Estado de validación en esta auditoría
 
-La aplicación tiene un déficit crítico de traducción en la capa de datos.
+| Comando | Resultado | Notas |
+| :--- | :--- | :--- |
+| `npm run lint` | Pasa | Se corrigió un bloqueo previo por constante sin uso |
+| `npx tsc --noEmit` | Pasa | Se corrigieron tests con `patient.id` no tipado |
+| `npm test --runInBand` | Pasa | `90/90` tests en verde |
+| `npm run build` | Pasa | Build de producción correcta con Next.js 16.1.6 |
+| `npm run test:e2e` | Pasa | `4/4` smoke tests verdes tras instalar Chromium de Playwright |
+| `npm audit` | Falla | `11` vulnerabilidades (`1` crítica, `3` altas, `3` moderadas, `4` bajas) |
 
-### Strings Problemáticos (Ejemplos)
-*   **UI:** "Comenzar Valoración" (ES)
-*   **Resultado:** "CT at 3-6 months; if stable consider CT at 2 and 4 years" (EN)
-*   **Racional:** "Solid component ≥6mm is highly suspicious" (EN)
-*   **Unidades:** "Ground-glass" vs "Vidrio esmerilado" (Inconsistencia entre código y UI).
-
-### Glosario Recomendado (ES)
-*   *Ground-glass* -> **Vidrio deslustrado** (o esmerilado, pero ser consistente).
-*   *Part-solid* -> **Subsólido** (o parte sólido).
-*   *Spiculation* -> **Espiculación / Márgenes espiculados**.
-*   *Screening* -> **Cribado**.
-*   *Incidental* -> **Hallazgo incidental**.
-*   *Follow-up* -> **Seguimiento**.
-
----
-
-## 6. Plan de Acción
-
-### Quick Wins (1-2 horas)
-1.  **Traducción de Config:** Traducir el archivo `config/guidelines.ts` completo al español.
-2.  **Traducción de Algoritmos:** Traducir los strings de retorno (`recommendation`, `rationale`) en `fleischner.ts` y `lungRads.ts`.
-3.  **Ajuste de Validación:** Actualizar `schema/noduleInput.ts` para requerir edad >= 18 (o 35 para Fleishner explícitamente en el primer paso).
-
-### Corto Plazo (1-2 días)
-1.  **Refactor de Textos:** Mover todos los textos hardcodeados de los componentes `wizard/*.tsx` a un archivo central de constantes (`config/i18n.ts` o similar).
-2.  **Revisión de Textos Médicos:** Validar con un especialista si prefiere "Vidrio deslustrado" (España) o "Vidrio esmerilado" (LatAm).
-
-### Medio Plazo
-1.  **Tests Clínicos:** Crear una batería de tests en `__tests__` que simulen casos clínicos reales (ej. "Mujer 45 años, fumadora, nódulo sólido 7mm") y verifiquen que la recomendación de salida sea la esperada en español.
+### Pruebas manuales ejecutadas
+- Landing y navegación principal
+- Flujo incidental (Fleischner)
+- Flujo screening (Lung-RADS)
+- Calculadora de elegibilidad PLCOm2012
+- Vista móvil aproximada (`390x844`)
+- Comportamiento con coma/punto decimal
+- Manejo de follow-up sin datos previos completos
 
 ---
 
-## Anexo: Mapa de Flujo de Datos
+## 6. Mapa arquitectónico observado
 
-**1. Inputs (UI/Wizard)**
-*   `ContextStep`: Contexto clínico (Incidental vs Screening), Edad, Factores de Riesgo.
-*   `NoduleStep`: Morfología, Tamaño (mm), Características (Espiculación, Localización).
-*   `RiskStep` (Implícito/Calculado): Variables adicionales para modelos predictivos.
+- `app/`: rutas Next.js (`/`, `/assessment`, `/eligibility`)
+- `components/wizard/`: orquestación del formulario clínico y presentación de resultados
+- `lib/schemas/`: contratos Zod para entradas clínicas
+- `lib/algorithms/`: motores de recomendación Fleischner / Lung-RADS
+- `lib/predictive/`: Mayo, Brock, Herder
+- `lib/eligibility/`: PLCOm2012 y registro de elegibilidad
+- `lib/analytics/`: eventos locales y agregación simple
+- `public/sw.js`: soporte offline/caché
+- `.github/workflows/`: CI, previews y staging
 
-**2. Validación & Normalización**
-*   `schema/noduleInput.ts` (Zod): Coerción de tipos, validación de rangos (1-100mm).
+La arquitectura favorece mantenimiento y testeo, pero la **seguridad clínica depende de que la lógica normativa y la copia legal permanezcan sincronizadas**, algo que hoy no se cumple de forma consistente.
 
-**3. Motor de Cálculo (`lib/algorithms`)**
-*   Selector de Guía:
-    *   Incidental -> `fleischner.ts` -> `assessFleischner`
-    *   Screening -> `lungRads.ts` -> `assessLungRads`
-*   Modelos Predictivos (`lib/predictive`):
-    *   `getRecommendedPredictiveModel`: Selecciona Mayo o Brock.
-    *   Cálculo de probabilidad (Logistic Regression).
+---
 
-**4. Presentación (`ResultsStep`)**
-*   Formateo de textos (AQUÍ ES DONDE FALLA LA TRADUCCIÓN).
-*   Visualización de Badges de Riesgo.
-*   Exportación (Clipboard/JSON/TXT).
+## 7. Recomendaciones priorizadas
 
-**5. Persistencia**
-*   No hay persistencia en servidor (Privacidad OK).
-*   `analytics`: Eventos locales de uso (copiar/exportar).
+### P0 — Antes de cualquier uso clínico real
+1. Corregir las desviaciones confirmadas de `Lung-RADS` y `Fleischner`.
+2. Convertir `S` en modificador aditivo y revisar por completo el árbol de decisión de seguimiento.
+3. Reconciliar privacidad real vs claims legales/UI.
+4. Eliminar defaults clínicamente significativos del wizard o forzar confirmación explícita.
+
+### P1 — Antes de un despliegue más amplio
+1. Sustituir el service worker cache-first por estrategia versionada y más conservadora.
+2. Añadir tests de regresión para cada hallazgo clínico confirmado.
+3. Corregir `lang`, estados ARIA y asociaciones de labels.
+4. Endurecer gates de preview/staging para exigir al menos `lint`, `tsc`, `test` y `build`.
+
+### P2 — Fortalecimiento de producto
+1. Revisar dependencias vulnerables y actualizar `next` y transitive deps afectadas.
+2. Separar con mayor claridad validación de dominio vs validación de UI.
+3. Añadir tests de analytics, service worker y accesibilidad.
+4. Revisar con especialista radiológico la implementación final de Brock/Herder y shortcuts morfológicos.
+
+---
+
+## 8. Conclusión
+
+La base técnica es buena y el proyecto ya demuestra valor como **prototipo clínico supervisado**, pero todavía no alcanza el listón de una herramienta de soporte a decisiones lista para producción. La prioridad no es rehacer la arquitectura, sino **alinear la lógica clínica con las guías, corregir las contradicciones legales/técnicas y endurecer las garantías de calidad antes de liberar**.

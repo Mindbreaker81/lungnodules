@@ -19,7 +19,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-900/50 to-slate-950/80" aria-hidden />
         </div>
         <div className="relative z-10 flex flex-col items-center gap-6 px-6 py-10 sm:py-12">
-          <img
+          <Image
             src="/icons/icon.svg"
             alt=""
             className="h-14 w-14 shrink-0 sm:h-16 sm:w-16"

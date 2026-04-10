@@ -9,8 +9,6 @@ const plcom2012RaceValues = [
   "american_indian_alaskan_native",
 ] as const;
 
-const plcom2012EducationValues = [1, 2, 3, 4, 5, 6] as const;
-
 const plcom2012SmokingStatusValues = ["current", "former"] as const;
 
 export const plcom2012RaceSchema = z.enum(plcom2012RaceValues);

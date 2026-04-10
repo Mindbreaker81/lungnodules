@@ -7,7 +7,6 @@ describe('Pruebas Clínicas Automatizadas - Guía Fleischner 2017', () => {
     test('Caso 1: Mujer 45 años, no fumadora, nódulo sólido 4mm (Bajo Riesgo)', () => {
         const input: FleischnerAssessmentInput = {
             patient: {
-                id: 'test-1',
                 age: 45,
                 clinicalContext: 'incidental',
                 riskLevel: 'low', // Basado en no fumadora
@@ -32,7 +31,6 @@ describe('Pruebas Clínicas Automatizadas - Guía Fleischner 2017', () => {
     test('Caso 2: Hombre 67 años, fumador, nódulo sólido 7mm (Alto Riesgo)', () => {
         const input: FleischnerAssessmentInput = {
             patient: {
-                id: 'test-2',
                 age: 67,
                 clinicalContext: 'incidental',
                 riskLevel: 'high',
@@ -57,7 +55,6 @@ describe('Pruebas Clínicas Automatizadas - Guía Fleischner 2017', () => {
     test('Caso 3: GGN Puro de 10mm (Requiere seguimiento)', () => {
         const input: FleischnerAssessmentInput = {
             patient: {
-                id: 'test-3',
                 age: 55,
                 clinicalContext: 'incidental',
                 riskLevel: 'high', // GGN no depende tanto del riesgo clínico, sino del tamaño
@@ -81,7 +78,6 @@ describe('Pruebas Clínicas Automatizadas - Guía Fleischner 2017', () => {
     test('Caso 4: Paciente joven (25 años) - Exclusión', () => {
         const input: FleischnerAssessmentInput = {
             patient: {
-                id: 'test-4',
                 age: 25,
                 clinicalContext: 'incidental',
                 hasKnownMalignancy: false,

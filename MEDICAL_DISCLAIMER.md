@@ -227,7 +227,7 @@ If you identify any:
 
 ## Version Information
 
-**Current Version:** 1.1.1
+**Current Version:** 1.1.6
 **Guideline Versions:**
 - Fleischner Society: 2017
 - Lung-RADS: v2022 (November 2022)
