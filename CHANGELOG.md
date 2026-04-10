@@ -1,3 +1,15 @@
+## [1.3.0] - 2026-04-10
+
+### Added
+- **Shadcn UI**: Inicializado el proyecto con Shadcn UI (`components.json`, CSS variables en `globals.css`).
+- **Nuevos Componentes**: Añadidos `Card`, `Form`, `Label`, `RadioGroup`, `Dialog`, `Slider` y refactorizado `Button`.
+
+### Changed
+- **UI Architecture**: Migrada la arquitectura UI para usar CSS variables y el sistema de theming de Shadcn.
+- **Wizard**: Refactorizado `ContextStep.tsx` y `WizardContainer.tsx` para usar `<Form>` (react-hook-form) y `<RadioGroup>`.
+- **Layout**: Actualizado `app/page.tsx` para presentar las Guías Clínicas usando componentes `<Card>`.
+- **Modales**: Reescribido `NPSModal.tsx` con `<Dialog>` de Shadcn, mejorando captura de foco, teclado y accesibilidad.
+
 ## [1.2.1] - 2026-04-10
 
 ### Fixed

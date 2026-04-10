@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { GUIDELINE_VERSIONS, APP_VERSION } from '@config/guidelines';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@components/ui/card";
 
 export default function HomePage() {
   return (
@@ -76,31 +77,39 @@ export default function HomePage() {
 
       {/* Guidelines Section */}
       <div className="grid w-full grid-cols-1 gap-6 text-left sm:grid-cols-2">
-        <div className="group rounded-xl border border-slate-800 bg-surface p-6 transition-all hover:border-primary/50 hover:shadow-xl">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-            <span className="material-symbols-outlined">description</span>
-          </div>
-          <h2 className="text-xl font-bold text-white">{GUIDELINE_VERSIONS.fleischner.label}</h2>
-          <p className="mt-2 text-slate-400 leading-relaxed text-sm">
-            Criterios para el manejo de nódulos incidentales en pacientes {'>'}35 años. Clasificación por nivel de riesgo y morfología.
-          </p>
-          <div className="mt-4 text-xs font-mono text-slate-500">
-            {GUIDELINE_VERSIONS.fleischner.citation}
-          </div>
-        </div>
+        <Card className="group transition-all hover:border-primary/50 hover:shadow-xl bg-surface border-slate-800">
+          <CardHeader>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+              <span className="material-symbols-outlined">description</span>
+            </div>
+            <CardTitle className="text-xl font-bold text-white">{GUIDELINE_VERSIONS.fleischner.label}</CardTitle>
+            <CardDescription className="mt-2 text-slate-400 leading-relaxed text-sm">
+              Criterios para el manejo de nódulos incidentales en pacientes {'>'}35 años. Clasificación por nivel de riesgo y morfología.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xs font-mono text-slate-500">
+              {GUIDELINE_VERSIONS.fleischner.citation}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="group rounded-xl border border-slate-800 bg-surface p-6 transition-all hover:border-primary/50 hover:shadow-xl">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-            <span className="material-symbols-outlined">manage_search</span>
-          </div>
-          <h2 className="text-xl font-bold text-white">{GUIDELINE_VERSIONS.lungRads.label}</h2>
-          <p className="mt-2 text-slate-400 leading-relaxed text-sm">
-            Sistema de datos y reporte para el cribado de cáncer de pulmón. Clasificación estandarizada y recomendaciones de seguimiento.
-          </p>
-          <div className="mt-4 text-xs font-mono text-slate-500">
-            {GUIDELINE_VERSIONS.lungRads.citation}
-          </div>
-        </div>
+        <Card className="group transition-all hover:border-primary/50 hover:shadow-xl bg-surface border-slate-800">
+          <CardHeader>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-2xl text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+              <span className="material-symbols-outlined">manage_search</span>
+            </div>
+            <CardTitle className="text-xl font-bold text-white">{GUIDELINE_VERSIONS.lungRads.label}</CardTitle>
+            <CardDescription className="mt-2 text-slate-400 leading-relaxed text-sm">
+              Sistema de datos y reporte para el cribado de cáncer de pulmón. Clasificación estandarizada y recomendaciones de seguimiento.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xs font-mono text-slate-500">
+              {GUIDELINE_VERSIONS.lungRads.citation}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Security/Privacy Note */}

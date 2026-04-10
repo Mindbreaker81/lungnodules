@@ -6,7 +6,48 @@
 
 @layer base {
   :root {
+    --background: 216 21% 9%; /* background: #12161c */
+    --foreground: 210 40% 98%;
+
+    --card: 217 18% 14%; /* surface: #1e232b */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 18% 14%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 188 77% 27%; /* primary: #106c7a */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 188 78% 35%; /* accent: #148d9f */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%; /* danger: #EF4444 */
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 188 77% 27%; /* primary */
+
+    --success: 160 84% 39%; /* success: #10B981 */
+    --warning: 38 92% 50%; /* warning: #F59E0B */
+
+    --radius: 0.5rem;
     color-scheme: dark;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { Form } from "@components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { assessmentInputSchema, AssessmentInput } from "@lib/schemas/noduleInput";
 import { assessFleischner, assessLungRads, AssessmentResult, ClinicalContext } from "@lib/algorithms";
@@ -342,7 +343,7 @@ export default function WizardContainer() {
   const firstErrorMessage = extractFirstError(errors as Record<string, unknown>);
 
   return (
-    <FormProvider {...methods}>
+    <Form {...methods}>
       <form className="space-y-6 pb-20" onSubmit={submit}>
         <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
           {steps.map((step) => (
@@ -415,6 +416,6 @@ export default function WizardContainer() {
           )}
         </div>
       </form>
-    </FormProvider>
+    </Form>
   );
 }
