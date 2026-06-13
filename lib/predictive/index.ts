@@ -30,27 +30,38 @@ const toRiskBand = (probability: number): PredictiveRiskBand => {
   return "high";
 };
 
+// Mayo Clinic model (Swensen et al., Arch Intern Med 1997;157:849-855).
+// x = -6.8272 + 0.0391·age + 0.7917·smoking + 1.3388·cancer + 0.1274·diameter
+//     + 1.0407·spiculation + 0.7838·upperLobe
 const MAYO_COEFFICIENTS = {
-  intercept: -6.827,
-  age: 0.039,
-  smoking: 0.791,
-  cancer: 1.338,
-  diameter: 0.127,
-  spiculation: 0.71,
-  upper: 1.138,
+  intercept: -6.8272,
+  age: 0.0391,
+  smoking: 0.7917,
+  cancer: 1.3388,
+  diameter: 0.1274,
+  spiculation: 1.0407,
+  upper: 0.7838,
 } as const;
 
+// Brock/PanCan parsimonious model with spiculation (McWilliams et al., NEJM 2013;369:910-919).
+// Note the non-linear size transform, age centered at 62 and nodule count centered at 4:
+// x = -6.7892 + 0.0287·(age-62) + 0.6011·female + 0.2961·familyHistory + 0.2953·emphysema
+//     - 5.3854·[(size/10)^-0.5 - 1.58113883] + type + 0.6581·upperLobe
+//     - 0.0824·(count-4) + 0.7729·spiculation
 const BROCK_COEFFICIENTS = {
-  intercept: -8.4852,
+  intercept: -6.7892,
   age: 0.0287,
+  ageCenter: 62,
   sexFemale: 0.6011,
   familyHistory: 0.2961,
   emphysema: 0.2953,
-  diameter: 0.0546,
-  noduleCount: -0.0654,
-  spiculation: 0.3543,
-  upper: 0.3138,
-  nonsolid: -0.1271,
+  size: -5.3854,
+  sizeOffset: 1.58113883,
+  noduleCount: -0.0824,
+  noduleCountCenter: 4,
+  spiculation: 0.7729,
+  upper: 0.6581,
+  nonsolid: -0.1276,
   partSolid: 0.377,
 } as const;
 
@@ -221,18 +232,21 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
   const spiculation = input.nodule.hasSpiculation ? 1 : 0;
   const upper = input.nodule.isUpperLobe ? 1 : 0;
   const noduleCount = resolvedNoduleCount ?? 1;
-  const additionalNodules = Math.max(noduleCount - 1, 0);
   const nonsolid = input.nodule.type === "ground-glass" ? 1 : 0;
   const partSolid = input.nodule.type === "part-solid" ? 1 : 0;
 
+  // Brock enters nodule size through a non-linear transform, not linearly.
+  const sizeTerm =
+    Math.pow(resolvedDiameter / 10, -0.5) - BROCK_COEFFICIENTS.sizeOffset;
+
   const logOdds =
     BROCK_COEFFICIENTS.intercept +
-    BROCK_COEFFICIENTS.age * resolvedAge +
+    BROCK_COEFFICIENTS.age * (resolvedAge - BROCK_COEFFICIENTS.ageCenter) +
     BROCK_COEFFICIENTS.sexFemale * sexFemale +
     BROCK_COEFFICIENTS.familyHistory * familyHistory +
     BROCK_COEFFICIENTS.emphysema * emphysema +
-    BROCK_COEFFICIENTS.diameter * resolvedDiameter +
-    BROCK_COEFFICIENTS.noduleCount * additionalNodules +
+    BROCK_COEFFICIENTS.size * sizeTerm +
+    BROCK_COEFFICIENTS.noduleCount * (noduleCount - BROCK_COEFFICIENTS.noduleCountCenter) +
     BROCK_COEFFICIENTS.spiculation * spiculation +
     BROCK_COEFFICIENTS.upper * upper +
     BROCK_COEFFICIENTS.nonsolid * nonsolid +
