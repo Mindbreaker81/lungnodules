@@ -220,10 +220,32 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 > (un crecimiento de exactamente 1.5 mm ya **no** se marca como creciente). Test
 > `TC-GR-002` actualizado y añadido `TC-GR-002b`; suite en verde.
 >
-> **Celdas aún en nivel SECUNDARIO** (coherentes, pero conviene cotejar contra el PDF
-> oficial antes de marcarlas primarias): detalle de semi-sólido **nuevo/creciente** en
-> seguimiento (`classifyPartSolid:99-104`), manejo escalonado (C3 estable→C2, C4A
-> estable→C3) y categorías especiales (vía aérea, quiste atípico, inflamatorio).
+> **Cotejo de categorías especiales y manejo escalonado (2026-06-14) — fuentes ACR /
+> RadioGraphics / JACR vía WebSearch** (WebFetch bloqueado con 403; no se pudo abrir el PDF
+> oficial directamente). Resultado:
+>
+> | Bloque | Regla oficial v2022 | Código | Estado |
+> | :-- | :-- | :-- | :--: |
+> | Vía aérea subsegmental | C2 (suele ser tapón mucoso/inflamatorio) | `subsegmental → 2` | ✅ PRIMARIO |
+> | Vía aérea segmental/proximal | C4A | `segmental-proximal → 4A` | ✅ PRIMARIO |
+> | Vía aérea persistente a 3 m | C4A→C4B | `airwayPersistent → 4B` | ✅ PRIMARIO |
+> | Manejo escalonado | C3/C4A estables → "next lowest" (C2/C3 resp.), **excepto vía aérea** | `3→2`, `4A→3`; vía aérea sale por rama especial antes | ✅ PRIMARIO |
+> | Semi-sólido baseline | sólido <6→C3, 6–<8→C4A, ≥8→C4B | idem | ✅ PRIMARIO |
+> | Quiste atípico | descriptores 4B = quiste multilocular/pared gruesa en crecimiento | el código **no clasifica**, recibe `atypicalCystCategory` del usuario (passthrough); etiquetas coherentes con la guía | 🟡 passthrough |
+>
+> **Pendiente real que queda (#5) — semi-sólido NUEVO/creciente en seguimiento
+> (`classifyPartSolid:99-104`):**
+> - No se hallaron en fuentes accesibles los cutoffs exactos del componente sólido para
+>   part-solid **nuevo** (el código usa sólido ≥4→4A y ≥6→4B, desplazando ~2 mm los cortes
+>   de baseline; es plausible por el principio "los nódulos nuevos bajan un escalón", pero
+>   **sin fuente oficial explícita**).
+> - **Gap detectado:** la regla de "crecimiento lento sobre varios estudios que no alcanza
+>   >1.5 mm/12 m → sospechoso, posible C4B" (sólido o semi-sólido) **no está implementada**.
+> - **Limitación del modelo de datos:** el manejo escalonado solo contempla
+>   `priorStatus: 'stable' | 'progression'`; la guía dice "unchanged **or smaller**" — un
+>   nódulo que decrece se trataría como estable.
+> - **Menor:** la guía permite además categoría **0** para algunos hallazgos de vía aérea
+>   (no implementada como rama de vía aérea).
 
 ---
 
@@ -247,7 +269,7 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | 2 | (Opcional) Herder regresión re-estimada (3b) | Tabla completa de Herder 2005; los coef. PET aislados no bastan |
 | 3 | Decidir UX del selector con/sin espiculación en Brock | — |
 | 4 | ~~Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm~~ ✅ corregido 2026-06-14 | — |
-| 5 | Subir a primario las celdas de Lung-RADS aún secundarias (semi-sólido nuevo/creciente, manejo escalonado, categorías especiales) | Cotejo contra PDF oficial ACR v2022 |
+| 5 | ~~Cotejar vía aérea / manejo escalonado / semi-sólido baseline~~ ✅ verificado primario 2026-06-14. Queda solo: cutoffs exactos de **part-solid nuevo/creciente** y regla de **crecimiento lento → 4B** (no implementada) | PDF oficial ACR v2022 (WebFetch da 403; falta abrir el documento) |
 
 ---
 
