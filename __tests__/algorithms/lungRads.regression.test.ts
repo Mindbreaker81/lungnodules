@@ -35,6 +35,16 @@ describe('Lung-RADS Regression: Stepped Management', () => {
       expect(['3', '4A', '4B']).toContain(result.category);
     });
 
+    test('TC-SM-002b Category 3 decreased -> Category 2', () => {
+      const result = assessLungRads({
+        patient: basePatient,
+        nodule: { ...baseNodule, diameterMm: 7, scanType: 'follow-up' },
+        priorCategory: '3',
+        priorStatus: 'decreasing',
+      });
+      expect(result.category).toBe('2');
+    });
+
     test('TC-SM-003 Category 3 stable, no prior status -> no step-down', () => {
       const result = assessLungRads({
         patient: basePatient,
@@ -64,6 +74,16 @@ describe('Lung-RADS Regression: Stepped Management', () => {
         priorStatus: 'progression',
       });
       expect(['4A', '4B']).toContain(result.category);
+    });
+
+    test('TC-SM-005b Category 4A decreased -> Category 3', () => {
+      const result = assessLungRads({
+        patient: basePatient,
+        nodule: { ...baseNodule, diameterMm: 10, scanType: 'follow-up' },
+        priorCategory: '4A',
+        priorStatus: 'decreasing',
+      });
+      expect(result.category).toBe('3');
     });
   });
 
@@ -292,6 +312,65 @@ describe('Lung-RADS Regression: Part-solid & GGN Growth', () => {
       },
     });
     expect(result.category).toBe('3');
+  });
+
+  test('TC-GGN-003 Slow-growing GGN -> Category 2', () => {
+    const result = assessLungRads({
+      patient: basePatient,
+      nodule: {
+        type: 'ground-glass',
+        diameterMm: 35,
+        isMultiple: false,
+        scanType: 'follow-up',
+        isSlowGrowing: true,
+      },
+    });
+    expect(result.category).toBe('2');
+  });
+
+  test('TC-PS-004 New part-solid with solid <4mm -> Category 4A', () => {
+    const result = assessLungRads({
+      patient: basePatient,
+      nodule: {
+        type: 'part-solid',
+        diameterMm: 8,
+        solidComponentMm: 3,
+        isMultiple: false,
+        scanType: 'follow-up',
+        isNew: true,
+      },
+    });
+    expect(result.category).toBe('4A');
+  });
+
+  test('TC-PS-005 New part-solid with solid ≥4mm -> Category 4B', () => {
+    const result = assessLungRads({
+      patient: basePatient,
+      nodule: {
+        type: 'part-solid',
+        diameterMm: 8,
+        solidComponentMm: 4,
+        isMultiple: false,
+        scanType: 'follow-up',
+        isNew: true,
+      },
+    });
+    expect(result.category).toBe('4B');
+  });
+
+  test('TC-PS-006 Slow-growing part-solid -> Category 4B', () => {
+    const result = assessLungRads({
+      patient: basePatient,
+      nodule: {
+        type: 'part-solid',
+        diameterMm: 8,
+        solidComponentMm: 2,
+        isMultiple: false,
+        scanType: 'follow-up',
+        isSlowGrowing: true,
+      },
+    });
+    expect(result.category).toBe('4B');
   });
 });
 

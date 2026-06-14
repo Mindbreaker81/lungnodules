@@ -201,6 +201,7 @@ export default function RiskStep({ clinicalContext }: Props) {
                   >
                     <option value="" className="bg-surface">Sin estado previo</option>
                     <option value="stable" className="bg-surface">Estable (step-down permitido)</option>
+                    <option value="decreasing" className="bg-surface">Decreciente (step-down permitido)</option>
                     <option value="progression" className="bg-surface">Progresión</option>
                   </select>
                 </div>

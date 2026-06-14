@@ -98,9 +98,8 @@ function classifyPartSolid(options: {
 
   // Follow-up: new or growing part-solid -> escalate
   if (scanType === 'follow-up' && (isNew || isGrowing)) {
-    if (solidComponent >= 6) return { category: '4B' };
-    if (solidComponent >= 4 || isGrowing) return { category: '4A' };
-    return { category: '3' };
+    if (solidComponent >= 4) return { category: '4B' };
+    return { category: '4A' };
   }
 
   // Baseline or stable follow-up: classify by solid component size
@@ -113,13 +112,18 @@ function classifyPartSolid(options: {
   return { category: '3' };
 }
 
-function applySteppedManagement(currentCategory: string, priorCategory?: string, priorStatus?: 'stable' | 'progression'): string {
+function applySteppedManagement(
+  currentCategory: string,
+  priorCategory?: string,
+  priorStatus?: 'stable' | 'decreasing' | 'progression',
+): string {
   if (!priorCategory || !priorStatus) return currentCategory;
+  const canStepDown = priorStatus === 'stable' || priorStatus === 'decreasing';
 
-  if (priorCategory === '3' && priorStatus === 'stable') {
+  if (currentCategory === '3' && priorCategory === '3' && canStepDown) {
     return '2';
   }
-  if (priorCategory === '4A' && priorStatus === 'stable') {
+  if (currentCategory === '4A' && priorCategory === '4A' && canStepDown) {
     return '3';
   }
   return currentCategory;
@@ -203,6 +207,13 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
         rationale: 'Nódulo de vía aérea persistente en seguimiento a 3 meses',
       };
     }
+    if (nodule.airwayInflammatoryOrInfectious) {
+      return {
+        category: '0',
+        rationale: 'Anomalía tubular/múltiple de vía aérea probablemente infecciosa o inflamatoria sin nódulo obstructivo',
+        warnings: ['Categoría 0: considerar TCBD de control en 1-3 meses para confirmar resolución'],
+      };
+    }
     if (nodule.airwayLocation === 'segmental-proximal') {
       return {
         category: '4A',
@@ -279,7 +290,22 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     return buildResult(specialCategory.category, specialCategory.rationale, specialCategory.warnings);
   }
 
-  if (nodule.type === 'solid') {
+  const isSlowGrowingSuspicious =
+    nodule.isSlowGrowing && (nodule.type === 'solid' || nodule.type === 'part-solid');
+
+  if (isSlowGrowingSuspicious) {
+    category = '4B';
+    warnings = [
+      ...(warnings ?? []),
+      'Crecimiento lento en múltiples estudios: Lung-RADS permite clasificar sólido/semi-sólido como 4B',
+    ];
+  } else if (nodule.isSlowGrowing && nodule.type === 'ground-glass') {
+    category = '2';
+    warnings = [
+      ...(warnings ?? []),
+      'GGN de crecimiento lento: puede mantenerse como categoría 2 hasta cumplir criterios de otra categoría',
+    ];
+  } else if (nodule.type === 'solid') {
     category = classifySolidLungRADS({
       diameter: nodule.diameterMm,
       scanType: nodule.scanType,
@@ -328,6 +354,9 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     isGrowing ? 'Crecimiento >1.5mm/12m detectado' : 'Sin crecimiento significativo (>1.5mm/12m)',
     isNew ? 'Nódulo nuevo' : 'Nódulo existente',
   ];
+  if (nodule.isSlowGrowing) {
+    rationaleParts.push('Crecimiento lento en múltiples estudios');
+  }
   if (nodule.hasSpiculation && category.startsWith('4X')) {
     rationaleParts.push('Márgenes espiculados (4X)');
   }

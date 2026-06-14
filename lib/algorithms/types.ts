@@ -40,8 +40,10 @@ export interface NoduleCharacteristics {
   inflammatoryCategory?: 'category0' | 'category2';
   airwayLocation?: 'subsegmental' | 'segmental-proximal';
   airwayPersistent?: boolean;
+  airwayInflammatoryOrInfectious?: boolean;
   atypicalCystCategory?: 'category3' | 'category4A' | 'category4B';
   isNew?: boolean;
+  isSlowGrowing?: boolean;
 }
 
 export interface LungRADSInput extends NoduleCharacteristics {
@@ -78,5 +80,5 @@ export interface LungRadsAssessmentInput {
   patient: PatientProfile;
   nodule: LungRADSInput;
   priorCategory?: string;
-  priorStatus?: 'stable' | 'progression';
+  priorStatus?: 'stable' | 'decreasing' | 'progression';
 }

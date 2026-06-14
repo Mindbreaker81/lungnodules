@@ -109,6 +109,15 @@ describe('Lung-RADS v2022', () => {
     expect(res.category).toBe('2');
   });
 
+  test('TC-LR-013b Airway inflammatory/tubular -> Category 0', () => {
+    const res = run({
+      isAirway: true,
+      airwayLocation: 'subsegmental',
+      airwayInflammatoryOrInfectious: true,
+    });
+    expect(res.category).toBe('0');
+  });
+
   test('TC-LR-014 Airway segmental/proximal -> Category 4A', () => {
     const res = run({ isAirway: true, airwayLocation: 'segmental-proximal' });
     expect(res.category).toBe('4A');

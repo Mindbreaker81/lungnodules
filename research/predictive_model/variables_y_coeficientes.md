@@ -59,7 +59,7 @@ El modelo Brock tiene **cuatro fórmulas**: {parsimonioso, completo} × {con esp
 
 | Variable | Coef. | Estado | Codificación / input | Fuente de verificación |
 | :--- | :--- | :---: | :--- | :--- |
-| Intercepto | −6.7892 | ✅ | — | McWilliams 2013 (modelo parsimonioso) / meta-análisis Brock 2024 |
+| Intercepto | −6.7892 | ✅ | — | McWilliams 2013 (modelo completo con espiculación, Model 2b) / meta-análisis Brock 2024 |
 | Edad (centrada) | 0.0287 × (Edad − 62) | ✅ | años (`patient.age`) | McWilliams 2013 / calculadora Brock (BC Cancer) |
 | Sexo femenino | 0.6011 | ✅ | 1 = mujer; 0 = hombre (`patient.sex`) | McWilliams 2013 |
 | Historia familiar cáncer pulmón | 0.2961 | ✅ | 1/0 (`patient.hasFamilyHistoryLungCancer`) | McWilliams 2013 |
@@ -71,7 +71,7 @@ El modelo Brock tiene **cuatro fórmulas**: {parsimonioso, completo} × {con esp
 | Nº de nódulos (centrado) | −0.0824 × (Nº − 4) | ✅ | entero (`nodule.noduleCount`); solitario = 1 ⇒ +0.2472 | McWilliams 2013 |
 | Espiculación | 0.7729 | ✅ | 1/0 (`nodule.hasSpiculation`) | McWilliams 2013 |
 
-> **Nivel de verificación:** secundario (coeficientes del modelo parsimonioso *con espiculación* reproducidos en el meta-análisis de Clinical Radiology 2024 y en la calculadora Brock de BC Cancer Agency). No contrastado contra el apéndice suplementario original del NEJM en esta sesión. Coincide con `lib/predictive/index.ts:51-66`.
+> **Nivel de verificación:** primario/secundario (tabla 2 de McWilliams 2013 disponible en PMC/NEJM y coeficientes reproducidos en el suplemento del meta-análisis de Clinical Radiology 2024). **Corrección documental 2026-06-14:** estos coeficientes corresponden al **modelo completo con espiculación (Model 2b)**, no al parsimonioso 1b. Referencias concretas usadas: PMID/PMC McWilliams 2013 (`https://pmc.ncbi.nlm.nih.gov/articles/PMC3951177/`) y suplemento Clinical Radiology 2024 (`https://www.clinicalradiologyonline.net/cms/10.1016/j.crad.2024.106788/attachment/0337a514-fedd-4ca3-8cbc-c23fbb71dd88/mmc3.pdf`). Coincide con `lib/predictive/index.ts:51-66`.
 
 **Exclusiones aplicadas:** contexto screening (Lung-RADS); no aplicar a masas > 30 mm.
 
@@ -94,7 +94,7 @@ Misma estructura que 2a pero **sin el término de espiculación** y con **interc
 | Nº de nódulos (centrado en 4) | _por verificar_ | ⛔ |
 | ~~Espiculación~~ | (ausente en esta variante) | — |
 
-**Fuente a consultar:** apéndice suplementario de McWilliams 2013 (NEJM), tabla de modelos *full / parsimonious without spiculation*. No se ha podido recuperar en esta sesión (acceso de red restringido; sitios médicos devuelven 403). **No transcribir de memoria.**
+**Fuente a consultar:** tabla 2 de McWilliams 2013 (NEJM/PMC: `https://pmc.ncbi.nlm.nih.gov/articles/PMC3951177/`) y suplemento/meta-análisis de Clinical Radiology 2024 (`https://www.clinicalradiologyonline.net/cms/10.1016/j.crad.2024.106788/attachment/0337a514-fedd-4ca3-8cbc-c23fbb71dd88/mmc3.pdf`). Cifras vistas en fuentes públicas, pero **pendiente de transcripción controlada** antes de implementar para evitar mezclar modelo parsimonioso (1a) y completo (2a).
 
 **Plan de implementación cuando haya cifras:** añadir un segundo bloque de coeficientes `BROCK_COEFFICIENTS_NO_SPIC` y seleccionar la variante según disponibilidad/fiabilidad de la evaluación de espiculación (p. ej. un flag de UI o automáticamente cuando `hasSpiculation` no se haya informado).
 
@@ -125,22 +125,25 @@ P_Herder = O_post / (1 + O_post)
 
 **Nota:** multiplicar odds por un LR equivale a sumar `ln(LR)` al log-odds pre-test. El uso de Herder con pre-test Brock (screening) tiene evidencia limitada (validado originalmente con Mayo) — la app ya lo advierte.
 
-### 3b. Variante de regresión con coeficiente PET aditivo — ⛔ NO implementada (no verificada)
+### 3b. Variante de regresión logística publicada — 🟡 documentada, NO implementada
 
-Un documento interno (`coefficients.md`, "Step 5") sugiere sumar un coeficiente PET a la `x` de Mayo:
+Además del uso bayesiano con LR, fuentes secundarias reproducen una fórmula logística de Herder basada en la probabilidad Mayo/Swensen y captación PET (referencias usadas: PubMed Herder 2005 `https://pubmed.ncbi.nlm.nih.gov/16236914/` y revisión con ecuaciones de modelos `https://pmc.ncbi.nlm.nih.gov/articles/PMC7159041/`):
 
-| Captación | Coef. sugerido (doc interno) | Estado |
+`x = -4.739 + 3.691·P_Mayo + PET`
+
+| Captación | Coef. PET en fórmula logística | Estado |
 | :--- | :--- | :---: |
 | Ausente | 0 (referencia) | 🟡 sin verificar |
-| Leve | +1.439 | 🟡 sin verificar |
-| Moderada | +3.893 | 🟡 sin verificar |
-| Intensa | +5.534 | 🟡 sin verificar |
+| Leve | +2.322 | 🟡 documentado en fuentes secundarias |
+| Moderada | +4.617 | 🟡 documentado en fuentes secundarias |
+| Intensa | +4.771 | 🟡 documentado en fuentes secundarias |
 
 **Por qué no se implementa:**
-1. Los valores solo provienen del doc interno (la misma fuente que tenía erróneos los coeficientes de Mayo y Brock).
-2. Metodológicamente, una verdadera re-estimación logística de la cohorte de Herder **recalibra todos los coeficientes** (edad, tabaquismo, etc.), no solo añade un término PET sobre la `x` de Mayo. Por tanto "Mayo + coef. PET" no es un modelo publicado independiente tal como está descrito.
+1. La app ya implementa Herder como ajuste bayesiano con LR de FDG-PET, que es explícito y trazable a BTS/Herder.
+2. Esta variante produce resultados distintos y usa `P_Mayo` (probabilidad 0-1, no el log-odds de Mayo) como predictor; requiere decidir si se expondrá como alternativa clínica o sustituirá al método actual.
+3. No debe mezclarse con la `x` de Mayo ni con los coeficientes antiguos del documento interno.
 
-**Para implementarla de forma legítima** se necesita la **tabla de regresión completa re-estimada** del paper de Herder 2005 (intercepto + todos los coeficientes + términos PET), no solo los términos PET.
+**Para implementarla de forma legítima** se necesita confirmación final contra el paper original de Herder 2005 y una decisión de UX/API sobre si habrá dos variantes Herder.
 
 ---
 
@@ -220,32 +223,28 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 > (un crecimiento de exactamente 1.5 mm ya **no** se marca como creciente). Test
 > `TC-GR-002` actualizado y añadido `TC-GR-002b`; suite en verde.
 >
-> **Cotejo de categorías especiales y manejo escalonado (2026-06-14) — fuentes ACR /
-> RadioGraphics / JACR vía WebSearch** (WebFetch bloqueado con 403; no se pudo abrir el PDF
-> oficial directamente). Resultado:
+> **Cotejo de categorías especiales y manejo escalonado (2026-06-14) — PDFs locales ACR
+> (`research/pdf/Lung-RADS-2022-Summary.pdf` y
+> `research/pdf/lung-rads-assessment-categories.pdf#_~_text=Solid nodule_ • ≥ 6,at baseline OR.pdf`).
+> URL oficial ACR del resumen usado como referencia documental:
+> `https://cs.acr.org/-/media/ACR/Files/RADS/Lung-RADS/Lung-RADS-2022-Summary-_Final.pdf`.**
+> Resultado:
 >
 > | Bloque | Regla oficial v2022 | Código | Estado |
 > | :-- | :-- | :-- | :--: |
 > | Vía aérea subsegmental | C2 (suele ser tapón mucoso/inflamatorio) | `subsegmental → 2` | ✅ PRIMARIO |
+> | Vía aérea tubular/múltiple probablemente infecciosa sin nódulo obstructivo | C0 o C2 a discreción | `airwayInflammatoryOrInfectious → 0` | ✅ PRIMARIO |
 > | Vía aérea segmental/proximal | C4A | `segmental-proximal → 4A` | ✅ PRIMARIO |
 > | Vía aérea persistente a 3 m | C4A→C4B | `airwayPersistent → 4B` | ✅ PRIMARIO |
-> | Manejo escalonado | C3/C4A estables → "next lowest" (C2/C3 resp.), **excepto vía aérea** | `3→2`, `4A→3`; vía aérea sale por rama especial antes | ✅ PRIMARIO |
+> | Manejo escalonado | C3/C4A estables o decrecientes → "next lowest" (C2/C3 resp.), **excepto vía aérea** | `3→2`, `4A→3` para `stable/decreasing`; vía aérea sale por rama especial antes | ✅ PRIMARIO |
 > | Semi-sólido baseline | sólido <6→C3, 6–<8→C4A, ≥8→C4B | idem | ✅ PRIMARIO |
+> | Semi-sólido nuevo/creciente | componente sólido <4→C4A; ≥4→C4B | implementado | ✅ PRIMARIO |
+> | Crecimiento lento sólido/semi-sólido | crecimiento en múltiples estudios sin >1.5 mm/12 m → puede ser C4B | `isSlowGrowing → 4B` para sólido/semi-sólido | ✅ PRIMARIO |
+> | Crecimiento lento GGN | puede mantenerse C2 hasta cumplir otra categoría | `isSlowGrowing → 2` para GGN | ✅ PRIMARIO |
 > | Quiste atípico | descriptores 4B = quiste multilocular/pared gruesa en crecimiento | el código **no clasifica**, recibe `atypicalCystCategory` del usuario (passthrough); etiquetas coherentes con la guía | 🟡 passthrough |
 >
-> **Pendiente real que queda (#5) — semi-sólido NUEVO/creciente en seguimiento
-> (`classifyPartSolid:99-104`):**
-> - No se hallaron en fuentes accesibles los cutoffs exactos del componente sólido para
->   part-solid **nuevo** (el código usa sólido ≥4→4A y ≥6→4B, desplazando ~2 mm los cortes
->   de baseline; es plausible por el principio "los nódulos nuevos bajan un escalón", pero
->   **sin fuente oficial explícita**).
-> - **Gap detectado:** la regla de "crecimiento lento sobre varios estudios que no alcanza
->   >1.5 mm/12 m → sospechoso, posible C4B" (sólido o semi-sólido) **no está implementada**.
-> - **Limitación del modelo de datos:** el manejo escalonado solo contempla
->   `priorStatus: 'stable' | 'progression'`; la guía dice "unchanged **or smaller**" — un
->   nódulo que decrece se trataría como estable.
-> - **Menor:** la guía permite además categoría **0** para algunos hallazgos de vía aérea
->   (no implementada como rama de vía aérea).
+> **Pendiente residual:** quiste atípico sigue como passthrough porque la app pide la categoría
+> interpretada al usuario; no deriva automáticamente todos los descriptores morfológicos de quiste.
 
 ---
 
@@ -265,33 +264,25 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 
 | # | Tarea | Bloqueo |
 | :-: | :--- | :--- |
-| 1 | Coeficientes Brock **sin espiculación** (2b) | Apéndice suplementario McWilliams 2013 (NEJM) — no recuperable en sesión actual |
-| 2 | (Opcional) Herder regresión re-estimada (3b) | Tabla completa de Herder 2005; los coef. PET aislados no bastan |
+| 1 | Coeficientes Brock **sin espiculación** | Transcripción controlada de McWilliams 2013 / Clinical Radiology 2024 y decisión de variante |
+| 2 | (Opcional) Herder regresión logística (3b) | Confirmar contra paper original y decidir si exponer variante alternativa |
 | 3 | Decidir UX del selector con/sin espiculación en Brock | — |
 | 4 | ~~Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm~~ ✅ corregido 2026-06-14 | — |
-| 5 | ~~Cotejar vía aérea / manejo escalonado / semi-sólido baseline~~ ✅ verificado primario 2026-06-14. Queda solo: cutoffs exactos de **part-solid nuevo/creciente** y regla de **crecimiento lento → 4B** (no implementada) | PDF oficial ACR v2022 (WebFetch da 403; falta abrir el documento) |
+| 5 | ~~Lung-RADS: part-solid nuevo/creciente, crecimiento lento, decreciente y vía aérea C0~~ ✅ verificado/implementado 2026-06-14 | — |
 
 ### 6.1. Qué buscar exactamente para cerrar cada pendiente
 
 > Detalle accionable: **fuente concreta**, **dato numérico** que falta y **dónde se aplicaría** en el código.
 
 **Pendiente #1 — Brock SIN espiculación (coeficientes)**
-- **Fuente:** McWilliams A, et al. *NEJM* 2013;369:910-919 → **Supplementary Appendix**, tablas de los modelos *full* y *parsimonious* en sus variantes *without spiculation* (apéndice, no el cuerpo del artículo). Alternativa: calculadora oficial *Brock University / BC Cancer* (mostrar la fórmula con "spiculation = No disponible") y el meta-análisis *Clinical Radiology* 2024 (S0009-9260(24)00675-5) que reproduce las cuatro variantes.
-- **Datos a extraer (modelo parsimonioso sin espiculación):** intercepto + coeficientes de edad (centrada en 62), sexo femenino, historia familiar, enfisema, término de tamaño (confirmar exponente −0.5 y offset 1.58113883), tipo (parte-sólido / no sólido), lóbulo superior y nº de nódulos (centrado en 4). **NO reutilizar** los de la variante con espiculación: están re-calibrados.
+- **Fuente:** McWilliams A, et al. *NEJM* 2013;369:910-919 → tabla 2 y/o meta-análisis *Clinical Radiology* 2024 (S0009-9260(24)00675-5) que reproduce las cuatro variantes.
+- **Datos a extraer (recomendado: modelo completo sin espiculación, Model 2a, para ser consistente con el Model 2b actualmente implementado):** intercepto + coeficientes de edad (centrada en 62), sexo femenino, historia familiar, enfisema, término de tamaño (confirmar exponente −0.5 y offset 1.58113883), tipo (parte-sólido / no sólido), lóbulo superior y nº de nódulos (centrado en 4). **NO reutilizar** los de la variante con espiculación: están re-calibrados.
 - **Dónde:** nuevo bloque `BROCK_COEFFICIENTS_NO_SPIC` en `lib/predictive/index.ts` + selección de variante.
 
-**Pendiente #2 — Herder regresión re-estimada (opcional)**
-- **Fuente:** Herder GJ, et al. *Chest* 2005;128:2490-2496 → tabla del modelo logístico multivariante (la que re-estima Mayo + FDG-PET).
-- **Datos a extraer:** intercepto y TODOS los coeficientes re-estimados (edad, tabaquismo, cáncer previo, diámetro, espiculación, lóbulo superior) **más** los términos de captación FDG. Solo los términos PET aislados (doc interno: +1.439 / +3.893 / +5.534) **no bastan**: hay que confirmar que el resto de coeficientes son los de Mayo o están recalibrados.
-
-**Pendiente #5 — Lung-RADS: part-solid nuevo/creciente + crecimiento lento**
-- **Fuente:** ACR *Lung-RADS v2022 Summary* (PDF oficial: `cs.acr.org/-/media/ACR/Files/RADS/Lung-RADS/Lung-RADS-2022-Summary-_Final.pdf`) y *RadioGraphics Update: Lung-RADS 2022* (doi 10.1148/rg.230037). **Bloqueo actual:** WebFetch devuelve 403; abrir el PDF manualmente o con un fetcher autenticado.
-- **Datos a extraer:**
-  1. **Part-solid NUEVO en seguimiento:** cutoffs exactos del **componente sólido** que mapean a C3 / C4A / C4B (verificar si 4A empieza en sólido ≥4 mm como asume el código `classifyPartSolid:99-104`, o en otro valor).
-  2. **Crecimiento lento → C4B:** definición precisa (nódulo sólido o semi-sólido que crece en varios estudios sin alcanzar >1.5 mm en ningún intervalo de 12 m) para implementarla (hoy **ausente**).
-  3. **`unchanged or smaller`:** confirmar que el manejo escalonado aplica también a nódulos que **decrecen** → añadir estado `'decreasing'` al modelo `priorStatus`.
-  4. **Categoría 0 de vía aérea:** condiciones exactas en que un hallazgo de vía aérea es C0 (hoy no hay rama).
-- **Dónde:** `lib/algorithms/lungRads.ts` (`classifyPartSolid`, `calculateGrowth`/`applySteppedManagement`, `getSpecialCategory`) y el tipo `priorStatus` en `lib/algorithms/types.ts`.
+**Pendiente #2 — Herder regresión logística (opcional)**
+- **Fuente:** Herder GJ, et al. *Chest* 2005;128:2490-2496 → fórmula logística con probabilidad Mayo/Swensen (%) y términos PET.
+- **Datos a confirmar:** intercepto −4.739, multiplicador 3.691 para `P_Mayo` como probabilidad 0-1, y términos PET 0 / 2.322 / 4.617 / 4.771.
+- **Decisión antes de código:** mantener solo Herder bayesiano con LR o exponer dos variantes Herder.
 
 ---
 
@@ -299,12 +290,13 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 
 **Modelos predictivos (probabilidad):**
 - Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. *Arch Intern Med.* 1997;157(8):849-855. *(Mayo)*
-- McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919. *(Brock/PanCan)*
-- Herder GJ, et al. Clinical prediction of malignancy in solitary pulmonary nodules using FDG-PET. *Chest.* 2005;128(4):2490-2496. *(Herder)*
+- McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919. *(Brock/PanCan)* — PMC: `https://pmc.ncbi.nlm.nih.gov/articles/PMC3951177/`
+- Pulmonary nodule malignancy probability: a meta-analysis of the Brock model. *Clinical Radiology* 2024 (S0009-9260(24)00675-5). Suplemento de coeficientes usado: `https://www.clinicalradiologyonline.net/cms/10.1016/j.crad.2024.106788/attachment/0337a514-fedd-4ca3-8cbc-c23fbb71dd88/mmc3.pdf`
+- Herder GJ, et al. Clinical prediction of malignancy in solitary pulmonary nodules using FDG-PET. *Chest.* 2005;128(4):2490-2496. *(Herder)* — PubMed: `https://pubmed.ncbi.nlm.nih.gov/16236914/`
+- Revisión con ecuaciones comparativas de modelos Mayo/Brock/Herder usada para contrastar la fórmula logística Herder: `https://pmc.ncbi.nlm.nih.gov/articles/PMC7159041/`
 - MDCalc — Solitary Pulmonary Nodule (SPN) Malignancy Risk Score (Mayo Clinic Model).
-- Pulmonary nodule malignancy probability: a meta-analysis of the Brock model. *Clinical Radiology* 2024 (S0009-9260(24)00675-5).
 - British Thoracic Society. Guidelines for the investigation and management of pulmonary nodules. *Thorax* 2015;70(Suppl 2):ii1-ii54. *(umbrales de manejo + uso de LR de PET)*
 
 **Guías de manejo (categóricas, sin coeficientes):**
-- MacMahon H, et al. Guidelines for management of incidental pulmonary nodules detected on CT images: from the Fleischner Society 2017. *Radiology.* 2017;284(1):228-243. *(Fleischner 2017)*
-- American College of Radiology. Lung CT Screening Reporting & Data System (Lung-RADS) version 2022. *(Lung-RADS v2022)*
+- MacMahon H, et al. Guidelines for management of incidental pulmonary nodules detected on CT images: from the Fleischner Society 2017. *Radiology.* 2017;284(1):228-243. *(Fleischner 2017)* — PDF local: `research/pdf/macmahon-et-al-2017-guidelines-for-management-of-incidental-pulmonary-nodules-detected-on-ct-images-from-the-fleischner.pdf`
+- American College of Radiology. Lung CT Screening Reporting & Data System (Lung-RADS) version 2022. *(Lung-RADS v2022)* — resumen oficial: `https://cs.acr.org/-/media/ACR/Files/RADS/Lung-RADS/Lung-RADS-2022-Summary-_Final.pdf`; PDFs locales usados: `research/pdf/Lung-RADS-2022-Summary.pdf` y `research/pdf/lung-rads-assessment-categories.pdf#_~_text=Solid nodule_ • ≥ 6,at baseline OR.pdf`

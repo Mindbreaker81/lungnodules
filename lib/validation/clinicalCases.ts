@@ -374,8 +374,8 @@ export const LUNGRADS_VALIDATION_CASES: ValidationCase[] = [
       patient: { age: 62, clinicalContext: 'screening' },
       nodule: { type: 'part-solid', diameterMm: 12, solidComponentMm: 4, isMultiple: false, scanType: 'baseline' },
     },
-    expectedCategory: '4A',
-    expectedRecommendation: 'LDCT; PET/CT if solid ≥8mm',
+    expectedCategory: '3',
+    expectedRecommendation: 'LDCT',
   },
   {
     id: 'LR-014',

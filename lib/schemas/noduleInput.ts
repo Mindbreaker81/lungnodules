@@ -13,7 +13,7 @@ const airwayLocationValues = ['subsegmental', 'segmental-proximal'] as const;
 const inflammatoryCategoryValues = ['category0', 'category2'] as const;
 const atypicalCystCategoryValues = ['category3', 'category4A', 'category4B'] as const;
 const lungRadsCategoryValues = ['0', '1', '2', '3', '4A', '4B', '4X'] as const;
-const priorStatusValues = ['stable', 'progression'] as const;
+const priorStatusValues = ['stable', 'decreasing', 'progression'] as const;
 
 const riskFactorSchema = z.object({
   age65: z.coerce.boolean().optional(),
@@ -78,8 +78,10 @@ export const noduleBaseSchema = z.object({
   inflammatoryCategory: z.enum(inflammatoryCategoryValues).optional(),
   airwayLocation: z.enum(airwayLocationValues).optional(),
   airwayPersistent: z.boolean().optional(),
+  airwayInflammatoryOrInfectious: z.boolean().optional(),
   atypicalCystCategory: z.enum(atypicalCystCategoryValues).optional(),
   isNew: z.boolean().optional(),
+  isSlowGrowing: z.boolean().optional(),
 });
 
 export const lungRadsExtension = z.object({

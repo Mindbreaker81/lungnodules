@@ -12,7 +12,7 @@ const baseNodule: LungRadsAssessmentInput['nodule'] = {
 
 function runLungRads(
   overrides: Partial<LungRadsAssessmentInput['nodule']>,
-  extra?: { priorCategory?: string; priorStatus?: 'stable' | 'progression' },
+  extra?: { priorCategory?: string; priorStatus?: 'stable' | 'decreasing' | 'progression' },
 ) {
   return assessLungRads({
     patient: screeningPatient,
@@ -97,22 +97,22 @@ describe('TC-AUDIT P0-3: Part-solid follow-up', () => {
     expect(res.category).toBe('3');
   });
 
-  test('TC-AUDIT-021 New part-solid with solid >=6mm in follow-up -> Cat 4B', () => {
+  test('TC-AUDIT-021 New part-solid with solid >=4mm in follow-up -> Cat 4B', () => {
     const res = runLungRads({
       type: 'part-solid',
       diameterMm: 15,
-      solidComponentMm: 7,
+      solidComponentMm: 4,
       scanType: 'follow-up',
       isNew: true,
     });
     expect(res.category).toBe('4B');
   });
 
-  test('TC-AUDIT-022 Growing part-solid with solid >=4mm -> Cat 4A', () => {
+  test('TC-AUDIT-022 Growing part-solid with solid <4mm -> Cat 4A', () => {
     const res = runLungRads({
       type: 'part-solid',
       diameterMm: 12,
-      solidComponentMm: 5,
+      solidComponentMm: 3,
       scanType: 'follow-up',
       priorDiameterMm: 9,
       priorScanMonthsAgo: 6,
@@ -127,6 +127,47 @@ describe('TC-AUDIT P0-3: Part-solid follow-up', () => {
       solidComponentMm: 4,
       scanType: 'baseline',
     });
+    expect(res.category).toBe('3');
+  });
+});
+
+describe('TC-AUDIT P0-3b: Slow growth and decreasing follow-up', () => {
+  test('TC-AUDIT-024 Solid slow-growing over multiple exams -> Cat 4B', () => {
+    const res = runLungRads({
+      type: 'solid',
+      diameterMm: 7,
+      scanType: 'follow-up',
+      isSlowGrowing: true,
+    });
+    expect(res.category).toBe('4B');
+  });
+
+  test('TC-AUDIT-025 Part-solid slow-growing over multiple exams -> Cat 4B', () => {
+    const res = runLungRads({
+      type: 'part-solid',
+      diameterMm: 8,
+      solidComponentMm: 2,
+      scanType: 'follow-up',
+      isSlowGrowing: true,
+    });
+    expect(res.category).toBe('4B');
+  });
+
+  test('TC-AUDIT-026 GGN slow-growing can remain Cat 2', () => {
+    const res = runLungRads({
+      type: 'ground-glass',
+      diameterMm: 35,
+      scanType: 'follow-up',
+      isSlowGrowing: true,
+    });
+    expect(res.category).toBe('2');
+  });
+
+  test('TC-AUDIT-027 Category 4A decreased -> step down to Cat 3', () => {
+    const res = runLungRads(
+      { diameterMm: 10, scanType: 'follow-up' },
+      { priorCategory: '4A', priorStatus: 'decreasing' },
+    );
     expect(res.category).toBe('3');
   });
 });
@@ -157,6 +198,15 @@ describe('TC-AUDIT P0-5: Category 0', () => {
 
   test('TC-AUDIT-041 Incomplete study takes priority over classification', () => {
     const res = runLungRads({ diameterMm: 10, isIncompleteStudy: true } as any);
+    expect(res.category).toBe('0');
+  });
+
+  test('TC-AUDIT-042 Airway likely inflammatory/tubular -> Cat 0', () => {
+    const res = runLungRads({
+      isAirway: true,
+      airwayLocation: 'subsegmental',
+      airwayInflammatoryOrInfectious: true,
+    });
     expect(res.category).toBe('0');
   });
 });

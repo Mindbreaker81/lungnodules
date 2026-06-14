@@ -194,6 +194,11 @@ export default function NoduleStep({ clinicalContext }: Props) {
               <input type="checkbox" aria-label="Nódulo nuevo en follow-up" {...register("nodule.isNew")} className="text-primary rounded focus:ring-primary" /> Nódulo nuevo en follow-up
             </label>
           )}
+          {isScreening && (
+            <label className="flex items-center gap-2 text-white">
+              <input type="checkbox" aria-label="Crecimiento lento en múltiples estudios" {...register("nodule.isSlowGrowing")} className="text-primary rounded focus:ring-primary" /> Crecimiento lento multiestudio
+            </label>
+          )}
         </div>
       </div>
 
@@ -267,6 +272,9 @@ export default function NoduleStep({ clinicalContext }: Props) {
 
           {isAirway && (
             <div className="space-y-2">
+              <label className="flex items-center gap-2 text-white">
+                <input type="checkbox" aria-label="Vía aérea probablemente inflamatoria o infecciosa" {...register("nodule.airwayInflammatoryOrInfectious")} className="text-primary rounded focus:ring-primary" /> Tubular/múltiple probablemente inflamatorio (Cat 0)
+              </label>
               <div>
                 <label className="block text-sm font-medium text-slate-300">Localización vía aérea</label>
                 <select
