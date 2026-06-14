@@ -62,7 +62,7 @@ La aplicación ha corregido la mayor parte de los hallazgos técnicos, de privac
 | Clínica | Alta | Los GGN `>=30 mm` dependen de `priorCategory/priorStatus` para step-down y no separan de forma explícita el escenario de slow growth | `classifyGroundGlass()` y `applySteppedManagement()` en `lib/algorithms/lungRads.ts` | Puede dejar manejo incompleto en seguimientos complejos |
 | Clínica | Media-Alta | Los atajos perifisural/yuxtapleural siguen necesitando revisión radiológica externa | `lib/algorithms/fleischner.ts`, `lib/algorithms/lungRads.ts` | Riesgo de aplicar excepciones benignas fuera del patrón típico |
 | Gobernanza | Media | Persiste mezcla de validación Zod + lógica manual por paso | `lib/schemas/noduleInput.ts`, `components/wizard/WizardContainer.tsx` | Riesgo de divergencia futura entre UI y dominio |
-| Dependencias | Alta | `npm audit` mantiene vulnerabilidades en dependencias transitivas y en `next` | `package-lock.json`, salida de `npm audit` | Riesgo de seguridad y necesidad de plan de actualización |
+| Dependencias | ~~Alta~~ → **Media (parcial, 2026-06-14)** | `npm audit fix` resolvió la vuln **Alta** de `next` (16.2.3→16.2.9) + transitivas (`ws`, top-level `postcss`, `brace-expansion`). **Quedan 2 moderadas**: `postcss` anidado dentro de `next` (`node_modules/next/node_modules/postcss`), sin fix estable —`--force` degradaría `next` a 9.3.3 (rotura)— a la espera de release estable de Next con su postcss actualizado | `package-lock.json`, salida de `npm audit` | Riesgo residual moderado; vigilar releases de `next` |
 
 ---
 
