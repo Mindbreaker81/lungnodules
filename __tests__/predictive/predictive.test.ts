@@ -1,8 +1,8 @@
-import { getPredictiveSummaries } from "@lib/predictive";
-import { AssessmentInput } from "@lib/schemas/noduleInput";
+import { getPredictiveSummaries } from '@lib/predictive';
+import { AssessmentInput } from '@lib/schemas/noduleInput';
 
-describe("Predictive models", () => {
-  const getSummary = (input: AssessmentInput, id: "mayo" | "brock" | "herder") => {
+describe('Predictive models', () => {
+  const getSummary = (input: AssessmentInput, id: 'mayo' | 'brock' | 'herder') => {
     const summary = getPredictiveSummaries(input).find((item) => item.id === id);
     if (!summary) {
       throw new Error(`Missing summary for ${id}`);
@@ -10,23 +10,23 @@ describe("Predictive models", () => {
     return summary;
   };
 
-  test("Mayo calculation returns probability and high risk band", () => {
+  test('Mayo calculation returns probability and high risk band', () => {
     const input: AssessmentInput = {
-      clinicalContext: "incidental",
+      clinicalContext: 'incidental',
       patient: {
-        clinicalContext: "incidental",
+        clinicalContext: 'incidental',
         age: 65,
-        riskLevel: "low",
+        riskLevel: 'low',
         hasKnownMalignancy: false,
         isImmunocompromised: false,
-        sex: "male",
-        smokingStatus: "current",
-        extrathoracicCancerHistory: "over5y",
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'over5y',
         hasFamilyHistoryLungCancer: false,
         hasEmphysema: false,
       },
       nodule: {
-        type: "solid",
+        type: 'solid',
         diameterMm: 16,
         solidComponentMm: undefined,
         isMultiple: false,
@@ -37,29 +37,29 @@ describe("Predictive models", () => {
       },
     };
 
-    const summary = getSummary(input, "mayo");
-    expect(summary.status).toBe("available");
-    expect(summary.probability).toBeCloseTo(0.848, 3);
-    expect(summary.riskBand).toBe("high");
+    const summary = getSummary(input, 'mayo');
+    expect(summary.status).toBe('available');
+    expect(summary.probability).toBeCloseTo(0.8465, 4);
+    expect(summary.riskBand).toBe('high');
   });
 
-  test("Brock calculation returns probability and low risk band", () => {
+  test('Brock calculation returns probability and intermediate risk band', () => {
     const input: AssessmentInput = {
-      clinicalContext: "screening",
+      clinicalContext: 'screening',
       patient: {
-        clinicalContext: "screening",
+        clinicalContext: 'screening',
         age: 70,
-        riskLevel: "low",
+        riskLevel: 'low',
         hasKnownMalignancy: false,
         isImmunocompromised: false,
-        sex: "female",
-        smokingStatus: "former",
-        extrathoracicCancerHistory: "none",
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
         hasFamilyHistoryLungCancer: true,
         hasEmphysema: true,
       },
       nodule: {
-        type: "part-solid",
+        type: 'part-solid',
         diameterMm: 10,
         solidComponentMm: 4,
         isMultiple: true,
@@ -68,32 +68,32 @@ describe("Predictive models", () => {
         isUpperLobe: true,
         hasPet: false,
         petUptake: undefined,
-        scanType: "baseline",
+        scanType: 'baseline',
       },
     };
 
-    const summary = getSummary(input, "brock");
-    expect(summary.status).toBe("available");
-    expect(summary.probability).toBeCloseTo(0.0214, 4);
-    expect(summary.riskBand).toBe("low");
+    const summary = getSummary(input, 'brock');
+    expect(summary.status).toBe('available');
+    expect(summary.probability).toBeCloseTo(0.4141, 4);
+    expect(summary.riskBand).toBe('intermediate');
   });
 
-  test("Brock requires a real age in screening and does not use synthetic defaults", () => {
+  test('Brock requires a real age in screening and does not use synthetic defaults', () => {
     const input: AssessmentInput = {
-      clinicalContext: "screening",
+      clinicalContext: 'screening',
       patient: {
-        clinicalContext: "screening",
-        riskLevel: "low",
+        clinicalContext: 'screening',
+        riskLevel: 'low',
         hasKnownMalignancy: false,
         isImmunocompromised: false,
-        sex: "female",
-        smokingStatus: "former",
-        extrathoracicCancerHistory: "none",
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
         hasFamilyHistoryLungCancer: true,
         hasEmphysema: true,
       },
       nodule: {
-        type: "part-solid",
+        type: 'part-solid',
         diameterMm: 10,
         solidComponentMm: 4,
         isMultiple: true,
@@ -102,117 +102,120 @@ describe("Predictive models", () => {
         isUpperLobe: true,
         hasPet: false,
         petUptake: undefined,
-        scanType: "baseline",
+        scanType: 'baseline',
       },
     };
 
-    const summary = getSummary(input, "brock");
-    expect(summary.status).toBe("insufficient_data");
-    expect(summary.missingFields).toContain("Edad");
+    const summary = getSummary(input, 'brock');
+    expect(summary.status).toBe('insufficient_data');
+    expect(summary.missingFields).toContain('Edad');
   });
 
-  test("Herder requires pre-test probability ≥10%", () => {
+  test('Herder requires pre-test probability ≥10%', () => {
     const input: AssessmentInput = {
-      clinicalContext: "incidental",
+      clinicalContext: 'incidental',
       patient: {
-        clinicalContext: "incidental",
+        clinicalContext: 'incidental',
         age: 40,
-        riskLevel: "low",
+        riskLevel: 'low',
         hasKnownMalignancy: false,
         isImmunocompromised: false,
-        sex: "male",
-        smokingStatus: "never",
-        extrathoracicCancerHistory: "none",
+        sex: 'male',
+        smokingStatus: 'never',
+        extrathoracicCancerHistory: 'none',
         hasFamilyHistoryLungCancer: false,
         hasEmphysema: false,
       },
       nodule: {
-        type: "solid",
+        type: 'solid',
         diameterMm: 8,
         solidComponentMm: undefined,
         isMultiple: false,
         hasSpiculation: false,
         isUpperLobe: false,
         hasPet: true,
-        petUptake: "moderate",
+        petUptake: 'moderate',
       },
     };
 
-    const summary = getSummary(input, "herder");
-    expect(summary.status).toBe("not_applicable");
-    expect(summary.reason).toContain("10%");
+    const summary = getSummary(input, 'herder');
+    expect(summary.status).toBe('not_applicable');
+    expect(summary.reason).toContain('10%');
   });
 
-  test("Herder uses Mayo pre-test odds with PET LR", () => {
+  test('Herder uses Mayo pre-test odds with PET LR', () => {
     const input: AssessmentInput = {
-      clinicalContext: "incidental",
+      clinicalContext: 'incidental',
       patient: {
-        clinicalContext: "incidental",
+        clinicalContext: 'incidental',
         age: 60,
-        riskLevel: "low",
+        riskLevel: 'low',
         hasKnownMalignancy: false,
         isImmunocompromised: false,
-        sex: "male",
-        smokingStatus: "current",
-        extrathoracicCancerHistory: "none",
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
         hasFamilyHistoryLungCancer: false,
         hasEmphysema: false,
       },
       nodule: {
-        type: "solid",
+        type: 'solid',
         diameterMm: 10,
         solidComponentMm: undefined,
         isMultiple: false,
         hasSpiculation: false,
         isUpperLobe: true,
         hasPet: true,
-        petUptake: "moderate",
+        petUptake: 'moderate',
       },
     };
 
-    const summary = getSummary(input, "herder");
-    expect(summary.status).toBe("available");
-    expect(summary.preTestModelId).toBe("mayo");
-    expect(summary.preTestProbability).toBeCloseTo(0.216, 3);
-    expect(summary.probability).toBeCloseTo(0.344, 3);
-    expect(summary.riskBand).toBe("intermediate");
+    const summary = getSummary(input, 'herder');
+    expect(summary.status).toBe('available');
+    expect(summary.preTestModelId).toBe('mayo');
+    expect(summary.preTestProbability).toBeCloseTo(0.1636, 4);
+    expect(summary.probability).toBeCloseTo(0.2709, 4);
+    expect(summary.riskBand).toBe('intermediate');
   });
 
-  test("Predictive summaries snapshot", () => {
+  test('Predictive summaries snapshot', () => {
     const input: AssessmentInput = {
-      clinicalContext: "incidental",
+      clinicalContext: 'incidental',
       patient: {
-        clinicalContext: "incidental",
+        clinicalContext: 'incidental',
         age: 72,
-        riskLevel: "high",
+        riskLevel: 'high',
         hasKnownMalignancy: false,
         isImmunocompromised: false,
-        sex: "female",
-        smokingStatus: "former",
-        extrathoracicCancerHistory: "over5y",
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'over5y',
         hasFamilyHistoryLungCancer: false,
         hasEmphysema: true,
       },
       nodule: {
-        type: "solid",
+        type: 'solid',
         diameterMm: 18,
         solidComponentMm: undefined,
         isMultiple: false,
         hasSpiculation: true,
         isUpperLobe: true,
         hasPet: true,
-        petUptake: "intense",
+        petUptake: 'intense',
       },
     };
 
     const summaries = getPredictiveSummaries(input).map((summary) => ({
       id: summary.id,
       status: summary.status,
-      probability: summary.probability !== undefined ? Number(summary.probability.toFixed(4)) : undefined,
+      probability:
+        summary.probability !== undefined ? Number(summary.probability.toFixed(4)) : undefined,
       riskBand: summary.riskBand,
       reason: summary.reason,
       preTestProbability:
-        summary.preTestProbability !== undefined ? Number(summary.preTestProbability.toFixed(4)) : undefined,
+        summary.preTestProbability !== undefined
+          ? Number(summary.preTestProbability.toFixed(4))
+          : undefined,
     }));
 
     expect(summaries).toMatchInlineSnapshot(`
@@ -220,7 +223,7 @@ describe("Predictive models", () => {
         {
           "id": "mayo",
           "preTestProbability": undefined,
-          "probability": 0.9041,
+          "probability": 0.9035,
           "reason": undefined,
           "riskBand": "high",
           "status": "available",
@@ -235,13 +238,94 @@ describe("Predictive models", () => {
         },
         {
           "id": "herder",
-          "preTestProbability": 0.9041,
-          "probability": 0.9894,
+          "preTestProbability": 0.9035,
+          "probability": 0.9893,
           "reason": undefined,
           "riskBand": "high",
           "status": "available",
         },
       ]
     `);
+  });
+
+  // Regression guard: Brock must use the published non-linear size transform,
+  // not a linear coefficient on millimetres. A 15 mm solid screening nodule
+  // should land in the intermediate band (~25%), not be reported as low risk.
+  test('Brock non-linear size term keeps a 15 mm nodule at intermediate risk', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 65,
+        riskLevel: 'low',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+        scanType: 'baseline',
+      },
+    };
+
+    const summary = getSummary(input, 'brock');
+    expect(summary.status).toBe('available');
+    expect(summary.probability).toBeCloseTo(0.2537, 3);
+    expect(summary.riskBand).toBe('intermediate');
+  });
+
+  // Regression guard: in Mayo the spiculation coefficient (1.0407) is larger
+  // than the upper-lobe coefficient (0.7838). An earlier bug had them swapped,
+  // so a spiculated lower-lobe nodule must score higher than a smooth
+  // upper-lobe nodule that is otherwise identical.
+  test('Mayo weights spiculation above upper-lobe location', () => {
+    const base = {
+      clinicalContext: 'incidental' as const,
+      patient: {
+        clinicalContext: 'incidental' as const,
+        age: 60,
+        riskLevel: 'low' as const,
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male' as const,
+        smokingStatus: 'former' as const,
+        extrathoracicCancerHistory: 'none' as const,
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid' as const,
+        diameterMm: 12,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        hasPet: false,
+        petUptake: undefined,
+      },
+    };
+
+    const spiculatedLowerLobe = getSummary(
+      { ...base, nodule: { ...base.nodule, hasSpiculation: true, isUpperLobe: false } },
+      'mayo',
+    );
+    const smoothUpperLobe = getSummary(
+      { ...base, nodule: { ...base.nodule, hasSpiculation: false, isUpperLobe: true } },
+      'mayo',
+    );
+
+    expect(spiculatedLowerLobe.probability).toBeGreaterThan(
+      smoothUpperLobe.probability as number,
+    );
   });
 });

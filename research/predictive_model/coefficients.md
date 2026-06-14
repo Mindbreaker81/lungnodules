@@ -4,7 +4,7 @@ For a physician's clinical use, the following technical summary provides the val
 This model is designed for solitary pulmonary nodules (SPNs) identified on traditional CT. It is based on a logistic regression where the probability of malignancy \( P \) is:
 $$ P = \frac{e^{x}}{1 + e^{x}} $$
 Where \( x \) (the log-odds) is calculated as:
-$$ x = -6.827 + (0.039 \times \text{Age}) + (0.791 \times \text{Smoking}) + (1.338 \times \text{Cancer}) + (0.127 \times \text{Diameter}) + (0.710 \times \text{Spiculation}) + (1.138 \times \text{Upper}) $$
+$$ x = -6.8272 + (0.0391 \times \text{Age}) + (0.7917 \times \text{Smoking}) + (1.3388 \times \text{Cancer}) + (0.1274 \times \text{Diameter}) + (1.0407 \times \text{Spiculation}) + (0.7838 \times \text{Upper}) $$
 
 **Variable Coding:**
 *   **Age:** Age in years.
@@ -21,24 +21,29 @@ The Brock (or PanCan) model is specifically validated for nodules found on **scr
 $$ x = \text{Intercept} + \sum (\beta_i \times \text{Variable}_i) $$
 *Note: Coefficients vary slightly between "Parsimonious" and "Full" models; clinical tools usually use the Parsimonious model.*
 
-**Official Coefficients (Parsimonious Model):**
-*   **Intercept:** -8.4852
-*   **Age:** 0.0287 (per year)
+**Official Coefficients (Parsimonious Model, with spiculation):**
+*   **Intercept:** -6.7892
+*   **Age:** 0.0287 × (Age − 62)  *(age is centered at 62, not raw)*
 *   **Sex:** 0.6011 (if Female)
 *   **Family History of Lung Cancer:** 0.2961 (if present)
 *   **Emphysema:** 0.2953 (if present on CT)
-*   **Nodule Size:** 0.0546 (per mm increase in diameter)
+*   **Nodule Size:** −5.3854 × [ (Size_mm / 10)^(−0.5) − 1.58113883 ]  *(non-linear transform — NOT linear in mm)*
 *   **Nodule Type:** 
-    *   Nonsolid (GGO): -0.1271
+    *   Nonsolid (GGO): -0.1276
     *   Part-solid: 0.3770
     *   (Solid is the reference)
-*   **Nodule Count:** -0.0654 (per additional nodule)
-*   **Spiculation:** 0.3543 (if present)
-*   **Upper Lobe:** 0.3138 (if present)
+*   **Nodule Count:** -0.0824 × (Count − 4)  *(count is centered at 4)*
+*   **Spiculation:** 0.7729 (if present)
+*   **Upper Lobe:** 0.6581 (if present)
+
+Full log-odds:
+$$ x = -6.7892 + 0.0287(\text{Age}-62) + 0.6011\,\text{Female} + 0.2961\,\text{FamHx} + 0.2953\,\text{Emphysema} - 5.3854\left[\left(\tfrac{\text{Size}}{10}\right)^{-0.5} - 1.58113883\right] + \text{Type} + 0.6581\,\text{Upper} - 0.0824(\text{Count}-4) + 0.7729\,\text{Spiculation} $$
 
 **Variable Coding & Logic:**
 *   **Sex:** Female = 1, Male = 0.
-*   **Nodule Count:** Entered as a continuous integer. Note the **negative coefficient**: as the number of nodules increases, the risk of any *single* nodule being malignant actually decreases statistically.
+*   **Age:** Entered as (Age − 62). The model is centered, so raw age must NOT be used directly.
+*   **Nodule Size:** Enters through the non-linear transform above (mm). A linear coefficient on raw mm is incorrect and severely underestimates risk for larger nodules.
+*   **Nodule Count:** Entered as (Count − 4). Note the **negative coefficient**: as the number of nodules increases, the risk of any *single* nodule being malignant actually decreases statistically. A solitary nodule (count = 1) contributes −0.0824 × (1 − 4) = +0.2472.
 *   **Nodule Type:** This is a categorical variable. If solid, both "Nonsolid" and "Part-solid" are 0.
 *   **Emphysema:** Must be visible on the CT scan, not just a clinical diagnosis of COPD.
 

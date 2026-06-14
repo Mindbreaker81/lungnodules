@@ -104,8 +104,12 @@ describe('Lung-RADS Regression: Growth Calculation', () => {
       expect(calculateLungRadsGrowth(8, 6, 12)).toBe(true);
     });
 
-    test('TC-GR-002 Growth =1.5mm in 12 months -> true (threshold is >=)', () => {
-      expect(calculateLungRadsGrowth(7.5, 6, 12)).toBe(true);
+    test('TC-GR-002 Growth =1.5mm in 12 months -> false (Lung-RADS v2022 defines growth as >1.5mm)', () => {
+      expect(calculateLungRadsGrowth(7.5, 6, 12)).toBe(false);
+    });
+
+    test('TC-GR-002b Growth just over 1.5mm -> true', () => {
+      expect(calculateLungRadsGrowth(7.6, 6, 12)).toBe(true);
     });
 
     test('TC-GR-003 Growth <1.5mm in 12 months -> false', () => {

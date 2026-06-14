@@ -1,3 +1,12 @@
+## [1.3.2] - 2026-06-13
+
+### Fixed (Clínica — P0)
+- **Modelo Mayo (Swensen 1997)**: Corregidos los coeficientes de espiculación (0.71 → 1.0407) y lóbulo superior (1.138 → 0.7838), que estaban intercambiados y con valores erróneos respecto a la publicación original. También se refinó la precisión de los demás coeficientes.
+- **Modelo Brock/PanCan (McWilliams 2013)**: Reimplementado conforme al modelo parsimonioso con espiculación publicado. Correcciones: el tamaño del nódulo ahora usa la transformación no lineal `−5.3854·[(tamaño/10)^−0.5 − 1.58113883]` en vez de un coeficiente lineal; la edad se centra en 62; el número de nódulos se centra en 4; y se corrigieron los coeficientes de intercepto (−8.4852 → −6.7892), espiculación (0.3543 → 0.7729) y lóbulo superior (0.3138 → 0.6581). El error en el tamaño causaba una subestimación del riesgo de hasta ~30× en nódulos de cribado.
+- **Modelo Herder**: Hereda automáticamente las correcciones del riesgo pre-test (Mayo/Brock).
+- **Documentación**: Corregidos los coeficientes "oficiales" en `research/predictive_model/coefficients.md`, origen del error.
+- **Tests**: Actualizados los valores esperados y añadidos tests de regresión que protegen la transformación no lineal de Brock y el orden de coeficientes de Mayo.
+
 ## [1.3.1] - 2026-04-11
 
 ### Changed

@@ -19,8 +19,8 @@ function calculateGrowth(currentDiameter: number, priorDiameter?: number, interv
   if (!intervalMonths || intervalMonths <= 0) return { isGrowing: false, isLongInterval: false };
   const delta = currentDiameter - priorDiameter;
   const isLongInterval = intervalMonths > LONG_INTERVAL_THRESHOLD_MONTHS;
-  // Lung-RADS v2022: growth defined as absolute increase ≥1.5mm (not annualized)
-  return { isGrowing: delta >= GROWTH_THRESHOLD_MM_PER_12M, isLongInterval };
+  // Lung-RADS v2022: growth defined as absolute increase >1.5mm (not annualized)
+  return { isGrowing: delta > GROWTH_THRESHOLD_MM_PER_12M, isLongInterval };
 }
 
 function classifySolidLungRADS(options: {
