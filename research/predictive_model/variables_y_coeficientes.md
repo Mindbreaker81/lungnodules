@@ -167,9 +167,18 @@ inmunocompromiso (exclusiones en `checkFleischnerApplicability`, líneas 15-26).
 | Nivel de riesgo | bajo / alto (modula seguimiento) | ✅ | `riskLevel` |
 | Perifisural benigno | sólido ≤ 10 mm ⇒ sin seguimiento | ✅ | `assessFleischner:259` |
 
-> **Nivel de verificación:** umbrales y recomendaciones coherentes con las tablas 1-2 de
-> MacMahon et al. 2017. No re-verificadas línea a línea en esta sesión; existe batería de
-> tests en `__tests__/algorithms/fleischner.test.ts`.
+> **Nivel de verificación: PRIMARIO** (auditado celda a celda el 2026-06-14 contra las
+> tablas 1-2 de MacMahon et al. 2017). Cobertura de tests: `__tests__/algorithms/fleischner.test.ts` (todos en verde).
+>
+> **Cotejo de la matriz (sólido único / múltiple, GGN, semi-sólido):** todas las celdas
+> coinciden con la guía —incluidas las recomendaciones de seguimiento por nivel de riesgo
+> (bajo/alto), la regla perifisural ≤10 mm, y los intervalos (sin seguimiento / 12 m
+> opcional / 6-12 m / 3-6 m / anual ×5 a / c-2 a hasta 5 a). **Sin discrepancias.**
+>
+> Notas de implementación (no son errores, son decisiones explícitas):
+> - El tamaño se redondea al mm más próximo (`roundToNearestMm`); la guía usa diámetro
+>   medio y equivalencias de volumen (100/250 mm³ ≈ 6/8 mm). Efecto despreciable.
+> - El umbral del componente sólido (6 mm) y el corte único 8 mm están correctos.
 
 ### 4b. Lung-RADS v2022 — ✅ implementada ([`lib/algorithms/lungRads.ts`](../../lib/algorithms/lungRads.ts))
 
@@ -189,9 +198,33 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | Modificador `S` | hallazgo significativo (sufijo aditivo) | ✅ | `assessLungRads:321` |
 | Categorías especiales | 0 (incompleto), 1 (benigno), inflamatorio, vía aérea, quiste atípico, yuxtapleural | ✅ | `getSpecialCategory` |
 
-> **Nivel de verificación:** umbrales coherentes con ACR Lung-RADS v2022. No re-verificados
-> exhaustivamente en esta sesión; cubierto por `__tests__/algorithms/lungRads.test.ts` y
-> `lungRads.regression.test.ts`.
+> **Nivel de verificación: PRIMARIO** para la matriz de tamaño (auditado el 2026-06-14
+> contra ACR Lung-RADS v2022). Cobertura: `lungRads.test.ts` + `lungRads.regression.test.ts` (verde).
+>
+> **Matriz de tamaño verificada (coincide con la guía):**
+>
+> | Categoría | Regla oficial v2022 | Código | OK |
+> | :-- | :-- | :-- | :--: |
+> | 2 | Sólido baseline <6 mm; nuevo <4 mm | `<6` / nuevo `<4` | ✅ |
+> | 3 | Sólido baseline 6–<8 mm; nuevo 4–<6 mm | idem | ✅ |
+> | 4A | Sólido baseline 8–<15 mm; nuevo 6–<8 mm; en crecimiento <8 mm | idem | ✅ |
+> | 4B | Sólido baseline ≥15 mm; nuevo/creciente ≥8 mm | idem | ✅ |
+> | GGN | <30 mm → C2; ≥30 mm → C3 | idem | ✅ |
+> | Semi-sólido (sólido) | <6 → C3; 6–<8 → C4A; ≥8 → C4B | idem | ✅ |
+> | 4X | C3/4A/4B + rasgo sospechoso (espiculación) | idem | ✅ |
+> | S | modificador aditivo por hallazgo significativo | idem | ✅ |
+>
+> **Hallazgo (discrepancia menor) — definición de crecimiento:**
+> Lung-RADS v2022 define crecimiento como aumento **> 1.5 mm**. El código usa
+> `delta >= 1.5` (`lungRads.ts:23`), por lo que un crecimiento de **exactamente 1.5 mm**
+> se marca como creciente cuando la guía no lo haría. Impacto clínico mínimo (caso límite),
+> pero conviene cambiar `>=` por `>` para alinearse estrictamente. **Pendiente de decisión:
+> es un cambio de comportamiento, no se aplica en este commit de documentación.**
+>
+> **Celdas aún en nivel SECUNDARIO** (coherentes, pero conviene cotejar contra el PDF
+> oficial antes de marcarlas primarias): detalle de semi-sólido **nuevo/creciente** en
+> seguimiento (`classifyPartSolid:99-104`), manejo escalonado (C3 estable→C2, C4A
+> estable→C3) y categorías especiales (vía aérea, quiste atípico, inflamatorio).
 
 ---
 
@@ -214,6 +247,8 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | 1 | Coeficientes Brock **sin espiculación** (2b) | Apéndice suplementario McWilliams 2013 (NEJM) — no recuperable en sesión actual |
 | 2 | (Opcional) Herder regresión re-estimada (3b) | Tabla completa de Herder 2005; los coef. PET aislados no bastan |
 | 3 | Decidir UX del selector con/sin espiculación en Brock | — |
+| 4 | Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm (4b) | Cambio de comportamiento; requiere visto bueno + revisar regression tests |
+| 5 | Subir a primario las celdas de Lung-RADS aún secundarias (semi-sólido nuevo/creciente, manejo escalonado, categorías especiales) | Cotejo contra PDF oficial ACR v2022 |
 
 ---
 
