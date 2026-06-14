@@ -1,8 +1,10 @@
 # Modelos predictivos de malignidad — Variables, coeficientes y estado de verificación
 
-> Documento de estado para Mayo, Brock/PanCan y Herder. Registra **qué está
-> implementado**, **qué coeficiente está verificado contra la publicación
-> original**, y **qué falta por verificar/implementar**.
+> Documento de estado para Mayo, Brock/PanCan y Herder (modelos de probabilidad) y,
+> como anexo de trazabilidad, Fleischner 2017 y Lung-RADS v2022 (guías de manejo
+> categóricas, sin coeficientes). Registra **qué está implementado**, **qué coeficiente
+> está verificado contra la publicación original** (con su fuente) y **qué falta por
+> verificar/implementar**.
 >
 > Última actualización: 2026-06-14.
 
@@ -25,15 +27,17 @@ Probabilidad: `P = e^x / (1 + e^x)`
 
 `x = -6.8272 + 0.0391·Edad + 0.7917·Tabaco + 1.3388·Cáncer + 0.1274·Diámetro + 1.0407·Espiculación + 0.7838·LóbuloSup`
 
-| Variable | Coef. | Estado | Codificación / input |
-| :--- | :--- | :---: | :--- |
-| Intercepto | −6.8272 | ✅ | — |
-| Edad | 0.0391 | ✅ | años (`patient.age`) |
-| Tabaquismo | 0.7917 | ✅ | 1 = fumador actual o ex-fumador; 0 = nunca (`patient.smokingStatus`) |
-| Cáncer extratorácico | 1.3388 | ✅ | 1 = diagnóstico **> 5 años** antes; 0 = no (`patient.extrathoracicCancerHistory === 'over5y'`) |
-| Diámetro | 0.1274 | ✅ | mm (`nodule.diameterMm`) |
-| Espiculación | 1.0407 | ✅ | 1 = presente; 0 = no (`nodule.hasSpiculation`) |
-| Lóbulo superior | 0.7838 | ✅ | 1 = lóbulo superior (der. o izq.); 0 = medio/inferior (`nodule.isUpperLobe`) |
+| Variable | Coef. | Estado | Codificación / input | Fuente de verificación |
+| :--- | :--- | :---: | :--- | :--- |
+| Intercepto | −6.8272 | ✅ | — | Swensen 1997 (Table 2) / MDCalc |
+| Edad | 0.0391 | ✅ | años (`patient.age`) | Swensen 1997 / MDCalc |
+| Tabaquismo | 0.7917 | ✅ | 1 = fumador actual o ex-fumador; 0 = nunca (`patient.smokingStatus`) | Swensen 1997 / MDCalc |
+| Cáncer extratorácico | 1.3388 | ✅ | 1 = diagnóstico **> 5 años** antes; 0 = no (`patient.extrathoracicCancerHistory === 'over5y'`) | Swensen 1997 / MDCalc |
+| Diámetro | 0.1274 | ✅ | mm (`nodule.diameterMm`) | Swensen 1997 / MDCalc |
+| Espiculación | 1.0407 | ✅ | 1 = presente; 0 = no (`nodule.hasSpiculation`) | Swensen 1997 / MDCalc |
+| Lóbulo superior | 0.7838 | ✅ | 1 = lóbulo superior (der. o izq.); 0 = medio/inferior (`nodule.isUpperLobe`) | Swensen 1997 / MDCalc |
+
+> **Nivel de verificación:** secundario (MDCalc *Solitary Pulmonary Nodule Malignancy Risk – Mayo Clinic Model* + valores de Swensen 1997 ampliamente reproducidos). No contrastado contra el PDF original del paper en esta sesión (acceso de red restringido). Coincide con la fórmula codificada en `lib/predictive/index.ts:36-44`.
 
 **Exclusiones aplicadas en la app:** contexto incidental (Fleischner); no aplicar a masas > 30 mm; no aplicar con cáncer de pulmón conocido; no aplicar si cáncer extratorácico < 5 años.
 
@@ -53,19 +57,21 @@ El modelo Brock tiene **cuatro fórmulas**: {parsimonioso, completo} × {con esp
 
 `x = -6.7892 + 0.0287·(Edad−62) + 0.6011·Mujer + 0.2961·HistFamiliar + 0.2953·Enfisema − 5.3854·[(Tamaño/10)^−0.5 − 1.58113883] + Tipo + 0.6581·LóbuloSup − 0.0824·(Nº−4) + 0.7729·Espiculación`
 
-| Variable | Coef. | Estado | Codificación / input |
-| :--- | :--- | :---: | :--- |
-| Intercepto | −6.7892 | ✅ | — |
-| Edad (centrada) | 0.0287 × (Edad − 62) | ✅ | años (`patient.age`) |
-| Sexo femenino | 0.6011 | ✅ | 1 = mujer; 0 = hombre (`patient.sex`) |
-| Historia familiar cáncer pulmón | 0.2961 | ✅ | 1/0 (`patient.hasFamilyHistoryLungCancer`) |
-| Enfisema (en TC) | 0.2953 | ✅ | 1/0; visible en TC, no solo EPOC clínico (`patient.hasEmphysema`) |
-| Tamaño (transformado) | −5.3854 × [(mm/10)^−0.5 − 1.58113883] | ✅ | mm (`nodule.diameterMm`) |
-| Tipo: parte-sólido | 0.377 | ✅ | 1 si parte-sólido; sólido es referencia (`nodule.type === 'part-solid'`) |
-| Tipo: no sólido (VME/GGO) | −0.1276 | ✅ | 1 si vidrio esmerilado (`nodule.type === 'ground-glass'`) |
-| Lóbulo superior | 0.6581 | ✅ | 1/0 (`nodule.isUpperLobe`) |
-| Nº de nódulos (centrado) | −0.0824 × (Nº − 4) | ✅ | entero (`nodule.noduleCount`); solitario = 1 ⇒ +0.2472 |
-| Espiculación | 0.7729 | ✅ | 1/0 (`nodule.hasSpiculation`) |
+| Variable | Coef. | Estado | Codificación / input | Fuente de verificación |
+| :--- | :--- | :---: | :--- | :--- |
+| Intercepto | −6.7892 | ✅ | — | McWilliams 2013 (modelo parsimonioso) / meta-análisis Brock 2024 |
+| Edad (centrada) | 0.0287 × (Edad − 62) | ✅ | años (`patient.age`) | McWilliams 2013 / calculadora Brock (BC Cancer) |
+| Sexo femenino | 0.6011 | ✅ | 1 = mujer; 0 = hombre (`patient.sex`) | McWilliams 2013 |
+| Historia familiar cáncer pulmón | 0.2961 | ✅ | 1/0 (`patient.hasFamilyHistoryLungCancer`) | McWilliams 2013 |
+| Enfisema (en TC) | 0.2953 | ✅ | 1/0; visible en TC, no solo EPOC clínico (`patient.hasEmphysema`) | McWilliams 2013 |
+| Tamaño (transformado) | −5.3854 × [(mm/10)^−0.5 − 1.58113883] | ✅ | mm (`nodule.diameterMm`) | McWilliams 2013 / calculadora Brock |
+| Tipo: parte-sólido | 0.377 | ✅ | 1 si parte-sólido; sólido es referencia (`nodule.type === 'part-solid'`) | McWilliams 2013 |
+| Tipo: no sólido (VME/GGO) | −0.1276 | ✅ | 1 si vidrio esmerilado (`nodule.type === 'ground-glass'`) | McWilliams 2013 |
+| Lóbulo superior | 0.6581 | ✅ | 1/0 (`nodule.isUpperLobe`) | McWilliams 2013 |
+| Nº de nódulos (centrado) | −0.0824 × (Nº − 4) | ✅ | entero (`nodule.noduleCount`); solitario = 1 ⇒ +0.2472 | McWilliams 2013 |
+| Espiculación | 0.7729 | ✅ | 1/0 (`nodule.hasSpiculation`) | McWilliams 2013 |
+
+> **Nivel de verificación:** secundario (coeficientes del modelo parsimonioso *con espiculación* reproducidos en el meta-análisis de Clinical Radiology 2024 y en la calculadora Brock de BC Cancer Agency). No contrastado contra el apéndice suplementario original del NEJM en esta sesión. Coincide con `lib/predictive/index.ts:51-66`.
 
 **Exclusiones aplicadas:** contexto screening (Lung-RADS); no aplicar a masas > 30 mm.
 
@@ -106,12 +112,14 @@ O_post = O_pre × LR
 P_Herder = O_post / (1 + O_post)
 ```
 
-| Captación FDG | Definición | LR | Estado |
-| :--- | :--- | :---: | :---: |
-| Ausente | ≤ fondo pulmonar | 0.08 | ✅ |
-| Leve | > pulmón, ≤ pool mediastínico | 0.17 | ✅ |
-| Moderada | > pool mediastínico | 1.9 | ✅ |
-| Intensa | muy superior al pool | 9.9 | ✅ |
+| Captación FDG | Definición | LR | Estado | Fuente de verificación |
+| :--- | :--- | :---: | :---: | :--- |
+| Ausente | ≤ fondo pulmonar | 0.08 | ✅ | Herder 2005 (Chest, Table 4) |
+| Leve | > pulmón, ≤ pool mediastínico | 0.17 | ✅ | Herder 2005 |
+| Moderada | > pool mediastínico | 1.9 | ✅ | Herder 2005 |
+| Intensa | muy superior al pool | 9.9 | ✅ | Herder 2005 |
+
+> **Nivel de verificación:** secundario (LR de FDG-PET reproducidos en guías BTS 2015 de nódulo pulmonar y en MDCalc/literatura derivada). Coincide con `lib/predictive/index.ts:68-73`.
 
 **Requisitos en la app:** PET-CT disponible, nódulo ≥ 8 mm, riesgo pre-test ≥ 10% (criterio BTS), no aplicar a masas > 30 mm. Input: `nodule.hasPet`, `nodule.petUptake`.
 
@@ -136,7 +144,58 @@ Un documento interno (`coefficients.md`, "Step 5") sugiere sumar un coeficiente 
 
 ---
 
-## 4. Bandas de riesgo (comunes a los tres modelos)
+## 4. Guías de manejo: Fleischner 2017 y Lung-RADS v2022
+
+> ⚠️ A diferencia de Mayo/Brock/Herder, **estas dos no son modelos de regresión y no
+> tienen coeficientes**: son árboles de decisión categóricos basados en umbrales de
+> tamaño, tipo de nódulo, multiplicidad, crecimiento y nivel de riesgo. No producen una
+> probabilidad %, sino una **categoría + recomendación de seguimiento**. Se documentan
+> aquí para completar la trazabilidad de fuentes.
+
+### 4a. Fleischner 2017 — ✅ implementada ([`lib/algorithms/fleischner.ts`](../../lib/algorithms/fleischner.ts))
+
+Para **nódulos incidentales** en pacientes **≥ 35 años**, sin malignidad conocida ni
+inmunocompromiso (exclusiones en `checkFleischnerApplicability`, líneas 15-26).
+
+| Eje de decisión | Umbrales / valores implementados | Estado | Código |
+| :--- | :--- | :---: | :--- |
+| Edad mínima | ≥ 35 años | ✅ | `fleischner.ts:16` |
+| Corte de tamaño | 6 mm y 8 mm | ✅ | `assessSolidSingle`, etc. |
+| Tipo de nódulo | sólido / vidrio deslustrado / semi-sólido | ✅ | `assessFleischner` |
+| Componente sólido (semi-sólido) | umbral 6 mm | ✅ | `assessPartSolid:220` |
+| Multiplicidad | único vs múltiple (nódulo dominante) | ✅ | `assessSolidMultiple`, `assessSubsolidMultiple` |
+| Nivel de riesgo | bajo / alto (modula seguimiento) | ✅ | `riskLevel` |
+| Perifisural benigno | sólido ≤ 10 mm ⇒ sin seguimiento | ✅ | `assessFleischner:259` |
+
+> **Nivel de verificación:** umbrales y recomendaciones coherentes con las tablas 1-2 de
+> MacMahon et al. 2017. No re-verificadas línea a línea en esta sesión; existe batería de
+> tests en `__tests__/algorithms/fleischner.test.ts`.
+
+### 4b. Lung-RADS v2022 — ✅ implementada ([`lib/algorithms/lungRads.ts`](../../lib/algorithms/lungRads.ts))
+
+Para **cohortes de screening** (`patient.clinicalContext === 'screening'`, línea 256).
+Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
+
+| Eje de decisión | Umbrales / valores implementados | Estado | Código |
+| :--- | :--- | :---: | :--- |
+| Crecimiento | aumento absoluto ≥ 1.5 mm | ✅ | `GROWTH_THRESHOLD_MM_PER_12M:8` |
+| Intervalo prolongado | > 18 meses (advertencia) | ✅ | `LONG_INTERVAL_THRESHOLD_MONTHS:10` |
+| Sólido baseline | <6 → C2; 6–<8 → C3; 8–<15 → C4A; ≥15 → C4B | ✅ | `classifySolidLungRADS` |
+| Sólido nuevo (follow-up) | <4 → C2; 4–<6 → C3; 6–<8 → C4A; ≥8 → C4B | ✅ | `classifySolidLungRADS` |
+| Vidrio deslustrado | <30 mm → C2; ≥30 mm → C3 | ✅ | `classifyGroundGlass` |
+| Semi-sólido (componente sólido) | <6 → C3; 6–<8 → C4A; ≥8 → C4B | ✅ | `classifyPartSolid` |
+| Espiculación | sube C3/4A/4B → **4X** | ✅ | `assessLungRads:311` |
+| Manejo escalonado | C3 estable→C2; C4A estable→C3 | ✅ | `applySteppedManagement` |
+| Modificador `S` | hallazgo significativo (sufijo aditivo) | ✅ | `assessLungRads:321` |
+| Categorías especiales | 0 (incompleto), 1 (benigno), inflamatorio, vía aérea, quiste atípico, yuxtapleural | ✅ | `getSpecialCategory` |
+
+> **Nivel de verificación:** umbrales coherentes con ACR Lung-RADS v2022. No re-verificados
+> exhaustivamente en esta sesión; cubierto por `__tests__/algorithms/lungRads.test.ts` y
+> `lungRads.regression.test.ts`.
+
+---
+
+## 5. Bandas de riesgo (comunes a los tres modelos)
 
 | Banda | Probabilidad | Implementado |
 | :--- | :--- | :---: |
@@ -148,7 +207,7 @@ Un documento interno (`coefficients.md`, "Step 5") sugiere sumar un coeficiente 
 
 ---
 
-## 5. Resumen de pendientes
+## 6. Resumen de pendientes
 
 | # | Tarea | Bloqueo |
 | :-: | :--- | :--- |
@@ -158,10 +217,16 @@ Un documento interno (`coefficients.md`, "Step 5") sugiere sumar un coeficiente 
 
 ---
 
-## 6. Referencias
+## 7. Referencias
 
-- Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. *Arch Intern Med.* 1997;157(8):849-855.
-- McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919.
-- Herder GJ, et al. Clinical prediction of malignancy in solitary pulmonary nodules using FDG-PET. *Chest.* 2005;128(4):2490-2496.
+**Modelos predictivos (probabilidad):**
+- Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. *Arch Intern Med.* 1997;157(8):849-855. *(Mayo)*
+- McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919. *(Brock/PanCan)*
+- Herder GJ, et al. Clinical prediction of malignancy in solitary pulmonary nodules using FDG-PET. *Chest.* 2005;128(4):2490-2496. *(Herder)*
 - MDCalc — Solitary Pulmonary Nodule (SPN) Malignancy Risk Score (Mayo Clinic Model).
 - Pulmonary nodule malignancy probability: a meta-analysis of the Brock model. *Clinical Radiology* 2024 (S0009-9260(24)00675-5).
+- British Thoracic Society. Guidelines for the investigation and management of pulmonary nodules. *Thorax* 2015;70(Suppl 2):ii1-ii54. *(umbrales de manejo + uso de LR de PET)*
+
+**Guías de manejo (categóricas, sin coeficientes):**
+- MacMahon H, et al. Guidelines for management of incidental pulmonary nodules detected on CT images: from the Fleischner Society 2017. *Radiology.* 2017;284(1):228-243. *(Fleischner 2017)*
+- American College of Radiology. Lung CT Screening Reporting & Data System (Lung-RADS) version 2022. *(Lung-RADS v2022)*
