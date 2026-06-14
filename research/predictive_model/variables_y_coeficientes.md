@@ -214,12 +214,11 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 > | 4X | C3/4A/4B + rasgo sospechoso (espiculación) | idem | ✅ |
 > | S | modificador aditivo por hallazgo significativo | idem | ✅ |
 >
-> **Hallazgo (discrepancia menor) — definición de crecimiento:**
-> Lung-RADS v2022 define crecimiento como aumento **> 1.5 mm**. El código usa
-> `delta >= 1.5` (`lungRads.ts:23`), por lo que un crecimiento de **exactamente 1.5 mm**
-> se marca como creciente cuando la guía no lo haría. Impacto clínico mínimo (caso límite),
-> pero conviene cambiar `>=` por `>` para alinearse estrictamente. **Pendiente de decisión:
-> es un cambio de comportamiento, no se aplica en este commit de documentación.**
+> **Hallazgo corregido (2026-06-14) — definición de crecimiento:**
+> Lung-RADS v2022 define crecimiento como aumento **> 1.5 mm**. El código usaba
+> `delta >= 1.5`; se cambió a `delta > 1.5` (`lungRads.ts:23`) para alinearse con la guía
+> (un crecimiento de exactamente 1.5 mm ya **no** se marca como creciente). Test
+> `TC-GR-002` actualizado y añadido `TC-GR-002b`; suite en verde.
 >
 > **Celdas aún en nivel SECUNDARIO** (coherentes, pero conviene cotejar contra el PDF
 > oficial antes de marcarlas primarias): detalle de semi-sólido **nuevo/creciente** en
@@ -247,7 +246,7 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | 1 | Coeficientes Brock **sin espiculación** (2b) | Apéndice suplementario McWilliams 2013 (NEJM) — no recuperable en sesión actual |
 | 2 | (Opcional) Herder regresión re-estimada (3b) | Tabla completa de Herder 2005; los coef. PET aislados no bastan |
 | 3 | Decidir UX del selector con/sin espiculación en Brock | — |
-| 4 | Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm (4b) | Cambio de comportamiento; requiere visto bueno + revisar regression tests |
+| 4 | ~~Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm~~ ✅ corregido 2026-06-14 | — |
 | 5 | Subir a primario las celdas de Lung-RADS aún secundarias (semi-sólido nuevo/creciente, manejo escalonado, categorías especiales) | Cotejo contra PDF oficial ACR v2022 |
 
 ---
