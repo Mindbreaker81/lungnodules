@@ -271,6 +271,28 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | 4 | ~~Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm~~ ✅ corregido 2026-06-14 | — |
 | 5 | ~~Cotejar vía aérea / manejo escalonado / semi-sólido baseline~~ ✅ verificado primario 2026-06-14. Queda solo: cutoffs exactos de **part-solid nuevo/creciente** y regla de **crecimiento lento → 4B** (no implementada) | PDF oficial ACR v2022 (WebFetch da 403; falta abrir el documento) |
 
+### 6.1. Qué buscar exactamente para cerrar cada pendiente
+
+> Detalle accionable: **fuente concreta**, **dato numérico** que falta y **dónde se aplicaría** en el código.
+
+**Pendiente #1 — Brock SIN espiculación (coeficientes)**
+- **Fuente:** McWilliams A, et al. *NEJM* 2013;369:910-919 → **Supplementary Appendix**, tablas de los modelos *full* y *parsimonious* en sus variantes *without spiculation* (apéndice, no el cuerpo del artículo). Alternativa: calculadora oficial *Brock University / BC Cancer* (mostrar la fórmula con "spiculation = No disponible") y el meta-análisis *Clinical Radiology* 2024 (S0009-9260(24)00675-5) que reproduce las cuatro variantes.
+- **Datos a extraer (modelo parsimonioso sin espiculación):** intercepto + coeficientes de edad (centrada en 62), sexo femenino, historia familiar, enfisema, término de tamaño (confirmar exponente −0.5 y offset 1.58113883), tipo (parte-sólido / no sólido), lóbulo superior y nº de nódulos (centrado en 4). **NO reutilizar** los de la variante con espiculación: están re-calibrados.
+- **Dónde:** nuevo bloque `BROCK_COEFFICIENTS_NO_SPIC` en `lib/predictive/index.ts` + selección de variante.
+
+**Pendiente #2 — Herder regresión re-estimada (opcional)**
+- **Fuente:** Herder GJ, et al. *Chest* 2005;128:2490-2496 → tabla del modelo logístico multivariante (la que re-estima Mayo + FDG-PET).
+- **Datos a extraer:** intercepto y TODOS los coeficientes re-estimados (edad, tabaquismo, cáncer previo, diámetro, espiculación, lóbulo superior) **más** los términos de captación FDG. Solo los términos PET aislados (doc interno: +1.439 / +3.893 / +5.534) **no bastan**: hay que confirmar que el resto de coeficientes son los de Mayo o están recalibrados.
+
+**Pendiente #5 — Lung-RADS: part-solid nuevo/creciente + crecimiento lento**
+- **Fuente:** ACR *Lung-RADS v2022 Summary* (PDF oficial: `cs.acr.org/-/media/ACR/Files/RADS/Lung-RADS/Lung-RADS-2022-Summary-_Final.pdf`) y *RadioGraphics Update: Lung-RADS 2022* (doi 10.1148/rg.230037). **Bloqueo actual:** WebFetch devuelve 403; abrir el PDF manualmente o con un fetcher autenticado.
+- **Datos a extraer:**
+  1. **Part-solid NUEVO en seguimiento:** cutoffs exactos del **componente sólido** que mapean a C3 / C4A / C4B (verificar si 4A empieza en sólido ≥4 mm como asume el código `classifyPartSolid:99-104`, o en otro valor).
+  2. **Crecimiento lento → C4B:** definición precisa (nódulo sólido o semi-sólido que crece en varios estudios sin alcanzar >1.5 mm en ningún intervalo de 12 m) para implementarla (hoy **ausente**).
+  3. **`unchanged or smaller`:** confirmar que el manejo escalonado aplica también a nódulos que **decrecen** → añadir estado `'decreasing'` al modelo `priorStatus`.
+  4. **Categoría 0 de vía aérea:** condiciones exactas en que un hallazgo de vía aérea es C0 (hoy no hay rama).
+- **Dónde:** `lib/algorithms/lungRads.ts` (`classifyPartSolid`, `calculateGrowth`/`applySteppedManagement`, `getSpecialCategory`) y el tipo `priorStatus` en `lib/algorithms/types.ts`.
+
 ---
 
 ## 7. Referencias
