@@ -187,7 +187,7 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 
 | Eje de decisión | Umbrales / valores implementados | Estado | Código |
 | :--- | :--- | :---: | :--- |
-| Crecimiento | aumento absoluto ≥ 1.5 mm | ✅ | `GROWTH_THRESHOLD_MM_PER_12M:8` |
+| Crecimiento | aumento absoluto **> 1.5 mm** | ✅ | `GROWTH_THRESHOLD_MM_PER_12M:8` |
 | Intervalo prolongado | > 18 meses (advertencia) | ✅ | `LONG_INTERVAL_THRESHOLD_MONTHS:10` |
 | Sólido baseline | <6 → C2; 6–<8 → C3; 8–<15 → C4A; ≥15 → C4B | ✅ | `classifySolidLungRADS` |
 | Sólido nuevo (follow-up) | <4 → C2; 4–<6 → C3; 6–<8 → C4A; ≥8 → C4B | ✅ | `classifySolidLungRADS` |

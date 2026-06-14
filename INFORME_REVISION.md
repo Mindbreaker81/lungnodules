@@ -58,7 +58,7 @@ La aplicación ha corregido la mayor parte de los hallazgos técnicos, de privac
 
 | Área | Severidad | Hallazgo vigente | Evidencia | Impacto |
 | :--- | :--- | :--- | :--- | :--- |
-| Clínica | Alta | La regla de crecimiento de Lung-RADS sigue clasificando con `delta >= 1.5 mm` y solo añade warning en intervalos largos | `calculateGrowth()` en `lib/algorithms/lungRads.ts` | Riesgo de sobreelevar categorías en seguimientos prolongados |
+| Clínica | ~~Alta~~ ✅ Resuelto (2026-06-14) | ~~La regla de crecimiento de Lung-RADS clasificaba con `delta >= 1.5 mm`~~ → corregido a `delta > 1.5 mm` conforme a ACR v2022 | `calculateGrowth()` en `lib/algorithms/lungRads.ts` | — |
 | Clínica | Alta | Los GGN `>=30 mm` dependen de `priorCategory/priorStatus` para step-down y no separan de forma explícita el escenario de slow growth | `classifyGroundGlass()` y `applySteppedManagement()` en `lib/algorithms/lungRads.ts` | Puede dejar manejo incompleto en seguimientos complejos |
 | Clínica | Media-Alta | Los atajos perifisural/yuxtapleural siguen necesitando revisión radiológica externa | `lib/algorithms/fleischner.ts`, `lib/algorithms/lungRads.ts` | Riesgo de aplicar excepciones benignas fuera del patrón típico |
 | Gobernanza | Media | Persiste mezcla de validación Zod + lógica manual por paso | `lib/schemas/noduleInput.ts`, `components/wizard/WizardContainer.tsx` | Riesgo de divergencia futura entre UI y dominio |
