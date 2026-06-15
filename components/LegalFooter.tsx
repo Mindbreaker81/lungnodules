@@ -147,6 +147,12 @@ export default function LegalFooter() {
 
           <nav className="flex flex-wrap items-center justify-center gap-3 xs:justify-end" aria-label="Legal navigation">
             <Link
+              href="/references"
+              className="transition-colors hover:text-slate-300"
+            >
+              Referencias
+            </Link>
+            <Link
               href="/MEDICAL_DISCLAIMER.md"
               target="_blank"
               rel="noreferrer"

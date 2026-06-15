@@ -1,3 +1,9 @@
+## [1.5.1] - 2026-06-15
+
+### Added
+- **Página de referencias bibliográficas** (`/references`): listado de guías, modelos predictivos, PLCOm2012 y fuentes secundarias con enlaces verificados a PubMed, PMC, DOI o sitios oficiales (ACR, BTS, MDCalc). Datos centralizados en `config/references.ts`.
+- Enlace «Referencias» en el pie legal (`LegalFooter`).
+
 ## [1.5.0] - 2026-06-15
 
 ### Added
