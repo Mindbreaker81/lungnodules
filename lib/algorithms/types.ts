@@ -42,6 +42,16 @@ export interface NoduleCharacteristics {
   airwayPersistent?: boolean;
   airwayInflammatoryOrInfectious?: boolean;
   atypicalCystCategory?: 'category3' | 'category4A' | 'category4B';
+  atypicalCystManualOverride?: boolean;
+  atypicalCystThickWalled?: boolean;
+  atypicalCystMultilocular?: boolean;
+  atypicalCystPreviouslyStable?: boolean;
+  atypicalCystGrowingCysticComponent?: boolean;
+  atypicalCystWallOrCystGrowing?: boolean;
+  atypicalCystIncreasedLoculationOrDensity?: boolean;
+  atypicalCystAdjacentNodule?: boolean;
+  atypicalCystUnilocularThinWalled?: boolean;
+  atypicalCystSolidDominant?: boolean;
   isNew?: boolean;
   isSlowGrowing?: boolean;
 }

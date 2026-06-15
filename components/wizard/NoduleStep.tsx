@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
+import { previewAtypicalCystCategory } from "@lib/algorithms";
 import { Input } from "@components/ui/input";
 
 interface Props {
@@ -31,6 +32,39 @@ export default function NoduleStep({ clinicalContext }: Props) {
   const isAirway = watch("nodule.isAirway");
   const isInflammatory = watch("nodule.isInflammatory");
   const isAtypicalCyst = watch("nodule.isAtypicalCyst");
+  const atypicalCystManualOverride = watch("nodule.atypicalCystManualOverride");
+  const atypicalCystThickWalled = watch("nodule.atypicalCystThickWalled");
+  const atypicalCystMultilocular = watch("nodule.atypicalCystMultilocular");
+  const atypicalCystPreviouslyStable = watch("nodule.atypicalCystPreviouslyStable");
+  const atypicalCystGrowingCysticComponent = watch("nodule.atypicalCystGrowingCysticComponent");
+  const atypicalCystWallOrCystGrowing = watch("nodule.atypicalCystWallOrCystGrowing");
+  const atypicalCystIncreasedLoculationOrDensity = watch("nodule.atypicalCystIncreasedLoculationOrDensity");
+  const atypicalCystUnilocularThinWalled = watch("nodule.atypicalCystUnilocularThinWalled");
+  const atypicalCystSolidDominant = watch("nodule.atypicalCystSolidDominant");
+  const atypicalCystPreview = useMemo(() => {
+    if (!isAtypicalCyst || atypicalCystManualOverride) {
+      return null;
+    }
+    return previewAtypicalCystCategory({
+      atypicalCystThickWalled,
+      atypicalCystMultilocular,
+      atypicalCystPreviouslyStable,
+      atypicalCystGrowingCysticComponent,
+      atypicalCystWallOrCystGrowing,
+      atypicalCystIncreasedLoculationOrDensity,
+      atypicalCystManualOverride: false,
+      atypicalCystCategory: undefined,
+    });
+  }, [
+    isAtypicalCyst,
+    atypicalCystManualOverride,
+    atypicalCystThickWalled,
+    atypicalCystMultilocular,
+    atypicalCystPreviouslyStable,
+    atypicalCystGrowingCysticComponent,
+    atypicalCystWallOrCystGrowing,
+    atypicalCystIncreasedLoculationOrDensity,
+  ]);
   const hasPet = watch("nodule.hasPet");
   const hasSpiculation = watch("nodule.hasSpiculation");
   const diameter = watch("nodule.diameterMm");
@@ -339,19 +373,142 @@ export default function NoduleStep({ clinicalContext }: Props) {
           )}
 
           {isAtypicalCyst && (
-            <div>
-              <label className="block text-sm font-medium text-slate-300">Categoría de quiste atípico</label>
-              <select
-                className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
-                aria-label="Categoría de quiste pulmonar atípico"
-                defaultValue=""
-                {...register("nodule.atypicalCystCategory", { setValueAs: (value) => value || undefined })}
-              >
-                <option value="" className="bg-surface">Selecciona una categoría</option>
-                <option value="category3" className="bg-surface">Categoría 3 (quiste estable con crecimiento quístico)</option>
-                <option value="category4A" className="bg-surface">Categoría 4A (pared gruesa/multilocular)</option>
-                <option value="category4B" className="bg-surface">Categoría 4B (crecimiento o nodularidad)</option>
-              </select>
+            <div className="space-y-3 rounded-md border border-slate-700/80 p-3">
+              <p className="text-sm font-medium text-slate-200">Quiste pulmonar atípico (Lung-RADS v2022 § I.A)</p>
+
+              <div className="space-y-2">
+                <p className="text-xs text-slate-400">Exclusiones ACR (no aplican rama de quiste atípico)</p>
+                <label className="flex items-center gap-2 text-white">
+                  <input
+                    type="checkbox"
+                    aria-label="Quiste unilocular de pared fina"
+                    {...register("nodule.atypicalCystUnilocularThinWalled")}
+                    className="text-primary rounded focus:ring-primary"
+                  />
+                  Quiste unilocular de pared fina (usar criterios de nódulo)
+                </label>
+                <label className="flex items-center gap-2 text-white">
+                  <input
+                    type="checkbox"
+                    aria-label="Nódulo cavitado con componente sólido dominante"
+                    {...register("nodule.atypicalCystSolidDominant")}
+                    className="text-primary rounded focus:ring-primary"
+                  />
+                  Nódulo cavitado con componente sólido dominante (usar criterios sólidos)
+                </label>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs text-slate-400">Descriptores morfológicos</p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <label className="flex items-center gap-2 text-white">
+                    <input
+                      type="checkbox"
+                      aria-label="Pared gruesa al menos 2 mm"
+                      {...register("nodule.atypicalCystThickWalled")}
+                      className="text-primary rounded focus:ring-primary"
+                    />
+                    Pared gruesa (≥ 2 mm)
+                  </label>
+                  <label className="flex items-center gap-2 text-white">
+                    <input
+                      type="checkbox"
+                      aria-label="Quiste multilocular"
+                      {...register("nodule.atypicalCystMultilocular")}
+                      className="text-primary rounded focus:ring-primary"
+                    />
+                    Multilocular
+                  </label>
+                  <label className="flex items-center gap-2 text-white">
+                    <input
+                      type="checkbox"
+                      aria-label="Quiste previamente estable"
+                      {...register("nodule.atypicalCystPreviouslyStable")}
+                      className="text-primary rounded focus:ring-primary"
+                    />
+                    Previamente estable (Cat 3)
+                  </label>
+                  <label className="flex items-center gap-2 text-white">
+                    <input
+                      type="checkbox"
+                      aria-label="Componente quístico en crecimiento"
+                      {...register("nodule.atypicalCystGrowingCysticComponent")}
+                      className="text-primary rounded focus:ring-primary"
+                    />
+                    Componente quístico en crecimiento (Cat 3)
+                  </label>
+                  <label className="flex items-center gap-2 text-white">
+                    <input
+                      type="checkbox"
+                      aria-label="Crecimiento del quiste engrosado o multilocular"
+                      {...register("nodule.atypicalCystWallOrCystGrowing")}
+                      className="text-primary rounded focus:ring-primary"
+                    />
+                    Crecimiento de pared/multilocular (Cat 4B)
+                  </label>
+                  <label className="flex items-center gap-2 text-white">
+                    <input
+                      type="checkbox"
+                      aria-label="Aumento de loculación o densidad"
+                      {...register("nodule.atypicalCystIncreasedLoculationOrDensity")}
+                      className="text-primary rounded focus:ring-primary"
+                    />
+                    Aumento de loculación o densidad (Cat 4B)
+                  </label>
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2 text-white">
+                <input
+                  type="checkbox"
+                  aria-label="Nódulo adyacente al quiste"
+                  {...register("nodule.atypicalCystAdjacentNodule")}
+                  className="text-primary rounded focus:ring-primary"
+                />
+                Nódulo adyacente (usar la categoría más preocupante)
+              </label>
+
+              {!atypicalCystManualOverride && atypicalCystPreview && (
+                <p className="rounded-md bg-slate-800/80 px-3 py-2 text-sm text-emerald-200">
+                  Sugerencia automática: categoría <strong>{atypicalCystPreview.category}</strong>
+                </p>
+              )}
+
+              {!atypicalCystManualOverride &&
+                !atypicalCystPreview &&
+                !atypicalCystUnilocularThinWalled &&
+                !atypicalCystSolidDominant && (
+                  <p className="text-xs text-amber-200">
+                    Marca al menos un descriptor morfológico para obtener una categoría sugerida.
+                  </p>
+                )}
+
+              <label className="flex items-center gap-2 text-white">
+                <input
+                  type="checkbox"
+                  aria-label="Usar categoría manual del quiste atípico"
+                  {...register("nodule.atypicalCystManualOverride")}
+                  className="text-primary rounded focus:ring-primary"
+                />
+                Usar categoría manual (override radiológico)
+              </label>
+
+              {atypicalCystManualOverride && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300">Categoría de quiste atípico</label>
+                  <select
+                    className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                    aria-label="Categoría de quiste pulmonar atípico"
+                    defaultValue=""
+                    {...register("nodule.atypicalCystCategory", { setValueAs: (value) => value || undefined })}
+                  >
+                    <option value="" className="bg-surface">Selecciona una categoría</option>
+                    <option value="category3" className="bg-surface">Categoría 3 (quiste estable con crecimiento quístico)</option>
+                    <option value="category4A" className="bg-surface">Categoría 4A (pared gruesa/multilocular)</option>
+                    <option value="category4B" className="bg-surface">Categoría 4B (crecimiento o nodularidad)</option>
+                  </select>
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -92,7 +92,7 @@ Los principales riesgos detectados no son de “arquitectura” sino de **privac
   - **Variables de entrada clave:**  
     - Paciente: `clinicalContext === 'screening'`  
     - Nódulo: `type`, `diameterMm`, `scanType`, `priorDiameterMm`, `priorScanMonthsAgo`, `isNew`, `hasSpiculation`  
-    - Reglas especiales: `isBenign`, `hasSignificantFinding`, `isInflammatory + inflammatoryCategory`, `isAirway + airwayLocation + airwayPersistent`, `isAtypicalCyst + atypicalCystCategory`, `isJuxtapleural/isPerifissural`
+    - Reglas especiales: `isBenign`, `hasSignificantFinding`, `isInflammatory + inflammatoryCategory`, `isAirway + airwayLocation + airwayPersistent`, `isAtypicalCyst + descriptores morfológicos / override manual`, `isJuxtapleural/isPerifissural`
 
 #### Modelos predictivos (probabilidad de malignidad)
 - **[Mayo Clinic (Swensen 1997)]**  
@@ -200,7 +200,7 @@ Los principales riesgos detectados no son de “arquitectura” sino de **privac
 | **Lung‑RADS: airway subsegmental → categoría 2** | `getSpecialCategory` (`lungRads.ts:162-167`) | **Sí** | Medio. Fuente: Lung-RADS 2022 Summary, pág. 2 (nota 11). |
 | **Lung‑RADS: airway segmental/proximal → categoría 4A** | `getSpecialCategory` (`lungRads.ts:156-161`) | **Sí** | Alto. Fuente: Lung-RADS 2022 Summary, pág. 2 (nota 11). |
 | **Lung‑RADS: airway persistente en 3 meses → categoría 4B** | `getSpecialCategory` (`lungRads.ts:149-155`) | **Sí** | Alto. Fuente: Lung-RADS 2022 Summary, pág. 2 (nota 11). |
-| **Lung‑RADS: quiste atípico (engrosado/multilocular) → 4A/4B según crecimiento/nodularidad** | `getSpecialCategory` (`lungRads.ts:175-188`) | **Sí** | Medio. Fuente: Lung-RADS 2022 Summary, pág. 1 (sección I.A). |
+| **Lung‑RADS: quiste atípico → 3/4A/4B (híbrido auto + override)** | `classifyAtypicalCyst` + `assessAtypicalCyst` (`atypicalCyst.ts`, `lungRads.ts`) | **Sí** | Medio. Fuente: Lung-RADS 2022 Summary § I.A. Descriptores morfológicos + override manual; nódulo adyacente → categoría más alta. |
 | **Lung‑RADS: inflamatorio infeccioso → 0 (1–3 meses) o 2 (benigno)** | `getSpecialCategory` (`lungRads.ts:137-147`) | **Sí** | Medio. Fuente: Lung-RADS 2022 Summary, pág. 2 (sección I.B). |
 | **Lung‑RADS: stepped management (3 estable → 2, 4A estable → 3)** | `applySteppedManagement` (`lungRads.ts:77-87`) | **Sí** | Alto. Fuente: Lung-RADS 2022 Summary, pág. 3 (sección III.A, líneas 008-014). |
 | **Modelos predictivos: Mayo (coeficientes y exclusiones)** | `buildMayoSummary` (`lib/predictive/index.ts:86-165`) + `coefficients.md` | **Sí** | Medio. Fuente: `coefficients.md` (líneas 3-16). |

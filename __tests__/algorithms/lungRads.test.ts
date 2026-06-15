@@ -132,10 +132,111 @@ describe('Lung-RADS v2022', () => {
     expect(res.category).toBe('4B');
   });
 
-  test('TC-LR-016 Atypical cyst -> Category 3/4A/4B', () => {
-    expect(run({ isAtypicalCyst: true, atypicalCystCategory: 'category3' }).category).toBe('3');
-    expect(run({ isAtypicalCyst: true, atypicalCystCategory: 'category4A' }).category).toBe('4A');
-    expect(run({ isAtypicalCyst: true, atypicalCystCategory: 'category4B' }).category).toBe('4B');
+  test('TC-LR-016 Atypical cyst manual override -> Category 3/4A/4B', () => {
+    expect(
+      run({
+        isAtypicalCyst: true,
+        atypicalCystManualOverride: true,
+        atypicalCystCategory: 'category3',
+      }).category,
+    ).toBe('3');
+    expect(
+      run({
+        isAtypicalCyst: true,
+        atypicalCystManualOverride: true,
+        atypicalCystCategory: 'category4A',
+      }).category,
+    ).toBe('4A');
+    expect(
+      run({
+        isAtypicalCyst: true,
+        atypicalCystManualOverride: true,
+        atypicalCystCategory: 'category4B',
+      }).category,
+    ).toBe('4B');
+  });
+
+  test('TC-LR-016b Atypical cyst auto thick-walled -> Category 4A', () => {
+    const res = run({ isAtypicalCyst: true, atypicalCystThickWalled: true });
+    expect(res.category).toBe('4A');
+  });
+
+  test('TC-LR-016c Atypical cyst auto multilocular with loculation -> Category 4B', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystMultilocular: true,
+      atypicalCystIncreasedLoculationOrDensity: true,
+    });
+    expect(res.category).toBe('4B');
+  });
+
+  test('TC-LR-016d Atypical cyst auto stable growing cystic component -> Category 3', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystPreviouslyStable: true,
+      atypicalCystGrowingCysticComponent: true,
+    });
+    expect(res.category).toBe('3');
+  });
+
+  test('TC-LR-016e Manual override 3 when auto would be 4A', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystThickWalled: true,
+      atypicalCystManualOverride: true,
+      atypicalCystCategory: 'category3',
+    });
+    expect(res.category).toBe('3');
+  });
+
+  test('TC-LR-016f Unilocular thin-walled uses standard solid pathway', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystUnilocularThinWalled: true,
+      type: 'solid',
+      diameterMm: 7,
+      scanType: 'baseline',
+    });
+    expect(res.category).toBe('3');
+    expect(res.warnings).toEqual(
+      expect.arrayContaining([expect.stringMatching(/unilocular de pared fina/i)]),
+    );
+  });
+
+  test('TC-LR-016g Solid-dominant cavitary uses standard solid pathway', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystSolidDominant: true,
+      type: 'solid',
+      diameterMm: 10,
+      scanType: 'baseline',
+    });
+    expect(res.category).toBe('4A');
+  });
+
+  test('TC-LR-016h Adjacent nodule takes higher category (cyst 3 vs solid 15mm -> 4B)', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystPreviouslyStable: true,
+      atypicalCystGrowingCysticComponent: true,
+      atypicalCystAdjacentNodule: true,
+      type: 'solid',
+      diameterMm: 15,
+      scanType: 'baseline',
+    });
+    expect(res.category).toBe('4B');
+  });
+
+  test('TC-LR-016i Adjacent nodule keeps cyst 4A when higher than nodule 3', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystThickWalled: true,
+      atypicalCystAdjacentNodule: true,
+      type: 'solid',
+      diameterMm: 7,
+      scanType: 'baseline',
+    });
+    expect(res.category).toBe('4A');
   });
 
   test('TC-LR-017 Juxta/perifissural benign morphology -> Category 2', () => {

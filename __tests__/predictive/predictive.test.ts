@@ -46,6 +46,40 @@ describe('Predictive models', () => {
     expect(summary.riskBand).toBe('high');
   });
 
+  test('Mayo matches Swensen 1997 Table 3 baseline case (55 y, 20 mm, no risk factors)', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'incidental',
+      patient: {
+        clinicalContext: 'incidental',
+        age: 55,
+        riskLevel: 'low',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'never',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 20,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        hasSpiculation: false,
+        isUpperLobe: false,
+        hasPet: false,
+        petUptake: undefined,
+      },
+    };
+
+    const summary = getSummary(input, 'mayo');
+    expect(summary.status).toBe('available');
+    // Swensen Table 3: P = 0.11 for this row (app ~0.106 before rounding)
+    expect(summary.probability).toBeCloseTo(0.11, 2);
+    expect(summary.riskBand).toBe('intermediate');
+  });
+
   test('Brock calculation returns probability and intermediate risk band', () => {
     const input: AssessmentInput = {
       clinicalContext: 'screening',

@@ -7,7 +7,7 @@
 > **Inputs / validación:** [`lib/schemas/noduleInput.ts`](../../lib/schemas/noduleInput.ts)  
 > **Tests:** [`__tests__/predictive/predictive.test.ts`](../../__tests__/predictive/predictive.test.ts)
 
-Última revisión de este documento: **2026-06-15** (sincronizado con `variables_y_coeficientes.md` y código v1.5.1).
+Última revisión de este documento: **2026-06-15** (sincronizado con `variables_y_coeficientes.md` y código v1.6.0).
 
 ---
 
@@ -50,13 +50,16 @@ Sincronización **2026-06-15** con `variables_y_coeficientes.md`. Lo siguiente s
 
 | Cambio | Código | Estado en `variables_y_coeficientes.md` |
 |--------|--------|----------------------------------------|
-| Tabla inputs obligatorios **unificada** wizard ↔ predictivos | `noduleInput.ts` + wizard | Parcial: referencia rápida en este doc § Inputs; falta tabla única en doc largo |
-| `coefficients.md` vs doc largo | — | Jerarquía: **variables_y_coeficientes.md > coefficients.md**; revisar `coefficients.md` si diverge |
 | Bibliografía con URLs en app | `config/references.ts`, `/references` | Índice en variables §7 → apunta a `config/references.ts` |
 
 **Cerrado en esta sincronización** (ya documentado en `variables_y_coeficientes.md`):
 
+- Tabla inputs wizard ↔ predictivos → **Anexo A** (2026-06-15)
+- `coefficients.md` alineado con doc largo (2026-06-15)
+
 - Herder ≥ 4 mm (`MAYO_MIN_DIAMETER_MM`), aviso < 8 mm (`HERDER_VALIDATED_MIN_DIAMETER_MM`)
+- Mayo coeficientes verificados primariamente vs PDF Swensen 1997 (2026-06-15)
+- Quiste atípico Lung-RADS híbrido (2026-06-15)
 - Mayo nota pre-PET, `getRecommendedPredictiveModel`, bandas → `ResultsStep.tsx`, casos de regresión
 - Brock 2a/2b, Herder dual, selector espiculación 3 estados, Lung-RADS espiculación no evaluable
 - Rango Mayo 4–30 mm (paper/MDCalc) documentado en §1
@@ -75,7 +78,7 @@ Resumen alineado con [`variables_y_coeficientes.md` §6](./variables_y_coeficien
 
 3. ~~**Mayo:** documentar rango **4–30 mm** (MDCalc)~~ ✅ **2026-06-15** — ver `variables_y_coeficientes.md` §1 (la app solo excluye > 30 mm en Mayo; mínimo 4 mm aplica a Herder)
 
-4. **Tabla inputs obligatorios por modelo** (wizard → campos predictivos) en un solo lugar del doc largo — hoy: referencia rápida en este archivo § Inputs
+4. ~~**Tabla inputs obligatorios por modelo** (wizard → campos predictivos) en un solo lugar del doc largo~~ ✅ **2026-06-15** — ver [`variables_y_coeficientes.md` Anexo A](./variables_y_coeficientes.md#anexo-a--mapa-de-inputs-wizard--predictivos)
 
 ### P1 — Implementación
 
@@ -89,13 +92,13 @@ Detalle accionable de fuentes: [`variables_y_coeficientes.md` §6.1](./variables
 
 ### P2 — Verificación / anexo guías
 
-Alineado con [`variables_y_coeficientes.md` §6](./variables_y_coeficientes.md#6-resumen-de-pendientes) ítems #6–#8.
+Alineado con [`variables_y_coeficientes.md` §6](./variables_y_coeficientes.md#6-resumen-de-pendientes) ítem #9 (abierto); #6–#8 y #10 cerrados.
 
 | # | Tarea | Prioridad | Notas |
 |---|-------|-----------|-------|
-| 6 | Mayo: verificación **primaria** vs PDF Swensen 1997 | P2 | Hoy secundaria (MDCalc); coeficientes ya en producción |
-| 7 | Lung-RADS: quiste atípico **passthrough** | P2 / producto | Usuario introduce `atypicalCystCategory`; ver variables §4b |
-| 8 | Brock **1a / 1b** parsimoniosos | — | No planificado; app usa 2a/2b completos |
+| 7 | ~~Mayo: verificación **primaria** vs PDF Swensen 1997~~ | P2 | ✅ 2026-06-15 — PDF local `swensen 10.1001-archinte.1997.00440290031002.pdf`; ver variables §1 |
+| 8 | ~~Lung-RADS: quiste atípico híbrido~~ | P2 / producto | ✅ 2026-06-15 — `atypicalCyst.ts` + UI descriptores/override; ver variables §4b Anexo A.1 |
+| 9 | Brock **1a / 1b** parsimoniosos | — | No planificado; app usa 2a/2b completos |
 
 ---
 
@@ -120,6 +123,8 @@ Transformación de tamaño común (nota † Tabla 2): `−β·[(mm/10)^−0.5 �
 ---
 
 ## Inputs por modelo (referencia rápida)
+
+> **Tabla maestra y divergencias wizard ↔ predictivo:** [`variables_y_coeficientes.md` Anexo A](./variables_y_coeficientes.md#anexo-a--mapa-de-inputs-wizard--predictivos). Esta sección resume por modelo; el Anexo A es la fuente unificada.
 
 ### Mayo (solo incidental)
 
@@ -193,7 +198,7 @@ Mapeo bandas → textos de sugerencia en `ResultsStep.tsx`: documentado en `vari
 
 1. ~~**Brock:** parsimonioso vs completo~~ ✅ resuelto: app = Model **2b** completo (ver § mapa Brock)
 2. ~~**Herder 3b:** dos juegos de coeficientes PET~~ ✅ resuelto 2026-06-15 (verificado con PDF Herder 2005; implementado como `herder-logistic`)
-3. **`coefficients.md`:** puede quedar desactualizado respecto a `variables_y_coeficientes.md`; este archivo apunta a la jerarquía: **variables_y_coeficientes.md > coefficients.md > código**
+3. ~~**`coefficients.md`:** desactualizado respecto a `variables_y_coeficientes.md`~~ ✅ sincronizado 2026-06-15 — jerarquía: **variables_y_coeficientes.md > coefficients.md > código**
 4. ~~**Comentario código Brock** (`index.ts:46`): dice «parsimonious» pero es Model 2b completo~~ ✅ corregido 2026-06-15
 
 ---
@@ -202,6 +207,7 @@ Mapeo bandas → textos de sugerencia en `ResultsStep.tsx`: documentado en `vari
 
 | Caso | Esperado | Test |
 |------|----------|------|
+| Mayo: Swensen Table 3 — 55 a, 20 mm, sin factores | P ≈ 0,11 (paper) | `Mayo matches Swensen 1997 Table 3 baseline case` |
 | Mayo: espiculación pesa más que lóbulo superior | P(espiculado LIE) > P(liso LSD) | `Mayo weights spiculation above upper-lobe` |
 | Brock: 15 mm screening, transformación no lineal (2b, espic. ausente) | ~25.4 % intermedio | `Brock non-linear size term...` |
 | Brock: mismo caso, espiculación no evaluable (2a) | ~29.7 % intermedio | `Brock Model 2a (without spiculation)...` |
@@ -232,6 +238,7 @@ Mapeo bandas → textos de sugerencia en `ResultsStep.tsx`: documentado en `vari
 - **Bibliografía app (enlaces verificados):** [`config/references.ts`](../../config/references.ts) → `/references`
 - Índice breve en [`variables_y_coeficientes.md` §7](./variables_y_coeficientes.md#7-referencias)
 - Roadmap histórico: [`../predictive-models-roadmap.md`](../predictive-models-roadmap.md)
+- PDF Swensen 1997: [`../pdf/swensen 10.1001-archinte.1997.00440290031002.pdf`](../pdf/swensen%2010.1001-archinte.1997.00440290031002.pdf)
 - PDF Brock: [`../pdf/McWilliams - Probability of Cancer in Pulmonary Nodules Detected on First Screening CT.pdf`](../pdf/McWilliams%20-%20Probability%20of%20Cancer%20in%20Pulmonary%20Nodules%20Detected%20on%20First%20Screening%20CT.pdf)
 - PDF Herder 2005: [`../pdf/Herder 2005 Clinical Prediction Model To Characterize Pulmonary Nodules Validation and Added Value of 18 F-Fluorodeoxyglucose Positron Emission Tomography.pdf`](../pdf/Herder%202005%20Clinical%20Prediction%20Model%20To%20Characterize%20Pulmonary%20Nodules%20Validation%20and%20Added%20Value%20of%2018%20F-Fluorodeoxyglucose%20Positron%20Emission%20Tomography.pdf)
 - Revisión general app: [`../../revision.md`](../../revision.md)

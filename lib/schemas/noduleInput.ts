@@ -80,6 +80,16 @@ export const noduleBaseSchema = z.object({
   airwayPersistent: z.boolean().optional(),
   airwayInflammatoryOrInfectious: z.boolean().optional(),
   atypicalCystCategory: z.enum(atypicalCystCategoryValues).optional(),
+  atypicalCystManualOverride: z.boolean().optional(),
+  atypicalCystThickWalled: z.boolean().optional(),
+  atypicalCystMultilocular: z.boolean().optional(),
+  atypicalCystPreviouslyStable: z.boolean().optional(),
+  atypicalCystGrowingCysticComponent: z.boolean().optional(),
+  atypicalCystWallOrCystGrowing: z.boolean().optional(),
+  atypicalCystIncreasedLoculationOrDensity: z.boolean().optional(),
+  atypicalCystAdjacentNodule: z.boolean().optional(),
+  atypicalCystUnilocularThinWalled: z.boolean().optional(),
+  atypicalCystSolidDominant: z.boolean().optional(),
   isNew: z.boolean().optional(),
   isSlowGrowing: z.boolean().optional(),
 });
@@ -267,12 +277,33 @@ export const assessmentInputSchema = z
         path: ['nodule', 'inflammatoryCategory'],
       });
     }
-    if (data.nodule.isAtypicalCyst && !data.nodule.atypicalCystCategory) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecciona la categoría del quiste pulmonar atípico',
-        path: ['nodule', 'atypicalCystCategory'],
-      });
+    if (data.nodule.isAtypicalCyst) {
+      if (data.nodule.atypicalCystManualOverride) {
+        if (!data.nodule.atypicalCystCategory) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Selecciona la categoría del quiste pulmonar atípico',
+            path: ['nodule', 'atypicalCystCategory'],
+          });
+        }
+      } else {
+        const hasDescriptor =
+          Boolean(data.nodule.atypicalCystUnilocularThinWalled) ||
+          Boolean(data.nodule.atypicalCystSolidDominant) ||
+          Boolean(data.nodule.atypicalCystThickWalled) ||
+          Boolean(data.nodule.atypicalCystMultilocular) ||
+          Boolean(data.nodule.atypicalCystPreviouslyStable) ||
+          Boolean(data.nodule.atypicalCystGrowingCysticComponent) ||
+          Boolean(data.nodule.atypicalCystWallOrCystGrowing) ||
+          Boolean(data.nodule.atypicalCystIncreasedLoculationOrDensity);
+        if (!hasDescriptor) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Indica al menos un descriptor morfológico del quiste atípico o una exclusión ACR',
+            path: ['nodule', 'atypicalCystThickWalled'],
+          });
+        }
+      }
     }
     if (data.nodule.hasPet && !data.nodule.petUptake) {
       ctx.addIssue({

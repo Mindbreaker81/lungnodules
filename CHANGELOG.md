@@ -1,3 +1,19 @@
+## [1.6.0] - 2026-06-15
+
+### Added
+- **Lung-RADS quiste atípico (híbrido):** descriptores morfológicos → categoría sugerida 3/4A/4B (`classifyAtypicalCyst` en `lib/algorithms/atypicalCyst.ts`), override manual radiológico, exclusiones ACR (unilocular pared fina / cavitado sólido dominante) y regla de nódulo adyacente (categoría más preocupante). UI ampliada en `NoduleStep.tsx` con badge de sugerencia.
+- **Anexo A** en `variables_y_coeficientes.md`: tabla maestra wizard ↔ modelos predictivos.
+- **PDF Swensen 1997** en `research/pdf/` y test de regresión Mayo vs Tabla 3 del paper.
+
+### Changed
+- **`coefficients.md`** sincronizado con doc largo (exclusiones app, bandas, Herder dual).
+- **Mayo:** verificación **primaria** de coeficientes contra PDF Swensen 1997 (§1, ítem #7 cerrado).
+- **`assessLungRads`:** refactor con `classifyStandardLungRads` y rama `assessAtypicalCyst`; quiste atípico ya no es passthrough manual único.
+
+### Tests
+- `atypicalCyst.test.ts` y ampliación `lungRads.test.ts` (TC-LR-016b–016i).
+- `Mayo matches Swensen 1997 Table 3 baseline case` en `predictive.test.ts`.
+
 ## [1.5.2] - 2026-06-15
 
 ### Changed

@@ -3,6 +3,7 @@ import {
   GuidelineId,
   LungRadsAssessmentInput,
 } from './types';
+import { higherLungRadsCategory, resolveAtypicalCystCategory } from './atypicalCyst';
 
 const GUIDELINE: GuidelineId = 'lung-rads-2022';
 const GROWTH_THRESHOLD_MM_PER_12M = 1.5;
@@ -172,6 +173,7 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
 } | null {
   // Note: hasSignificantFinding is handled as the "S" modifier in assessLungRads(),
   // not as a standalone category. See Lung-RADS v2022: S is an additive modifier.
+  // Atypical cyst is handled separately in assessLungRads().
 
   if (nodule.isIncompleteStudy) {
     return {
@@ -233,22 +235,6 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
     };
   }
 
-  if (nodule.isAtypicalCyst) {
-    const map = {
-      category3: { category: '3', rationale: 'Quiste atípico con componente quístico en crecimiento' },
-      category4A: { category: '4A', rationale: 'Quiste atípico con pared gruesa o multiloculado' },
-      category4B: { category: '4B', rationale: 'Quiste atípico con crecimiento o nodularidad' },
-    } as const;
-    if (!nodule.atypicalCystCategory || !map[nodule.atypicalCystCategory]) {
-      return {
-        category: '3',
-        rationale: 'Quiste atípico marcado; pendiente de caracterización detallada',
-        warnings: ['Categoría de quiste atípico no especificada'],
-      };
-    }
-    return map[nodule.atypicalCystCategory];
-  }
-
   if (nodule.isJuxtapleural || nodule.isPerifissural) {
     const isBenignJuxta =
       nodule.type === 'solid' && nodule.diameterMm <= 10 && !nodule.hasSpiculation;
@@ -263,32 +249,23 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
   return null;
 }
 
-export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: LungRadsAssessmentInput): AssessmentResult {
-  if (patient.clinicalContext !== 'screening') {
-    return {
-      guideline: GUIDELINE,
-      category: 'No aplicable',
-      recommendation: 'Usar Fleischner u otra guía para hallazgos incidentales',
-      followUpInterval: 'N/A',
-      rationale: 'Lung-RADS aplica a poblaciones de screening',
-      warnings: ['Se requiere contexto de screening para Lung-RADS'],
-    };
-  }
+interface StandardClassification {
+  category: string;
+  rationale: string;
+  warnings?: string[];
+}
 
-  const growthResult = calculateGrowth(nodule.diameterMm, nodule.priorDiameterMm, nodule.priorScanMonthsAgo);
-  const isGrowing = growthResult.isGrowing;
-  const isNew = nodule.isNew ?? false;
+function classifyStandardLungRads(input: {
+  nodule: LungRadsAssessmentInput['nodule'];
+  isGrowing: boolean;
+  isNew: boolean;
+  priorCategory?: string;
+  priorStatus?: 'stable' | 'decreasing' | 'progression';
+  initialWarnings?: string[];
+}): StandardClassification {
+  const { nodule, isGrowing, isNew, priorCategory, priorStatus, initialWarnings } = input;
   let category: string;
-  let warnings: string[] | undefined;
-
-  if (growthResult.isGrowing && growthResult.isLongInterval) {
-    warnings = [...(warnings ?? []), 'Intervalo de seguimiento prolongado (>18 meses); interpretar crecimiento con cautela'];
-  }
-
-  const specialCategory = getSpecialCategory(nodule);
-  if (specialCategory) {
-    return buildResult(specialCategory.category, specialCategory.rationale, specialCategory.warnings);
-  }
+  let warnings: string[] | undefined = initialWarnings;
 
   const isSlowGrowingSuspicious =
     nodule.isSlowGrowing && (nodule.type === 'solid' || nodule.type === 'part-solid');
@@ -331,7 +308,6 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     warnings = [...(warnings ?? []), ...(result.warnings ?? [])];
   }
 
-  // Apply stepped management BEFORE spiculation upgrade so 4X is never stepped down
   category = applySteppedManagement(category, priorCategory, priorStatus);
 
   if (nodule.hasSpiculation && ['3', '4A', '4B'].includes(category)) {
@@ -342,8 +318,6 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     warnings = [...(warnings ?? []), 'El componente sólido no puede exceder el diámetro total'];
   }
 
-  // Lung-RADS v2022: S is an additive modifier, not a standalone category.
-  // Append "S" suffix when significant findings are present.
   if (nodule.hasSignificantFinding) {
     category = `${category}S`;
     warnings = [...(warnings ?? []), 'Hallazgo clínicamente significativo (modificador S)'];
@@ -364,7 +338,142 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     rationaleParts.push('Hallazgo significativo (modificador S)');
   }
 
-  return buildResult(category, rationaleParts.join(' | '), warnings);
+  return {
+    category,
+    rationale: rationaleParts.join(' | '),
+    warnings,
+  };
+}
+
+function assessAtypicalCyst(input: {
+  nodule: LungRadsAssessmentInput['nodule'];
+  isGrowing: boolean;
+  isNew: boolean;
+  priorCategory?: string;
+  priorStatus?: 'stable' | 'decreasing' | 'progression';
+  initialWarnings?: string[];
+}): AssessmentResult | 'use-standard' {
+  const { nodule, isGrowing, isNew, priorCategory, priorStatus, initialWarnings } = input;
+  const exitWarnings: string[] = [...(initialWarnings ?? [])];
+
+  if (nodule.atypicalCystUnilocularThinWalled) {
+    exitWarnings.push(
+      'Quiste unilocular de pared fina: Lung-RADS no clasifica quistes atípicos; se aplican criterios de nódulo',
+    );
+  }
+  if (nodule.atypicalCystSolidDominant) {
+    exitWarnings.push(
+      'Nódulo cavitado con componente sólido dominante: se aplican criterios de nódulo sólido (ACR Lung-RADS v2022 § I.A)',
+    );
+  }
+
+  if (nodule.atypicalCystUnilocularThinWalled || nodule.atypicalCystSolidDominant) {
+    return 'use-standard';
+  }
+
+  const resolved = resolveAtypicalCystCategory(nodule);
+  if (!resolved) {
+    return buildResult(
+      '3',
+      'Quiste atípico marcado; descriptores morfológicos insuficientes para clasificación automática',
+      [...exitWarnings, 'Descriptores de quiste atípico insuficientes; revisar caracterización'],
+    );
+  }
+
+  let category = resolved.category;
+  let rationale = resolved.rationale;
+  let warnings = exitWarnings.length > 0 ? exitWarnings : undefined;
+
+  if (resolved.source === 'auto') {
+    rationale = `${rationale} (clasificación automática ACR Lung-RADS v2022 § I.A)`;
+  }
+
+  if (nodule.atypicalCystAdjacentNodule) {
+    const standard = classifyStandardLungRads({
+      nodule,
+      isGrowing,
+      isNew,
+      priorCategory,
+      priorStatus,
+    });
+    const cystCategory = category;
+    category = higherLungRadsCategory(cystCategory, standard.category);
+    rationale = `${rationale} | Nódulo adyacente: quiste ${cystCategory}, nódulo ${standard.category} → ${category}`;
+    warnings = [...(warnings ?? []), ...(standard.warnings ?? [])];
+  }
+
+  if (nodule.hasSignificantFinding) {
+    category = `${category}S`;
+    warnings = [...(warnings ?? []), 'Hallazgo clínicamente significativo (modificador S)'];
+  }
+
+  return buildResult(category, rationale, warnings);
+}
+
+export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: LungRadsAssessmentInput): AssessmentResult {
+  if (patient.clinicalContext !== 'screening') {
+    return {
+      guideline: GUIDELINE,
+      category: 'No aplicable',
+      recommendation: 'Usar Fleischner u otra guía para hallazgos incidentales',
+      followUpInterval: 'N/A',
+      rationale: 'Lung-RADS aplica a poblaciones de screening',
+      warnings: ['Se requiere contexto de screening para Lung-RADS'],
+    };
+  }
+
+  const growthResult = calculateGrowth(nodule.diameterMm, nodule.priorDiameterMm, nodule.priorScanMonthsAgo);
+  const isGrowing = growthResult.isGrowing;
+  const isNew = nodule.isNew ?? false;
+  let warnings: string[] | undefined;
+
+  if (growthResult.isGrowing && growthResult.isLongInterval) {
+    warnings = [...(warnings ?? []), 'Intervalo de seguimiento prolongado (>18 meses); interpretar crecimiento con cautela'];
+  }
+
+  const specialCategory = getSpecialCategory(nodule);
+  if (specialCategory) {
+    return buildResult(specialCategory.category, specialCategory.rationale, specialCategory.warnings);
+  }
+
+  if (nodule.isAtypicalCyst) {
+    const atypicalResult = assessAtypicalCyst({
+      nodule,
+      isGrowing,
+      isNew,
+      priorCategory,
+      priorStatus,
+      initialWarnings: warnings,
+    });
+
+    if (atypicalResult !== 'use-standard') {
+      return atypicalResult;
+    }
+
+    if (nodule.atypicalCystUnilocularThinWalled) {
+      warnings = [
+        ...(warnings ?? []),
+        'Quiste unilocular de pared fina: Lung-RADS no clasifica quistes atípicos; se aplican criterios de nódulo',
+      ];
+    }
+    if (nodule.atypicalCystSolidDominant) {
+      warnings = [
+        ...(warnings ?? []),
+        'Nódulo cavitado con componente sólido dominante: se aplican criterios de nódulo sólido (ACR Lung-RADS v2022 § I.A)',
+      ];
+    }
+  }
+
+  const standard = classifyStandardLungRads({
+    nodule,
+    isGrowing,
+    isNew,
+    priorCategory,
+    priorStatus,
+    initialWarnings: warnings,
+  });
+
+  return buildResult(standard.category, standard.rationale, standard.warnings);
 }
 
 export function calculateLungRadsGrowth(currentDiameter: number, priorDiameter?: number, intervalMonths?: number): boolean {

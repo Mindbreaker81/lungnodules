@@ -5,3 +5,9 @@ export {
   getFleischnerWarnings,
 } from './fleischner';
 export { assessLungRads, calculateLungRadsGrowth } from './lungRads';
+export {
+  classifyAtypicalCyst,
+  hasAtypicalCystMorphologyDescriptor,
+  previewAtypicalCystCategory,
+  resolveAtypicalCystCategory,
+} from './atypicalCyst';

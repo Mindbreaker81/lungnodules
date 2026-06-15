@@ -6,8 +6,9 @@
 > está verificado contra la publicación original** (con su fuente) y **qué falta por
 > verificar/implementar**.
 >
-> Última actualización: 2026-06-15 (sincronizado con `ESTADO_Y_PENDIENTES.md` y código v1.5.1).  
+> Última actualización: 2026-06-15 (sincronizado con `ESTADO_Y_PENDIENTES.md`, `coefficients.md` y código v1.6.0).  
 > **Estado operativo, pendientes y desfases con el código:** ver `[ESTADO_Y_PENDIENTES.md](./ESTADO_Y_PENDIENTES.md)`.  
+> **Resumen clínico en inglés (fórmulas):** [`coefficients.md`](./coefficients.md).  
 > **Bibliografía con enlaces PubMed/DOI (app):** [`config/references.ts`](../../config/references.ts) → `/references`.
 
 ## Leyenda de estado
@@ -34,16 +35,16 @@ Probabilidad: `P = e^x / (1 + e^x)`
 
 | Variable             | Coef.   | Estado | Codificación / input                                                                           | Fuente de verificación          |
 | -------------------- | ------- | ------ | ---------------------------------------------------------------------------------------------- | ------------------------------- |
-| Intercepto           | −6.8272 | ✅      | —                                                                                              | Swensen 1997 (Table 2) / MDCalc |
-| Edad                 | 0.0391  | ✅      | años (`patient.age`)                                                                           | Swensen 1997 / MDCalc           |
-| Tabaquismo           | 0.7917  | ✅      | 1 = fumador actual o ex-fumador; 0 = nunca (`patient.smokingStatus`)                           | Swensen 1997 / MDCalc           |
-| Cáncer extratorácico | 1.3388  | ✅      | 1 = diagnóstico **> 5 años** antes; 0 = no (`patient.extrathoracicCancerHistory === 'over5y'`) | Swensen 1997 / MDCalc           |
-| Diámetro             | 0.1274  | ✅      | mm (`nodule.diameterMm`)                                                                       | Swensen 1997 / MDCalc           |
-| Espiculación         | 1.0407  | ✅      | 1 = presente; 0 = no (`nodule.hasSpiculation`)                                                 | Swensen 1997 / MDCalc           |
-| Lóbulo superior      | 0.7838  | ✅      | 1 = lóbulo superior (der. o izq.); 0 = medio/inferior (`nodule.isUpperLobe`)                   | Swensen 1997 / MDCalc           |
+| Intercepto           | −6.8272 | ✅      | —                                                                                              | Swensen 1997 ecuación p.852 / PDF local 2026-06-15 |
+| Edad                 | 0.0391  | ✅      | años (`patient.age`)                                                                           | Swensen 1997 ecuación p.852                        |
+| Tabaquismo           | 0.7917  | ✅      | 1 = fumador actual o ex-fumador; 0 = nunca (`patient.smokingStatus`)                           | Swensen 1997 ecuación p.852                        |
+| Cáncer extratorácico | 1.3388  | ✅      | 1 = diagnóstico **> 5 años** antes; 0 = no (`patient.extrathoracicCancerHistory === 'over5y'`) | Swensen 1997 ecuación p.852                        |
+| Diámetro             | 0.1274  | ✅      | mm (`nodule.diameterMm`)                                                                       | Swensen 1997 ecuación p.852                        |
+| Espiculación         | 1.0407  | ✅      | 1 = presente; 0 = no (`nodule.hasSpiculation`)                                                 | Swensen 1997 ecuación p.852                        |
+| Lóbulo superior      | 0.7838  | ✅      | 1 = lóbulo superior (der. o izq.); 0 = medio/inferior (`nodule.isUpperLobe`)                   | Swensen 1997 ecuación p.852                        |
 
 
-> **Nivel de verificación:** secundario (MDCalc *Solitary Pulmonary Nodule Malignancy Risk – Mayo Clinic Model* + valores de Swensen 1997 ampliamente reproducidos). No contrastado contra el PDF original del paper en esta sesión (acceso de red restringido). Coincide con la fórmula codificada en `lib/predictive/index.ts:36-44`.
+> **Nivel de verificación: PRIMARIO** (2026-06-15: ecuación multivariable y Tabla 3 cotejadas contra PDF local `research/pdf/swensen 10.1001-archinte.1997.00440290031002.pdf`, Arch Intern Med 1997;157:849-855). Coincide con MDCalc y con `lib/predictive/index.ts:37-45`. Test de regresión: Tabla 3 fila 55 a / 20 mm / sin factores → P ≈ 0,11.
 
 **Exclusiones aplicadas en la app:** contexto incidental (Fleischner); no aplicar a masas > 30 mm; no aplicar con cáncer de pulmón conocido; no aplicar si cáncer extratorácico < 5 años.
 
@@ -177,6 +178,134 @@ Es **el modelo multivariable que publica el paper**. Combina la probabilidad pre
 
 ---
 
+## Anexo A — Mapa de inputs (wizard ↔ predictivos)
+
+> Fuente de verdad de código: [`lib/schemas/noduleInput.ts`](../../lib/schemas/noduleInput.ts) (validación wizard), [`lib/predictive/index.ts`](../../lib/predictive/index.ts) (`build*Summary`, `evaluateHerderEligibility`).  
+> UI: `RiskStep.tsx` (paciente + bloque predictivo), `NoduleStep.tsx` (nódulo).  
+> Referencia rápida duplicada en `ESTADO_Y_PENDIENTES.md` § Inputs (apunta aquí).
+
+### Leyenda
+
+
+| Símbolo | Significado |
+| ------- | ----------- |
+| **O** | Obligatorio para calcular el modelo (si falta → `insufficient_data`) |
+| **E** | Exclusión / no aplica (`not_applicable`) |
+| **—** | No usa el campo |
+| **P** | Opcional en wizard; obligatorio solo si se quiere el cálculo predictivo |
+| **G** | Obligatorio para la **guía** (Fleischner / Lung-RADS), no para el modelo predictivo |
+| **C** | Condicional (ver nota) |
+
+### Flujo del wizard (pasos)
+
+
+| Paso | Componente | Incidental (Fleischner) | Screening (Lung-RADS) |
+| ---- | ---------- | ----------------------- | ---------------------- |
+| 1 | Contexto | `clinicalContext = incidental` | `clinicalContext = screening` |
+| 2 | `RiskStep` | Edad **G**, factores riesgo → `riskLevel` **G**, exclusiones Fleischner **G** | `scanType` **G**, seguimiento previo **C**, stepped management **P** |
+| 2 | `RiskStep` (bloque predictivo) | Sexo, tabaquismo, cáncer extratorácico **P** | + edad **P**, hist. familiar, enfisema **P** |
+| 3 | `NoduleStep` | Tipo, diámetro **G**, morfología, PET **P**, espiculación 3 estados | + campos Lung-RADS especiales **C** |
+| 4 | Resultados | Categoría guía + modelos predictivos (si datos completos) | idem |
+
+### Tabla maestra por campo
+
+
+| Campo (`AssessmentInput`) | Wizard | Fleischner | Mayo | Brock | Herder BTS | Herder log. | Notas |
+| ------------------------- | ------ | ---------- | ---- | ----- | ---------- | ----------- | ----- |
+| `clinicalContext` | Contexto **O** | **O** incidental | **E** si screening | **E** si incidental | — | — | Rama principal |
+| `patient.age` | Risk **G** inc. / **P** scr. | **G** ≥35 | **O** | **O** | — | — | Screening: edad en bloque predictivo |
+| `patient.riskLevel` | Risk (auto) **G** | **G** | — | — | — | — | Solo Fleischner |
+| `patient.riskFactors` | Risk **G** | **G** (deriva riesgo) | — | — | — | — | |
+| `patient.hasKnownMalignancy` | Risk **G** | **E** si true | **E** si true | — | — | — | |
+| `patient.isImmunocompromised` | Risk **G** | **E** si true | — | — | — | — | |
+| `patient.sex` | Risk **P** | — | — | **O** | — | — | |
+| `patient.smokingStatus` | Risk **P** | — | **O** | — | — | — | never/former/current |
+| `patient.extrathoracicCancerHistory` | Risk **P** | — | **O** (`none`/`over5y`/`recent`) | — | — | — | **E** Mayo si `recent` |
+| `patient.hasFamilyHistoryLungCancer` | Risk **P** (scr.) | — | — | **O** bool | — | — | Checkbox solo screening |
+| `patient.hasEmphysema` | Risk **P** (scr.) | — | — | **O** bool | — | — | En TC, no solo EPOC clínico |
+| `nodule.type` | Nodule **G** | **G** | — | **O** | — | — | solid / part-solid / ground-glass |
+| `nodule.diameterMm` | Nodule **G** | **G** | **O** | **O** | **C** ≥4 mm | **C** ≥4 mm | **E** todos si >30 mm |
+| `nodule.solidComponentMm` | Nodule **C** | **G** si part-solid | — | — | — | — | ≤ diámetro total |
+| `nodule.isMultiple` / `noduleCount` | Nodule **G**/ **C** | **G** | — | **O** (1 si único) | — | — | Schema exige count si múltiple |
+| `nodule.hasSpiculation` | Nodule 3 estados | **G** (Lung-RADS 4X) | **O** bool | **C** | — | — | `undefined` → Brock 2a; Mayo exige bool |
+| `nodule.isUpperLobe` | Nodule **P** | — | **O** bool | **O** bool | — | — | |
+| `nodule.hasPet` | Nodule **P** | — | — (nota pre-PET) | — | **O** | **O** | |
+| `nodule.petUptake` | Nodule **C** | — | — | — | **O** si hasPet | **O** si hasPet | absent/faint/moderate/intense |
+| `nodule.scanType` | Risk **G** | — | — | — | — | — | Solo screening |
+| `nodule.priorDiameterMm` / `priorScanMonthsAgo` | Risk **C** | — | — | — | — | — | Follow-up screening |
+| `priorCategory` / `priorStatus` | Risk **P** | — | — | — | — | — | Stepped management LR |
+| Campos LR especiales (`isAirway`, `isAtypicalCyst`, …) | Nodule **C** | — | — | — | — | — | Solo guía Lung-RADS; quiste atípico: descriptores + override en Anexo A §A.1 |
+
+### Resumen por modelo predictivo
+
+#### Mayo (`id: "mayo"`) — solo incidental
+
+| Requisito | Detalle |
+| --------- | ------- |
+| Contexto | `incidental` |
+| Exclusiones | Diámetro >30 mm; `hasKnownMalignancy`; `extrathoracicCancerHistory === 'recent'` |
+| Campos **O** | `age`, `smokingStatus`, `extrathoracicCancerHistory`, `diameterMm`, `isUpperLobe` (bool), `hasSpiculation` (**bool**, no `undefined`) |
+| Rango paper | 4–30 mm (app no valida mínimo 4 en Mayo) |
+| PET | No incorpora FDG; si hay PET, nota pre-PET en resultado |
+
+#### Brock (`id: "brock"`) — solo screening
+
+| Requisito | Detalle |
+| --------- | ------- |
+| Contexto | `screening` |
+| Exclusiones | Diámetro >30 mm |
+| Campos **O** | `age`, `sex`, `hasFamilyHistoryLungCancer`, `hasEmphysema`, `diameterMm`, `type`, `isUpperLobe`, `noduleCount` (default 1 si solitario) |
+| Variante | `hasSpiculation` **bool** → McWilliams **2b**; `undefined` → **2a** (`BROCK_COEFFICIENTS_NO_SPIC`) |
+
+#### Herder BTS (`id: "herder"`) y logístico (`id: "herder-logistic"`)
+
+| Requisito | Herder BTS | Herder logístico |
+| --------- | ---------- | ---------------- |
+| PET | `hasPet` + `petUptake` **O** | igual |
+| Diámetro | ≥4 mm (`MAYO_MIN_DIAMETER_MM`); aviso si <8 mm | igual |
+| Exclusiones | >30 mm; pre-test Mayo/Brock no calculable | igual |
+| Pre-test | Mayo (incidental) o Brock (screening) **O** | igual |
+| Umbral pre-test | **≥10%** (BTS); si <10% → `not_applicable` | **sin** umbral ≥10% |
+| Cálculo | odds × LR FDG | regresión logística §3b |
+
+### Diferencias críticas wizard ↔ predictivo
+
+1. **Espiculación:** el wizard ofrece 3 estados (`true` / `false` / `undefined`). Mayo **rechaza** `undefined`. Brock usa 2a sin espiculación. Lung-RADS **no** escala a 4X si `undefined` (falsy).
+2. **Edad en screening:** obligatoria para Fleischner incidental; en screening es opcional en UI pero **obligatoria** para Brock.
+3. **Hist. familiar / enfisema:** checkboxes visibles solo en screening; Brock los exige como boolean explícito.
+4. **PET:** el schema del wizard exige `petUptake` si `hasPet` (ambos contextos). Herder solo calcula si además el pre-test está disponible.
+5. **Valores por defecto** (`WizardContainer`): `hasSpiculation: false`, `hasPet: false` — el usuario debe activar PET y, si aplica, elegir «No evaluable» para espiculación.
+
+### Validación Zod vs mensajes predictivos
+
+| Capa | Qué valida | Mensaje al usuario |
+| ---- | ---------- | ------------------ |
+| `assessmentInputSchema` | Formulario completo para **guía** (edad Fleischner, diámetro, PET pareado, múltiples, etc.) | Errores en wizard antes de Resultados |
+| `build*Summary` | Campos mínimos por **modelo** | Tarjeta predictiva: `insufficient_data` + lista `missingFields` en `ResultsStep` |
+
+Un caso puede **pasar** la guía y aun así mostrar predictivos incompletos si no se rellenó el bloque «Factores para modelos predictivos» en `RiskStep` o campos concretos (p. ej. lóbulo superior).
+
+### A.1 Quiste atípico (Lung-RADS v2022 § I.A) — solo screening
+
+| Campo | Wizard | Algoritmo | Notas |
+| ----- | ------ | --------- | ----- |
+| `isAtypicalCyst` | Checkbox **C** | Activa rama híbrida | |
+| `atypicalCystThickWalled` | Checkbox **C** | Auto 4A/4B | Pared ≥ 2 mm |
+| `atypicalCystMultilocular` | Checkbox **C** | Auto 4A/4B | |
+| `atypicalCystPreviouslyStable` | Checkbox **C** | Auto 3 | Con comp. quístico creciente |
+| `atypicalCystGrowingCysticComponent` | Checkbox **C** | Auto 3 | |
+| `atypicalCystWallOrCystGrowing` | Checkbox **C** | Auto 4B | Con pared gruesa o multilocular |
+| `atypicalCystIncreasedLoculationOrDensity` | Checkbox **C** | Auto 4B | Con multilocular |
+| `atypicalCystAdjacentNodule` | Checkbox **C** | max(quiste, nódulo estándar) | ACR «most concerning feature» |
+| `atypicalCystUnilocularThinWalled` | Checkbox **C** | Exclusión → flujo estándar | LR no clasifica |
+| `atypicalCystSolidDominant` | Checkbox **C** | Exclusión → flujo sólido | Cavitado |
+| `atypicalCystManualOverride` | Checkbox **C** | Override | Si true, exige `atypicalCystCategory` |
+| `atypicalCystCategory` | Select **C** | Manual 3/4A/4B | Solo con override |
+
+Prioridad auto: **4B → 4A → 3**. Sugerencia en UI vía `previewAtypicalCystCategory`.
+
+---
+
 ## 4. Guías de manejo: Fleischner 2017 y Lung-RADS v2022
 
 > ⚠️ A diferencia de Mayo/Brock/Herder, **estas dos no son modelos de regresión y no
@@ -281,11 +410,12 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 > | Semi-sólido nuevo/creciente                                                | componente sólido <4→C4A; ≥4→C4B                                                    | implementado                                                                                                          | ✅ PRIMARIO     |
 > | Crecimiento lento sólido/semi-sólido                                       | crecimiento en múltiples estudios sin >1.5 mm/12 m → puede ser C4B                  | `isSlowGrowing → 4B` para sólido/semi-sólido                                                                          | ✅ PRIMARIO     |
 > | Crecimiento lento GGN                                                      | puede mantenerse C2 hasta cumplir otra categoría                                    | `isSlowGrowing → 2` para GGN                                                                                          | ✅ PRIMARIO     |
-> | Quiste atípico                                                             | descriptores 4B = quiste multilocular/pared gruesa en crecimiento                   | el código **no clasifica**, recibe `atypicalCystCategory` del usuario (passthrough); etiquetas coherentes con la guía | 🟡 passthrough |
+> | Quiste atípico                                                             | Cat 3: estable + comp. quístico creciente; 4A: pared ≥2 mm o multilocular; 4B: crecimiento pared/multilocular o ↑ loculación/densidad; adyacente → max con nódulo | **Híbrido** (`lib/algorithms/atypicalCyst.ts` + `assessAtypicalCyst` en `lungRads.ts`): descriptores → `classifyAtypicalCyst` (prioridad 4B→4A→3); override manual `atypicalCystManualOverride` + `atypicalCystCategory`; exclusiones unilocular fino / sólido dominante → flujo estándar | ✅ PRIMARIO |
 >
 >
-> **Pendiente residual:** quiste atípico sigue como passthrough porque la app pide la categoría
-> interpretada al usuario; no deriva automáticamente todos los descriptores morfológicos de quiste.
+> **Implementación híbrida (2026-06-15):** ver [`lib/algorithms/atypicalCyst.ts`](../../lib/algorithms/atypicalCyst.ts). Campos wizard: `atypicalCystThickWalled`, `atypicalCystMultilocular`, `atypicalCystPreviouslyStable`, `atypicalCystGrowingCysticComponent`, `atypicalCystWallOrCystGrowing`, `atypicalCystIncreasedLoculationOrDensity`, `atypicalCystAdjacentNodule`, exclusiones `atypicalCystUnilocularThinWalled` / `atypicalCystSolidDominant`. UI: badge de sugerencia + override radiológico en `NoduleStep.tsx`. Tests: `atypicalCyst.test.ts`, `lungRads.test.ts` TC-LR-016*.
+>
+> **Limitación conocida:** categorías especiales (incl. quiste) no pasan por manejo escalonado (`applySteppedManagement`) — comportamiento preexistente.
 
 ---
 
@@ -324,9 +454,11 @@ Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModel
 | 3   | ~~UX selector espiculación 3 estados (Brock 2a vs 2b)~~                                       | ✅ 2026-06-15                                                              |
 | 4   | ~~Lung-RADS: crecimiento `> 1.5` mm (no `>=`)~~                                               | ✅ 2026-06-14                                                              |
 | 5   | ~~Lung-RADS: part-solid nuevo/creciente, crecimiento lento, vía aérea C0~~                    | ✅ 2026-06-14                                                              |
-| 6   | **Mayo:** verificación **primaria** coeficientes vs PDF Swensen 1997                          | ⛔ Pendiente (hoy verificación secundaria MDCalc; ver §1)                    |
-| 7   | **Lung-RADS:** quiste atípico — passthrough manual (`atypicalCystCategory`)                   | 🟡 Decisión de producto; ver §4b                                          |
-| 8   | **Brock 1a / 1b parsimoniosos**                                                               | ⛔ No planificado (app usa solo modelos completos 2a/2b)                    |
+| 6   | ~~Tabla inputs wizard ↔ predictivos (Anexo A)~~                                               | ✅ 2026-06-15                                                              |
+| 10  | ~~Sincronizar `coefficients.md` con doc largo~~                                               | ✅ 2026-06-15                                                              |
+| 7   | ~~Mayo: verificación **primaria** coeficientes vs PDF Swensen 1997~~                          | ✅ 2026-06-15 (PDF local `swensen 10.1001-archinte.1997.00440290031002.pdf`) |
+| 8   | ~~Lung-RADS: quiste atípico — híbrido (auto + override manual)~~                            | ✅ 2026-06-15 — ver §4b, `atypicalCyst.ts`                               |
+| 9   | **Brock 1a / 1b parsimoniosos**                                                               | ⛔ No planificado (app usa solo modelos completos 2a/2b)                    |
 
 ### 6.1. Detalle de ítems cerrados (referencia)
 
@@ -341,6 +473,30 @@ Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModel
 - Coeficientes: intercepto −4.739, `P_pre` como fracción 0–1, βFDG 0 / 2.322 / 4.617 / 4.771.
 - Decisión de producto: **ambas** variantes expuestas en igualdad (`herder` BTS-LR y `herder-logistic`); notas con fuente y cálculo en cada tarjeta.
 
+**#6 — Tabla inputs wizard ↔ predictivos** ✅ Cerrado 2026-06-15
+
+- Anexo A en este documento: mapa maestro, resumen por modelo, diferencias espiculación/PET/contexto.
+- `ESTADO_Y_PENDIENTES.md` § Inputs apunta al Anexo A.
+
+**#10 — Sincronizar `coefficients.md`** ✅ Cerrado 2026-06-15
+
+- Resumen clínico en inglés alineado con §1–3 y Anexo A; exclusiones app, bandas de riesgo, jerarquía documental.
+- `coefficients.md` apunta aquí para verificación primaria/secundaria e inputs.
+
+**#7 — Mayo verificación primaria Swensen 1997** ✅ Cerrado 2026-06-15
+
+- PDF local: `research/pdf/swensen 10.1001-archinte.1997.00440290031002.pdf`.
+- Ecuación p.852 (Arch Intern Med 1997;157:849-855): intercepto −6.8272 y 6 predictores coinciden celda a celda con `MAYO_COEFFICIENTS`.
+- Tabla 3 del paper: caso 55 a, 20 mm, sin tabaco/cáncer/espiculación/lóbulo sup. → P = 0,11 (app ≈ 0,106; redondeo paper).
+- Codificación paper: tabaco actual/ex-fumador = 1; cáncer extratorácico >5 a = 1; espiculación binaria; lóbulo superior = 1. Exclusiones paper: cáncer <5 a y cáncer pulmonar previo (app: `recent`, `hasKnownMalignancy`).
+
+**#8 — Quiste atípico Lung-RADS híbrido** ✅ Cerrado 2026-06-15
+
+- Decisión de producto: **opción C** — descriptores morfológicos → categoría sugerida (4B→4A→3) + override manual radiológico.
+- Código: `lib/algorithms/atypicalCyst.ts`, rama `assessAtypicalCyst` en `lungRads.ts`.
+- Nódulo adyacente: `higherLungRadsCategory` vs clasificación estándar del nódulo.
+- Exclusiones ACR: unilocular pared fina / cavitado sólido dominante → flujo LR estándar + aviso.
+
 ---
 
 ## 7. Referencias
@@ -350,7 +506,7 @@ Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModel
 
 **Modelos predictivos (probabilidad):**
 
-- Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. Application to small radiologically indeterminate nodules. *Arch Intern Med.* 1997;157(8):849-855. *(Mayo)* — PubMed 9129544
+- Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. Application to small radiologically indeterminate nodules. *Arch Intern Med.* 1997;157(8):849-855. *(Mayo)* — PubMed 9129544; PDF local `research/pdf/swensen 10.1001-archinte.1997.00440290031002.pdf`
 - McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919. *(Brock/PanCan)* — PubMed 24004118; PMC3951177
 - Chen S, et al. Pulmonary nodule malignancy probability: a meta-analysis of the Brock model. *Clin Radiol.* 2025;82:106788. *(meta-análisis Brock)* — PubMed 39842180
 - Herder GJ, et al. Clinical prediction model to characterize pulmonary nodules: validation and added value of 18F-fluorodeoxyglucose positron emission tomography. *Chest.* 2005;128(4):2490-2496. *(Herder logístico)* — PubMed 16236914; PDF local `research/pdf/Herder 2005 ...pdf`
