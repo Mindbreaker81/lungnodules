@@ -380,7 +380,7 @@ function assessAtypicalCyst(input: {
     );
   }
 
-  let category = resolved.category;
+  let category: string = resolved.category;
   let rationale = resolved.rationale;
   let warnings = exitWarnings.length > 0 ? exitWarnings : undefined;
 
@@ -402,7 +402,7 @@ function assessAtypicalCyst(input: {
     warnings = [...(warnings ?? []), ...(standard.warnings ?? [])];
   }
 
-  if (nodule.hasSignificantFinding) {
+  if (nodule.hasSignificantFinding && !category.endsWith('S')) {
     category = `${category}S`;
     warnings = [...(warnings ?? []), 'Hallazgo clínicamente significativo (modificador S)'];
   }

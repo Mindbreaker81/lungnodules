@@ -1,3 +1,8 @@
+## [1.6.1] - 2026-06-16
+
+### Fixed
+- **CI build:** error de TypeScript en `assessAtypicalCyst` al combinar categoría de quiste con nódulo adyacente (`string` vs `AtypicalCystCategory`); evita duplicar modificador `S` si la categoría estándar ya lo incluye.
+
 ## [1.6.0] - 2026-06-15
 
 ### Added
