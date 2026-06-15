@@ -1,3 +1,8 @@
+## [1.5.2] - 2026-06-15
+
+### Changed
+- **Documentación predictiva alineada:** `variables_y_coeficientes.md` y `ESTADO_Y_PENDIENTES.md` sincronizados (Herder cerrado en §6, desfase actualizado, referencias §7 → `config/references.ts`, nomenclatura Brock 2a/2b, Mayo 4–30 mm, bandas UI, constantes Herder).
+
 ## [1.5.1] - 2026-06-15
 
 ### Added

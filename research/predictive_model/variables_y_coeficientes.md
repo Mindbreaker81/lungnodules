@@ -6,8 +6,9 @@
 > está verificado contra la publicación original** (con su fuente) y **qué falta por
 > verificar/implementar**.
 >
-> Última actualización: 2026-06-15.  
-> **Estado operativo, pendientes y desfases con el código:** ver `[ESTADO_Y_PENDIENTES.md](./ESTADO_Y_PENDIENTES.md)`.
+> Última actualización: 2026-06-15 (sincronizado con `ESTADO_Y_PENDIENTES.md` y código v1.5.1).  
+> **Estado operativo, pendientes y desfases con el código:** ver `[ESTADO_Y_PENDIENTES.md](./ESTADO_Y_PENDIENTES.md)`.  
+> **Bibliografía con enlaces PubMed/DOI (app):** [`config/references.ts`](../../config/references.ts) → `/references`.
 
 ## Leyenda de estado
 
@@ -46,13 +47,21 @@ Probabilidad: `P = e^x / (1 + e^x)`
 
 **Exclusiones aplicadas en la app:** contexto incidental (Fleischner); no aplicar a masas > 30 mm; no aplicar con cáncer de pulmón conocido; no aplicar si cáncer extratorácico < 5 años.
 
+**Rango de diámetro (Swensen / MDCalc):** el paper y MDCalc validan nódulos **4–30 mm**. La app **no impone mínimo de 4 mm** en Mayo (solo excluye > 30 mm). Herder comparte el umbral ≥ 4 mm vía `MAYO_MIN_DIAMETER_MM` (ver §3).
+
+**Comportamiento con PET rellenado:** si `nodule.hasPet` y `nodule.petUptake` están informados, `buildMayoSummary` añade una nota de que Mayo es probabilidad **pre-PET** y que el ajuste post-PET corresponde a las variantes Herder (§3). `getRecommendedPredictiveModel()` devuelve `"herder"` (BTS) cuando esa variante está disponible; si no, Brock (screening) o Mayo (incidental).
+
 **Corrección 2026-06-13:** espiculación (0.71 → 1.0407) y lóbulo superior (1.138 → 0.7838) estaban intercambiados y con valores erróneos.
 
 ---
 
 ## 2. Brock / PanCan (McWilliams et al., NEJM 2013;369:910-919)
 
-El modelo Brock tiene **cuatro fórmulas**: {parsimonioso, completo} × {con espiculación, sin espiculación}. Particularidades clave frente a Mayo:
+El modelo Brock tiene **cuatro fórmulas** en McWilliams 2013: {parsimonioso, completo} × {con espiculación, sin espiculación}. La app implementa solo los modelos **completos** 2a y 2b (no los parsimoniosos 1a/1b).
+
+> **Nomenclatura en este documento:** §2a = McWilliams **Model 2b** (completo **con** espiculación); §2b = McWilliams **Model 2a** (completo **sin** espiculación). Los números de sección no coinciden con la tabla del paper — ver mapa en `ESTADO_Y_PENDIENTES.md` § «Las 4 variantes Brock».
+
+Particularidades clave frente a Mayo:
 
 - El **tamaño** entra mediante una **transformación no lineal**, no linealmente.
 - La **edad** se centra en 62: `(Edad − 62)`.
@@ -135,9 +144,11 @@ P_Herder = O_post / (1 + O_post)
 | Intensa       | muy superior al pool          | 9.9  | ✅      | BTS 2015 / MDCalc      |
 
 
-> **Nivel de verificación:** secundario. Estos LR proceden de la guía **British Thoracic Society 2015** (Callister et al.) y de MDCalc; **no** aparecen como tabla en el paper Herder 2005. Coincide con `lib/predictive/index.ts` (`HERDER_LIKELIHOOD_RATIOS`).
+> **Nivel de verificación:** secundario. Estos LR proceden de la guía **British Thoracic Society 2015** (Callister et al., PMID 26082159) y de MDCalc; **no** aparecen como tabla en el paper Herder 2005. Coincide con `lib/predictive/index.ts` (`HERDER_LIKELIHOOD_RATIOS`).
 
-**Requisitos en la app:** PET-CT disponible, nódulo ≥ 4 mm (rango Mayo/MDCalc), riesgo pre-test ≥ 10% (criterio BTS), no aplicar a masas > 30 mm. Con nódulos < 8 mm se muestra aviso de validación limitada. Input: `nodule.hasPet`, `nodule.petUptake`.
+**Constantes en código:** `MAYO_MIN_DIAMETER_MM = 4` (elegibilidad Herder; rango Mayo/MDCalc); `HERDER_VALIDATED_MIN_DIAMETER_MM = 8` (aviso clínico si diámetro < 8 mm).
+
+**Requisitos en la app:** PET-CT disponible, nódulo ≥ 4 mm, riesgo pre-test ≥ 10% (criterio BTS), no aplicar a masas > 30 mm. Con nódulos < 8 mm se muestra aviso de validación limitada. Input: `nodule.hasPet`, `nodule.petUptake`.
 
 **Nota:** multiplicar odds por un LR equivale a sumar `ln(LR)` al log-odds pre-test. El uso de Herder con pre-test Brock (screening) tiene evidencia limitada (validado originalmente con Mayo) — la app ya lo advierte.
 
@@ -278,7 +289,7 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 
 ---
 
-## 5. Bandas de riesgo (comunes a los tres modelos)
+## 5. Bandas de riesgo (modelos predictivos: Mayo, Brock, Herder BTS, Herder logístico)
 
 
 | Banda      | Probabilidad | Implementado |
@@ -288,55 +299,67 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | Alto       | > 65%        | ✅            |
 
 
-(`toRiskBand` en `lib/predictive/index.ts`.) Para Herder, BTS usa además umbrales clínicos de manejo: < 10% vigilancia, > 70% tratamiento.
+(`toRiskBand` en `lib/predictive/index.ts`.) Para Herder BTS, la guía BTS usa además umbrales clínicos de manejo: pre-test < 10% → no aplicar variante LR; post-test < 10% vigilancia; > 70% tratamiento (mencionados en documentación, **no** mapeados como acciones automáticas en la UI).
+
+**Sugerencias clínicas en UI** (`components/wizard/ResultsStep.tsx`, textos fijos por banda):
+
+| Banda (`riskBand`) | Texto mostrado al usuario |
+| ------------------ | ------------------------- |
+| `low`              | Riesgo bajo (<5%). Vigilancia activa / watchful waiting. |
+| `intermediate`     | Riesgo intermedio (5–65%). Considerar PET-CT o biopsia no quirúrgica. |
+| `high`             | Riesgo alto (>65%). Considerar biopsia quirúrgica o escisión. |
+
+Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModels.disclaimer` (describe las dos variantes Herder cuando hay PET).
+
+**Casos de regresión documentados:** ver `ESTADO_Y_PENDIENTES.md` § «Casos de regresión útiles» y `__tests__/predictive/predictive.test.ts` (p. ej. incidental 74 a / 7 mm / PET intenso → Mayo ~18.7 %, Herder BTS ~69.6 %, Herder logístico ~67.3 %).
 
 ---
 
 ## 6. Resumen de pendientes
 
+| #   | Tarea                                                                                         | Estado / bloqueo                                                          |
+| --- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 1   | ~~Implementar Brock sin espiculación (McWilliams Model 2a)~~                                  | ✅ 2026-06-15                                                              |
+| 2   | ~~Herder regresión logística (§3b) + exponer ambas variantes Herder~~                           | ✅ 2026-06-15 (`herder` + `herder-logistic`)                               |
+| 3   | ~~UX selector espiculación 3 estados (Brock 2a vs 2b)~~                                       | ✅ 2026-06-15                                                              |
+| 4   | ~~Lung-RADS: crecimiento `> 1.5` mm (no `>=`)~~                                               | ✅ 2026-06-14                                                              |
+| 5   | ~~Lung-RADS: part-solid nuevo/creciente, crecimiento lento, vía aérea C0~~                    | ✅ 2026-06-14                                                              |
+| 6   | **Mayo:** verificación **primaria** coeficientes vs PDF Swensen 1997                          | ⛔ Pendiente (hoy verificación secundaria MDCalc; ver §1)                    |
+| 7   | **Lung-RADS:** quiste atípico — passthrough manual (`atypicalCystCategory`)                   | 🟡 Decisión de producto; ver §4b                                          |
+| 8   | **Brock 1a / 1b parsimoniosos**                                                               | ⛔ No planificado (app usa solo modelos completos 2a/2b)                    |
 
-| #   | Tarea                                                                                                                                  | Bloqueo                                                                   |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| 1   | ~~**Implementar** Brock sin espiculación (Model 2a; coeficientes ya verificados en §2b)~~ ✅ implementado 2026-06-15                    | —                                                                         |
-| 2   | (Opcional) Herder regresión logística (3b)                                                                                             | Confirmar contra paper original y decidir si exponer variante alternativa |
-| 3   | ~~Decidir UX del selector con/sin espiculación en Brock~~ ✅ resuelto 2026-06-15: control 3 estados (Presente / Ausente / No evaluable) | —                                                                         |
-| 4   | ~~Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm~~ ✅ corregido 2026-06-14                                                        | —                                                                         |
-| 5   | ~~Lung-RADS: part-solid nuevo/creciente, crecimiento lento, decreciente y vía aérea C0~~ ✅ verificado/implementado 2026-06-14          | —                                                                         |
+### 6.1. Detalle de ítems cerrados (referencia)
 
+**#1 — Brock Model 2a (sin espiculación)** ✅ Cerrado 2026-06-15
 
-### 6.1. Qué buscar exactamente para cerrar cada pendiente
+- Coeficientes verificados contra McWilliams 2013 Tabla 2 / PDF local (ver §2b).
+- Código: `BROCK_COEFFICIENTS_NO_SPIC`, selector en `buildBrockSummary`, UI 3 estados en `NoduleStep.tsx`, tests en `predictive.test.ts`.
 
-> Detalle accionable: **fuente concreta**, **dato numérico** que falta y **dónde se aplicaría** en el código.
+**#2 — Herder logístico + dual display** ✅ Cerrado 2026-06-15
 
-**Pendiente #1 — Brock SIN espiculación (implementación)** ✅ Cerrado 2026-06-15
-
-- **Coeficientes:** ✅ verificados 2026-06-15 contra McWilliams 2013 Tabla 2, Model 2a (ver §2b de este documento).
-- **Código:** bloque `BROCK_COEFFICIENTS_NO_SPIC` en `lib/predictive/index.ts` + selección de variante en `buildBrockSummary` según `hasSpiculation`.
-- **UI:** control 3 estados en `components/wizard/NoduleStep.tsx` (Presente / Ausente / No evaluable).
-- **Tests:** añadidos casos de regresión con Model 2a y diferencia 2a vs 2b en `__tests__/predictive/predictive.test.ts`.
-
-**Pendiente #2 — Herder regresión logística (opcional)**
-
-- **Fuente:** Herder GJ, et al. *Chest* 2005;128:2490-2496 → fórmula logística con probabilidad Mayo/Swensen (%) y términos PET.
-- **Datos a confirmar:** intercepto −4.739, multiplicador 3.691 para `P_Mayo` como probabilidad 0-1, y términos PET 0 / 2.322 / 4.617 / 4.771.
-- **Decisión antes de código:** mantener solo Herder bayesiano con LR o exponer dos variantes Herder.
+- Fórmula verificada contra PDF Herder 2005 (PRIMARIO) y Mourato 2020 / PMC7159041 (secundario).
+- Coeficientes: intercepto −4.739, `P_pre` como fracción 0–1, βFDG 0 / 2.322 / 4.617 / 4.771.
+- Decisión de producto: **ambas** variantes expuestas en igualdad (`herder` BTS-LR y `herder-logistic`); notas con fuente y cálculo en cada tarjeta.
 
 ---
 
 ## 7. Referencias
 
+> **Listado canónico con enlaces verificados (PubMed, PMC, DOI, webs oficiales):** [`config/references.ts`](../../config/references.ts) — página de la app `/references`.  
+> Lo siguiente es un índice breve; no duplicar URLs aquí salvo PDFs locales del repo.
+
 **Modelos predictivos (probabilidad):**
 
-- Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. *Arch Intern Med.* 1997;157(8):849-855. *(Mayo)*
-- McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919. *(Brock/PanCan)* — PMC: `https://pmc.ncbi.nlm.nih.gov/articles/PMC3951177/`
-- Pulmonary nodule malignancy probability: a meta-analysis of the Brock model. *Clinical Radiology* 2024 (S0009-9260(24)00675-5). Suplemento de coeficientes usado: `https://www.clinicalradiologyonline.net/cms/10.1016/j.crad.2024.106788/attachment/0337a514-fedd-4ca3-8cbc-c23fbb71dd88/mmc3.pdf`
-- Herder GJ, et al. Clinical prediction of malignancy in solitary pulmonary nodules using FDG-PET. *Chest.* 2005;128(4):2490-2496. *(Herder)* — PubMed: `https://pubmed.ncbi.nlm.nih.gov/16236914/`
-- Revisión con ecuaciones comparativas de modelos Mayo/Brock/Herder usada para contrastar la fórmula logística Herder: `https://pmc.ncbi.nlm.nih.gov/articles/PMC7159041/`
-- MDCalc — Solitary Pulmonary Nodule (SPN) Malignancy Risk Score (Mayo Clinic Model).
-- British Thoracic Society. Guidelines for the investigation and management of pulmonary nodules. *Thorax* 2015;70(Suppl 2):ii1-ii54. *(umbrales de manejo + uso de LR de PET)*
+- Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. Application to small radiologically indeterminate nodules. *Arch Intern Med.* 1997;157(8):849-855. *(Mayo)* — PubMed 9129544
+- McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919. *(Brock/PanCan)* — PubMed 24004118; PMC3951177
+- Chen S, et al. Pulmonary nodule malignancy probability: a meta-analysis of the Brock model. *Clin Radiol.* 2025;82:106788. *(meta-análisis Brock)* — PubMed 39842180
+- Herder GJ, et al. Clinical prediction model to characterize pulmonary nodules: validation and added value of 18F-fluorodeoxyglucose positron emission tomography. *Chest.* 2005;128(4):2490-2496. *(Herder logístico)* — PubMed 16236914; PDF local `research/pdf/Herder 2005 ...pdf`
+- Mourato FA, et al. Use of PET/CT to aid clinical decision-making in cases of solitary pulmonary nodule: a probabilistic approach. *Radiol Bras.* 2020;53(1):1-6. *(aplicación clínica Swensen + Herder)* — PubMed 32313329; PMC7159041
+- Callister MEJ, et al. British Thoracic Society guidelines for the investigation and management of pulmonary nodules. *Thorax.* 2015;70(Suppl 2):ii1-ii54. *(Herder BTS-LR + umbrales)* — PubMed 26082159
+- MDCalc — Solitary Pulmonary Nodule (SPN) Malignancy Risk Score (Mayo Clinic Model). Herramienta de contraste, no fuente primaria de coeficientes.
 
 **Guías de manejo (categóricas, sin coeficientes):**
 
-- MacMahon H, et al. Guidelines for management of incidental pulmonary nodules detected on CT images: from the Fleischner Society 2017. *Radiology.* 2017;284(1):228-243. *(Fleischner 2017)* — PDF local: `research/pdf/macmahon-et-al-2017-guidelines-for-management-of-incidental-pulmonary-nodules-detected-on-ct-images-from-the-fleischner.pdf`
-- American College of Radiology. Lung CT Screening Reporting & Data System (Lung-RADS) version 2022. *(Lung-RADS v2022)* — resumen oficial: `https://cs.acr.org/-/media/ACR/Files/RADS/Lung-RADS/Lung-RADS-2022-Summary-_Final.pdf`; PDFs locales usados: `research/pdf/Lung-RADS-2022-Summary.pdf` y `research/pdf/lung-rads-assessment-categories.pdf#_~_text=Solid nodule_ • ≥ 6,at baseline OR.pdf`
+- MacMahon H, et al. Guidelines for management of incidental pulmonary nodules detected on CT images: from the Fleischner Society 2017. *Radiology.* 2017;284(1):228-243. *(Fleischner 2017)* — PubMed 28240562; PDF local `research/pdf/macmahon-et-al-2017-...pdf`
+- American College of Radiology. Lung CT Screening Reporting & Data System (Lung-RADS) version 2022. — [ACR Lung-RADS](https://www.acr.org/Clinical-Resources/Reporting-and-Data-Systems/Lung-Rads); PDF local `research/pdf/Lung-RADS-2022-Summary.pdf`
 

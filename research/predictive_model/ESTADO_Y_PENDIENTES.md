@@ -7,7 +7,7 @@
 > **Inputs / validación:** [`lib/schemas/noduleInput.ts`](../../lib/schemas/noduleInput.ts)  
 > **Tests:** [`__tests__/predictive/predictive.test.ts`](../../__tests__/predictive/predictive.test.ts)
 
-Última revisión de este documento: **2026-06-15** (Model 2a implementado; correcciones post-revisión).
+Última revisión de este documento: **2026-06-15** (sincronizado con `variables_y_coeficientes.md` y código v1.5.1).
 
 ---
 
@@ -16,7 +16,7 @@
 | Pregunta | Dónde mirar primero |
 |----------|---------------------|
 | ¿Qué coeficientes están verificados? | [`variables_y_coeficientes.md`](./variables_y_coeficientes.md) §1–3 |
-| ¿Qué falta implementar? | Este doc → **§ Pendientes abiertos** |
+| ¿Qué falta implementar? | Este doc → **§ Pendientes abiertos** (solo ítems reales) |
 | ¿Qué cambió en la app y no está en el doc largo? | Este doc → **§ Desfase documentación ↔ código** |
 | ¿Qué modelo aplica en cada rama del wizard? | Este doc → **§ Reglas de selección de modelo** |
 | ¿Inconsistencias entre docs? | Este doc → **§ Inconsistencias a resolver** |
@@ -40,27 +40,26 @@ Modelo recomendado (UI):
 
 Implementación: `getRecommendedPredictiveModel()` en `lib/predictive/index.ts`.
 
-**Importante para el usuario clínico:** Mayo **no incluye PET**. Si se rellena FDG-PET, el valor comparable a [MDCalc Mayo + PET](https://www.mdcalc.com/calc/4057/solitary-pulmonary-nodule-spn-malignancy-risk-score-mayo-clinic-model) es **Herder (post-PET)**, no Mayo.
+**Importante para el usuario clínico:** Mayo **no incluye PET**. Si se rellena FDG-PET, comparar con [MDCalc Mayo + PET](https://www.mdcalc.com/calc/4057/solitary-pulmonary-nodule-spn-malignancy-risk-score-mayo-clinic-model) usando **Herder** (BTS o logístico), no Mayo. Ambas variantes Herder se muestran en igualdad; la UI no marca una como «principal» (v1.5.0+).
 
 ---
 
 ## Desfase documentación ↔ código
 
-Cambios en código aún **no reflejados** del todo en `variables_y_coeficientes.md` (última actualización doc: 2026-06-15):
+Sincronización **2026-06-15** con `variables_y_coeficientes.md`. Lo siguiente sigue siendo el desfase **residual** (menor):
 
 | Cambio | Código | Estado en `variables_y_coeficientes.md` |
 |--------|--------|----------------------------------------|
-| Herder: umbral mínimo **≥ 4 mm** (rango Mayo/MDCalc) | `MAYO_MIN_DIAMETER_MM = 4` | Parcial (§3a); falta contexto MDCalc |
-| Aviso si nódulo **< 8 mm** (validación Herder limitada) | `HERDER_VALIDATED_MIN_DIAMETER_MM = 8` | No documentado como constante |
-| Mayo: nota **pre-PET** cuando hay `hasPet` + `petUptake` | `buildMayoSummary` → `notes` | No documentado |
-| Modelo **recomendado = Herder** cuando PET calculable | `getRecommendedPredictiveModel` | No documentado |
-| Textos UI pre/post-PET | `config/i18n.ts` | Parcial (disclaimer actualizado) |
-| Caso regresión 74 a / 7 mm / PET intenso | `predictive.test.ts` | No enlazado |
-| Selector 3 estados de espiculación | `NoduleStep.tsx` | Documentado en §2b y en este archivo |
-| Modelo 2a sin espiculación (Brock) | `BROCK_COEFFICIENTS_NO_SPIC` | ✅ §2b actualizado 2026-06-15 |
-| Comportamiento Lung-RADS con espiculación no evaluable | `lungRads.ts` | Documentado en § Inputs Brock (nota Lung-RADS) |
+| Tabla inputs obligatorios **unificada** wizard ↔ predictivos | `noduleInput.ts` + wizard | Parcial: referencia rápida en este doc § Inputs; falta tabla única en doc largo |
+| `coefficients.md` vs doc largo | — | Jerarquía: **variables_y_coeficientes.md > coefficients.md**; revisar `coefficients.md` si diverge |
+| Bibliografía con URLs en app | `config/references.ts`, `/references` | Índice en variables §7 → apunta a `config/references.ts` |
 
-**Acción residual:** cerrar filas Herder/Mayo pre-PET y mapeo bandas → `ResultsStep.tsx` en `variables_y_coeficientes.md`.
+**Cerrado en esta sincronización** (ya documentado en `variables_y_coeficientes.md`):
+
+- Herder ≥ 4 mm (`MAYO_MIN_DIAMETER_MM`), aviso < 8 mm (`HERDER_VALIDATED_MIN_DIAMETER_MM`)
+- Mayo nota pre-PET, `getRecommendedPredictiveModel`, bandas → `ResultsStep.tsx`, casos de regresión
+- Brock 2a/2b, Herder dual, selector espiculación 3 estados, Lung-RADS espiculación no evaluable
+- Rango Mayo 4–30 mm (paper/MDCalc) documentado en §1
 
 ---
 
@@ -70,19 +69,13 @@ Resumen alineado con [`variables_y_coeficientes.md` §6](./variables_y_coeficien
 
 ### P0 — Documentación
 
-1. ~~**Unificar nomenclatura Brock:** ¿Model 1b parsimonioso con espiculación o Model 2b completo con espiculación?~~ ✅ **Resuelto 2026-06-15**  
-   - PDF McWilliams Tabla 2: la app implementa **Model 2b** (completo con espiculación). Todos los coeficientes de `BROCK_COEFFICIENTS` coinciden celda a celda.  
-   - Comentario en `lib/predictive/index.ts:46` corregido de «parsimonious» a «Model 2b — full model with spiculation» en 2026-06-15.  
-   - `coefficients.md` ya describe la fórmula 2b correcta.
+1. ~~**Unificar nomenclatura Brock** (Model 2b completo con espiculación)~~ ✅ **2026-06-15**
 
-2. ~~**Herder logístico (3b):** coeficientes PET distintos entre docs~~ ✅ **resuelto 2026-06-15**:
-   - Verificado contra el PDF Herder 2005 (+ Mourato 2020): los correctos son faint +2.322, moderate +4.617, intense +4.771, **sumados al intercepto −4.739** (no al log-odds Mayo). `P_pre` entra como fracción 0–1.
-   - Eliminados de `coefficients.md` los valores erróneos 1.439/3.893/5.534.
-   - Implementada como segunda variante (`id: "herder-logistic"`).
+2. ~~**Herder logístico (3b)** — coeficientes, implementación y dual display~~ ✅ **2026-06-15**
 
-3. **Mayo:** documentar rango **4–30 mm** (MDCalc); app solo excluye > 30 mm
+3. ~~**Mayo:** documentar rango **4–30 mm** (MDCalc)~~ ✅ **2026-06-15** — ver `variables_y_coeficientes.md` §1 (la app solo excluye > 30 mm en Mayo; mínimo 4 mm aplica a Herder)
 
-4. **Tabla inputs obligatorios por modelo** (wizard → campos predictivos)
+4. **Tabla inputs obligatorios por modelo** (wizard → campos predictivos) en un solo lugar del doc largo — hoy: referencia rápida en este archivo § Inputs
 
 ### P1 — Implementación
 
@@ -96,8 +89,13 @@ Detalle accionable de fuentes: [`variables_y_coeficientes.md` §6.1](./variables
 
 ### P2 — Verificación / anexo guías
 
-- **Mayo:** verificación **primaria** contra PDF Swensen 1997 (hoy solo secundaria vía MDCalc)
-- **Lung-RADS:** quiste atípico sigue como **passthrough** (usuario introduce categoría); ver `variables_y_coeficientes.md` §4b
+Alineado con [`variables_y_coeficientes.md` §6](./variables_y_coeficientes.md#6-resumen-de-pendientes) ítems #6–#8.
+
+| # | Tarea | Prioridad | Notas |
+|---|-------|-----------|-------|
+| 6 | Mayo: verificación **primaria** vs PDF Swensen 1997 | P2 | Hoy secundaria (MDCalc); coeficientes ya en producción |
+| 7 | Lung-RADS: quiste atípico **passthrough** | P2 / producto | Usuario introduce `atypicalCystCategory`; ver variables §4b |
+| 8 | Brock **1a / 1b** parsimoniosos | — | No planificado; app usa 2a/2b completos |
 
 ---
 
@@ -168,10 +166,10 @@ Elegibilidad compartida (`evaluateHerderEligibility`):
 
 | Variante | `id` | Cálculo | Umbral pre-test ≥10% |
 |----------|------|---------|----------------------|
-| BTS (LR) | `herder` | `odds_post = odds_pre × LR`; `P = odds/(1+odds)` | Sí (criterio BTS) |
-| Logística (Herder 2005) | `herder-logistic` | `x = −4.739 + 3.691·P_pre + βFDG`; `P = 1/(1+e^−x)` | No (modelo del paper, sin restricción) |
-| Pre-test ≥ 10 % | Criterio BTS; si <10 % → no aplica |
-| LR por captación | absent 0.08, faint 0.17, moderate 1.9, intense 9.9 |
+| BTS (LR) | `herder` | `odds_post = odds_pre × LR`; `P = odds/(1+odds)` | Sí (criterio BTS; si <10 % → no aplica) |
+| Logística (Herder 2005) | `herder-logistic` | `x = −4.739 + 3.691·P_pre + βFDG`; `P = 1/(1+e^−x)` | No |
+
+**LR por captación (variante BTS):** absent 0.08, faint 0.17, moderate 1.9, intense 9.9.
 
 **Nota clínica:** Herder validado con pre-test **Mayo**; con Brock (screening) la app advierte evidencia limitada.
 
@@ -184,10 +182,10 @@ Elegibilidad compartida (`evaluateHerderEligibility`):
 | Banda baja (app) | < 5 % | `toRiskBand` |
 | Banda intermedia | 5–65 % | `toRiskBand` |
 | Banda alta | > 65 % | `toRiskBand` |
-| Herder: umbral pre-test BTS | ≥ 10 % | `buildHerderSummary` |
+| Herder: umbral pre-test BTS (solo variante LR) | ≥ 10 % | `buildHerderSummary` |
 | BTS manejo (mencionado, no mapeado en UI) | <10 % vigilancia; >70 % tratamiento | `variables_y_coeficientes.md` §5 |
 
-Falta documentar en `variables_y_coeficientes.md` el mapeo bandas → textos de sugerencia en `ResultsStep.tsx`.
+Mapeo bandas → textos de sugerencia en `ResultsStep.tsx`: documentado en `variables_y_coeficientes.md` §5.
 
 ---
 
@@ -231,6 +229,9 @@ Falta documentar en `variables_y_coeficientes.md` el mapeo bandas → textos de 
 
 ## Referencias cruzadas
 
+- **Bibliografía app (enlaces verificados):** [`config/references.ts`](../../config/references.ts) → `/references`
+- Índice breve en [`variables_y_coeficientes.md` §7](./variables_y_coeficientes.md#7-referencias)
 - Roadmap histórico: [`../predictive-models-roadmap.md`](../predictive-models-roadmap.md)
 - PDF Brock: [`../pdf/McWilliams - Probability of Cancer in Pulmonary Nodules Detected on First Screening CT.pdf`](../pdf/McWilliams%20-%20Probability%20of%20Cancer%20in%20Pulmonary%20Nodules%20Detected%20on%20First%20Screening%20CT.pdf)
+- PDF Herder 2005: [`../pdf/Herder 2005 Clinical Prediction Model To Characterize Pulmonary Nodules Validation and Added Value of 18 F-Fluorodeoxyglucose Positron Emission Tomography.pdf`](../pdf/Herder%202005%20Clinical%20Prediction%20Model%20To%20Characterize%20Pulmonary%20Nodules%20Validation%20and%20Added%20Value%20of%2018%20F-Fluorodeoxyglucose%20Positron%20Emission%20Tomography.pdf)
 - Revisión general app: [`../../revision.md`](../../revision.md)
