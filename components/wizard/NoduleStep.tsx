@@ -32,6 +32,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
   const isInflammatory = watch("nodule.isInflammatory");
   const isAtypicalCyst = watch("nodule.isAtypicalCyst");
   const hasPet = watch("nodule.hasPet");
+  const hasSpiculation = watch("nodule.hasSpiculation");
   const diameter = watch("nodule.diameterMm");
   const solidComponent = watch("nodule.solidComponentMm");
   const isScreening = clinicalContext === "screening";
@@ -175,9 +176,52 @@ export default function NoduleStep({ clinicalContext }: Props) {
       <div className="space-y-2">
         <p className="text-sm font-medium text-slate-300">Características morfológicas</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <label className="flex items-center gap-2 text-white">
-            <input type="checkbox" aria-label="Espiculación" {...register("nodule.hasSpiculation")} className="text-primary rounded focus:ring-primary" /> Espiculación
-          </label>
+          <div className="sm:col-span-2">
+            <p className="text-sm font-medium text-slate-300">Espiculación</p>
+            <div className="mt-1 grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setValue("nodule.hasSpiculation", true, { shouldValidate: true })}
+                className={`flex w-full items-center justify-center rounded-md border px-2 py-2 text-sm transition ${
+                  hasSpiculation === true
+                    ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
+                    : "border-slate-700/60 bg-slate-900/40 text-slate-300 hover:border-slate-500"
+                }`}
+                aria-pressed={hasSpiculation === true}
+              >
+                Presente
+              </button>
+              <button
+                type="button"
+                onClick={() => setValue("nodule.hasSpiculation", false, { shouldValidate: true })}
+                className={`flex w-full items-center justify-center rounded-md border px-2 py-2 text-sm transition ${
+                  hasSpiculation === false
+                    ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
+                    : "border-slate-700/60 bg-slate-900/40 text-slate-300 hover:border-slate-500"
+                }`}
+                aria-pressed={hasSpiculation === false}
+              >
+                Ausente
+              </button>
+              <button
+                type="button"
+                onClick={() => setValue("nodule.hasSpiculation", undefined, { shouldValidate: true })}
+                className={`flex w-full items-center justify-center rounded-md border px-2 py-2 text-sm transition ${
+                  hasSpiculation === undefined
+                    ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-100"
+                    : "border-slate-700/60 bg-slate-900/40 text-slate-300 hover:border-slate-500"
+                }`}
+                aria-pressed={hasSpiculation === undefined}
+              >
+                No evaluable
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
+              {isScreening
+                ? "En cribado (Brock): «No evaluable» usa el modelo sin espiculación (McWilliams 2a). Lung-RADS no escalará a 4X por espiculación."
+                : "En incidental (Mayo): debe indicarse Presente o Ausente; «No evaluable» deja el modelo Mayo sin calcular."}
+            </p>
+          </div>
           <label className="flex items-center gap-2 text-white">
             <input type="checkbox" aria-label="Lóbulo superior" {...register("nodule.isUpperLobe")} className="text-primary rounded focus:ring-primary" /> Lóbulo superior
           </label>

@@ -19,9 +19,9 @@ $$ x = -6.8272 + (0.0391 \times \text{Age}) + (0.7917 \times \text{Smoking}) + (
 ### 2. Brock University Model (McWilliams et al., 2013)
 The Brock (or PanCan) model is specifically validated for nodules found on **screening CT**. It uses a more granular variable set. 
 $$ x = \text{Intercept} + \sum (\beta_i \times \text{Variable}_i) $$
-*Note: Coefficients vary slightly between "Parsimonious" and "Full" models; clinical tools usually use the Parsimonious model.*
+*Note: The app implements the full models from McWilliams 2013 (Models 2a and 2b), not the parsimonious variants. Model 2b includes spiculation; Model 2a omits it when spiculation is not evaluable.*
 
-**Official Coefficients (Parsimonious Model, with spiculation):**
+**Official Coefficients (Model 2b — full model with spiculation):**
 *   **Intercept:** -6.7892
 *   **Age:** 0.0287 × (Age − 62)  *(age is centered at 62, not raw)*
 *   **Sex:** 0.6011 (if Female)
@@ -38,6 +38,25 @@ $$ x = \text{Intercept} + \sum (\beta_i \times \text{Variable}_i) $$
 
 Full log-odds:
 $$ x = -6.7892 + 0.0287(\text{Age}-62) + 0.6011\,\text{Female} + 0.2961\,\text{FamHx} + 0.2953\,\text{Emphysema} - 5.3854\left[\left(\tfrac{\text{Size}}{10}\right)^{-0.5} - 1.58113883\right] + \text{Type} + 0.6581\,\text{Upper} - 0.0824(\text{Count}-4) + 0.7729\,\text{Spiculation} $$
+
+**Model 2a — full model without spiculation:**
+Use this variant when spiculation cannot be evaluated (`hasSpiculation` is undefined). Coefficients are re-calibrated and the spiculation term is omitted.
+
+*   **Intercept:** -6.8071
+*   **Age:** 0.0321 × (Age − 62)
+*   **Sex:** 0.5635 (if Female)
+*   **Family History of Lung Cancer:** 0.3013 (if present)
+*   **Emphysema:** 0.3462 (if present on CT)
+*   **Nodule Size:** −5.6693 × [ (Size_mm / 10)^(−0.5) − 1.58113883 ]
+*   **Nodule Type:** 
+    *   Nonsolid (GGO): -0.3005
+    *   Part-solid: 0.3395
+    *   (Solid is the reference)
+*   **Nodule Count:** -0.0803 × (Count − 4)
+*   **Upper Lobe:** 0.7116 (if present)
+
+Full log-odds:
+$$ x = -6.8071 + 0.0321(\text{Age}-62) + 0.5635\,\text{Female} + 0.3013\,\text{FamHx} + 0.3462\,\text{Emphysema} - 5.6693\left[\left(\tfrac{\text{Size}}{10}\right)^{-0.5} - 1.58113883\right] + \text{Type} + 0.7116\,\text{Upper} - 0.0803(\text{Count}-4) $$
 
 **Variable Coding & Logic:**
 *   **Sex:** Female = 1, Male = 0.

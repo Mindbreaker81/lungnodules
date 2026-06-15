@@ -6,7 +6,8 @@
 > está verificado contra la publicación original** (con su fuente) y **qué falta por
 > verificar/implementar**.
 >
-> Última actualización: 2026-06-14.
+> Última actualización: 2026-06-15.  
+> **Estado operativo, pendientes y desfases con el código:** ver [`ESTADO_Y_PENDIENTES.md`](./ESTADO_Y_PENDIENTES.md).
 
 ## Leyenda de estado
 
@@ -71,32 +72,35 @@ El modelo Brock tiene **cuatro fórmulas**: {parsimonioso, completo} × {con esp
 | Nº de nódulos (centrado) | −0.0824 × (Nº − 4) | ✅ | entero (`nodule.noduleCount`); solitario = 1 ⇒ +0.2472 | McWilliams 2013 |
 | Espiculación | 0.7729 | ✅ | 1/0 (`nodule.hasSpiculation`) | McWilliams 2013 |
 
-> **Nivel de verificación:** primario/secundario (tabla 2 de McWilliams 2013 disponible en PMC/NEJM y coeficientes reproducidos en el suplemento del meta-análisis de Clinical Radiology 2024). **Corrección documental 2026-06-14:** estos coeficientes corresponden al **modelo completo con espiculación (Model 2b)**, no al parsimonioso 1b. Referencias concretas usadas: PMID/PMC McWilliams 2013 (`https://pmc.ncbi.nlm.nih.gov/articles/PMC3951177/`) y suplemento Clinical Radiology 2024 (`https://www.clinicalradiologyonline.net/cms/10.1016/j.crad.2024.106788/attachment/0337a514-fedd-4ca3-8cbc-c23fbb71dd88/mmc3.pdf`). Coincide con `lib/predictive/index.ts:51-66`.
+> **Nivel de verificación: PRIMARIO** (2026-06-15: tabla 2, Model 2b, cotejada celda a celda contra PDF local `research/pdf/McWilliams - Probability of Cancer in Pulmonary Nodules Detected on First Screening CT.pdf`). Coincide también con PMC McWilliams 2013 y suplemento Clinical Radiology 2024. **Corrección documental 2026-06-14:** estos coeficientes corresponden al **modelo completo con espiculación (Model 2b)**, no al parsimonioso 1b. Coincide con `lib/predictive/index.ts:51-66`. El comentario en código fue corregido en 2026-06-15.
 
 **Exclusiones aplicadas:** contexto screening (Lung-RADS); no aplicar a masas > 30 mm.
 
 **Corrección 2026-06-13:** se pasó de un coeficiente lineal de tamaño (0.0546·mm) a la transformación no lineal; se centró edad en 62 y recuento en 4; se corrigieron intercepto (−8.4852 → −6.7892), espiculación (0.3543 → 0.7729) y lóbulo superior (0.3138 → 0.6581).
 
-### 2b. Variante SIN espiculación — ⛔ pendiente (no implementada)
+### 2b. Variante SIN espiculación — ✅ implementada y verificada (Model 2a)
 
-Misma estructura que 2a pero **sin el término de espiculación** y con **intercepto y coeficientes re-calibrados** (no se reutilizan los de 2a). Las variables son idénticas salvo que se elimina `Espiculación`.
+Corresponde al **Model 2a** (modelo completo sin espiculación) de McWilliams 2013, tabla 2. Misma estructura que §2a pero **sin el término de espiculación** y con **intercepto y coeficientes re-calibrados** (no se reutilizan los de §2a). Se usa cuando `nodule.hasSpiculation` no está informado (`undefined` = no evaluable).
 
-| Variable | Coef. | Estado |
-| :--- | :--- | :---: |
-| Intercepto | _por verificar_ | ⛔ |
-| Edad (centrada en 62) | _por verificar_ | ⛔ |
-| Sexo femenino | _por verificar_ | ⛔ |
-| Historia familiar | _por verificar_ | ⛔ |
-| Enfisema | _por verificar_ | ⛔ |
-| Tamaño (transformado, exponente −0.5 y offset 1.58113883) | _por verificar_ | ⛔ |
-| Tipo: parte-sólido / no sólido | _por verificar_ | ⛔ |
-| Lóbulo superior | _por verificar_ | ⛔ |
-| Nº de nódulos (centrado en 4) | _por verificar_ | ⛔ |
-| ~~Espiculación~~ | (ausente en esta variante) | — |
+`x = -6.8071 + 0.0321·(Edad−62) + 0.5635·Mujer + 0.3013·HistFamiliar + 0.3462·Enfisema − 5.6693·[(Tamaño/10)^−0.5 − 1.58113883] + Tipo + 0.7116·LóbuloSup − 0.0803·(Nº−4)`
 
-**Fuente a consultar:** tabla 2 de McWilliams 2013 (NEJM/PMC: `https://pmc.ncbi.nlm.nih.gov/articles/PMC3951177/`) y suplemento/meta-análisis de Clinical Radiology 2024 (`https://www.clinicalradiologyonline.net/cms/10.1016/j.crad.2024.106788/attachment/0337a514-fedd-4ca3-8cbc-c23fbb71dd88/mmc3.pdf`). Cifras vistas en fuentes públicas, pero **pendiente de transcripción controlada** antes de implementar para evitar mezclar modelo parsimonioso (1a) y completo (2a).
+| Variable | Coef. | Estado | Codificación / input | Fuente de verificación |
+| :--- | :--- | :---: | :--- | :--- |
+| Intercepto | −6.8071 | ✅ | — | McWilliams 2013 (Model 2a) / PDF local |
+| Edad (centrada) | 0.0321 × (Edad − 62) | ✅ | años (`patient.age`) | McWilliams 2013 Tabla 2 |
+| Sexo femenino | 0.5635 | ✅ | 1 = mujer; 0 = hombre (`patient.sex`) | McWilliams 2013 Tabla 2 |
+| Historia familiar cáncer pulmón | 0.3013 | ✅ | 1/0 (`patient.hasFamilyHistoryLungCancer`) | McWilliams 2013 Tabla 2 |
+| Enfisema (en TC) | 0.3462 | ✅ | 1/0 (`patient.hasEmphysema`) | McWilliams 2013 Tabla 2 |
+| Tamaño (transformado) | −5.6693 × [(mm/10)^−0.5 − 1.58113883] | ✅ | mm (`nodule.diameterMm`); misma transformación que §2a | McWilliams 2013 Tabla 2 (nota al pie †) |
+| Tipo: parte-sólido | 0.3395 | ✅ | 1 si parte-sólido; sólido es referencia | McWilliams 2013 Tabla 2 |
+| Tipo: no sólido (VME/GGO) | −0.3005 | ✅ | 1 si vidrio esmerilado | McWilliams 2013 Tabla 2 |
+| Lóbulo superior | 0.7116 | ✅ | 1/0 (`nodule.isUpperLobe`) | McWilliams 2013 Tabla 2 |
+| Nº de nódulos (centrado) | −0.0803 × (Nº − 4) | ✅ | entero (`nodule.noduleCount`); solitario = 1 ⇒ +0.2409 | McWilliams 2013 Tabla 2 |
+| ~~Espiculación~~ | (ausente en esta variante) | — | — | — |
 
-**Plan de implementación cuando haya cifras:** añadir un segundo bloque de coeficientes `BROCK_COEFFICIENTS_NO_SPIC` y seleccionar la variante según disponibilidad/fiabilidad de la evaluación de espiculación (p. ej. un flag de UI o automáticamente cuando `hasSpiculation` no se haya informado).
+> **Nivel de verificación: PRIMARIO** (2026-06-15: tabla 2, Model 2a, cotejada contra PDF local `research/pdf/McWilliams - Probability of Cancer in Pulmonary Nodules Detected on First Screening CT.pdf`). La nota al pie de la tabla confirma centrado de edad en 62, recuento en 4 y transformación de tamaño `(mm/10)^−0.5` con el mismo offset 1.58113883 que §2a.
+
+**Implementación:** bloque `BROCK_COEFFICIENTS_NO_SPIC` en `lib/predictive/index.ts:68-82`. El selector de variante está en `buildBrockSummary`: si `hasSpiculation` es booleano se usa Model 2b; si es `undefined` se usa Model 2a. El resultado incluye una nota cuando se emplea la variante sin espiculación.
 
 ---
 
@@ -119,9 +123,9 @@ P_Herder = O_post / (1 + O_post)
 | Moderada | > pool mediastínico | 1.9 | ✅ | Herder 2005 |
 | Intensa | muy superior al pool | 9.9 | ✅ | Herder 2005 |
 
-> **Nivel de verificación:** secundario (LR de FDG-PET reproducidos en guías BTS 2015 de nódulo pulmonar y en MDCalc/literatura derivada). Coincide con `lib/predictive/index.ts:68-73`.
+> **Nivel de verificación:** secundario (LR de FDG-PET reproducidos en guías BTS 2015 de nódulo pulmonar y en MDCalc/literatura derivada). Coincide con `lib/predictive/index.ts:89-94` (`HERDER_LIKELIHOOD_RATIOS`).
 
-**Requisitos en la app:** PET-CT disponible, nódulo ≥ 8 mm, riesgo pre-test ≥ 10% (criterio BTS), no aplicar a masas > 30 mm. Input: `nodule.hasPet`, `nodule.petUptake`.
+**Requisitos en la app:** PET-CT disponible, nódulo ≥ 4 mm (rango Mayo/MDCalc), riesgo pre-test ≥ 10% (criterio BTS), no aplicar a masas > 30 mm. Con nódulos &lt; 8 mm se muestra aviso de validación limitada. Input: `nodule.hasPet`, `nodule.petUptake`.
 
 **Nota:** multiplicar odds por un LR equivale a sumar `ln(LR)` al log-odds pre-test. El uso de Herder con pre-test Brock (screening) tiene evidencia limitada (validado originalmente con Mayo) — la app ya lo advierte.
 
@@ -217,6 +221,8 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 > | 4X | C3/4A/4B + rasgo sospechoso (espiculación) | idem | ✅ |
 > | S | modificador aditivo por hallazgo significativo | idem | ✅ |
 >
+> **Espiculación no evaluable (`hasSpiculation === undefined`, UI «No evaluable»):** Lung-RADS no escala a 4X (el campo es falsy en `lungRads.ts:337`) y en yuxtapleural benigno se trata como ausente (`lungRads.ts:254`). Brock, en cambio, usa el Model 2a recalibrado. Comportamiento distinto entre guía categórica y modelo predictivo.
+>
 > **Hallazgo corregido (2026-06-14) — definición de crecimiento:**
 > Lung-RADS v2022 define crecimiento como aumento **> 1.5 mm**. El código usaba
 > `delta >= 1.5`; se cambió a `delta > 1.5` (`lungRads.ts:23`) para alinearse con la guía
@@ -264,9 +270,9 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 
 | # | Tarea | Bloqueo |
 | :-: | :--- | :--- |
-| 1 | Coeficientes Brock **sin espiculación** | Transcripción controlada de McWilliams 2013 / Clinical Radiology 2024 y decisión de variante |
+| 1 | ~~**Implementar** Brock sin espiculación (Model 2a; coeficientes ya verificados en §2b)~~ ✅ implementado 2026-06-15 | — |
 | 2 | (Opcional) Herder regresión logística (3b) | Confirmar contra paper original y decidir si exponer variante alternativa |
-| 3 | Decidir UX del selector con/sin espiculación en Brock | — |
+| 3 | ~~Decidir UX del selector con/sin espiculación en Brock~~ ✅ resuelto 2026-06-15: control 3 estados (Presente / Ausente / No evaluable) | — |
 | 4 | ~~Lung-RADS: alinear crecimiento `>= 1.5` → `> 1.5` mm~~ ✅ corregido 2026-06-14 | — |
 | 5 | ~~Lung-RADS: part-solid nuevo/creciente, crecimiento lento, decreciente y vía aérea C0~~ ✅ verificado/implementado 2026-06-14 | — |
 
@@ -274,10 +280,11 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 
 > Detalle accionable: **fuente concreta**, **dato numérico** que falta y **dónde se aplicaría** en el código.
 
-**Pendiente #1 — Brock SIN espiculación (coeficientes)**
-- **Fuente:** McWilliams A, et al. *NEJM* 2013;369:910-919 → tabla 2 y/o meta-análisis *Clinical Radiology* 2024 (S0009-9260(24)00675-5) que reproduce las cuatro variantes.
-- **Datos a extraer (recomendado: modelo completo sin espiculación, Model 2a, para ser consistente con el Model 2b actualmente implementado):** intercepto + coeficientes de edad (centrada en 62), sexo femenino, historia familiar, enfisema, término de tamaño (confirmar exponente −0.5 y offset 1.58113883), tipo (parte-sólido / no sólido), lóbulo superior y nº de nódulos (centrado en 4). **NO reutilizar** los de la variante con espiculación: están re-calibrados.
-- **Dónde:** nuevo bloque `BROCK_COEFFICIENTS_NO_SPIC` en `lib/predictive/index.ts` + selección de variante.
+**Pendiente #1 — Brock SIN espiculación (implementación)** ✅ Cerrado 2026-06-15
+- **Coeficientes:** ✅ verificados 2026-06-15 contra McWilliams 2013 Tabla 2, Model 2a (ver §2b de este documento).
+- **Código:** bloque `BROCK_COEFFICIENTS_NO_SPIC` en `lib/predictive/index.ts` + selección de variante en `buildBrockSummary` según `hasSpiculation`.
+- **UI:** control 3 estados en `components/wizard/NoduleStep.tsx` (Presente / Ausente / No evaluable).
+- **Tests:** añadidos casos de regresión con Model 2a y diferencia 2a vs 2b en `__tests__/predictive/predictive.test.ts`.
 
 **Pendiente #2 — Herder regresión logística (opcional)**
 - **Fuente:** Herder GJ, et al. *Chest* 2005;128:2490-2496 → fórmula logística con probabilidad Mayo/Swensen (%) y términos PET.

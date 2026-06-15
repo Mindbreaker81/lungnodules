@@ -1,6 +1,30 @@
+## [1.4.0] - 2026-06-15
+
+### Added
+- **Brock/PanCan Model 2a (sin espiculación)**: implementada la variante sin espiculación de McWilliams 2013 (Tabla 2) para cuando la espiculación no es evaluable (`hasSpiculation === undefined`). Se selecciona automáticamente entre Model 2b (con espiculación) y Model 2a (sin espiculación).
+- **UI de espiculación en 3 estados**: el checkbox de espiculación en `NoduleStep.tsx` se reemplazó por botones "Presente / Ausente / No evaluable", con texto de ayuda contextual (Brock 2a vs Mayo / Lung-RADS).
+- **Documento operativo** `research/predictive_model/ESTADO_Y_PENDIENTES.md`: estado de pendientes, mapa de las 4 variantes Brock y casos de regresión.
+- **PDF de referencia** McWilliams 2013 en `research/pdf/` para verificación primaria de coeficientes.
+
+### Changed
+- **Coeficientes Brock**: añadido bloque `BROCK_COEFFICIENTS_NO_SPIC` en `lib/predictive/index.ts` con intercepto −6.8071, edad 0.0321, sexo 0.5635, historia familiar 0.3013, enfisema 0.3462, tamaño −5.6693, parte-sólido 0.3395, no sólido −0.3005, lóbulo superior 0.7116 y recuento −0.0803.
+- **Documentación predictiva**: actualizados `variables_y_coeficientes.md`, `ESTADO_Y_PENDIENTES.md` y `coefficients.md` con la variante 2a implementada, verificación primaria vs PDF y nota Lung-RADS con espiculación no evaluable.
+- **Textos UI predictivos** (`config/i18n.ts`): disclaimer pre/post-PET y etiqueta pre-test Mayo/Brock.
+
+### Fixed
+- **Comentario Brock en código**: corregido el comentario de `BROCK_COEFFICIENTS` que decía "parsimonious"; ahora indica correctamente "Model 2b — full model with spiculation".
+- **package-lock.json**: versión sincronizada a 1.4.0 con `package.json`.
+- **Referencia Herder en docs**: línea de `HERDER_LIKELIHOOD_RATIOS` corregida en `variables_y_coeficientes.md`.
+
+### Tests
+- Brock Model 2a con `hasSpiculation` undefined (~29.7 % en caso 15 mm).
+- Diferencia 2a (no evaluable) vs 2b (presente) y vs 2b (ausente ~25.4 %).
+- Mayo exige espiculación booleana cuando el valor es «no evaluable».
+
 ## [1.3.2] - 2026-06-13
 
 ### Fixed (Clínica — P0)
+- **Modelos predictivos con PET (Herder)**: Con FDG-PET rellenado, la app mostraba solo Mayo (pre-PET, p. ej. 18,7 %) y no calculaba Herder en nódulos de 4–7 mm por umbral ≥8 mm, mientras calculadoras como [MDCalc Mayo](https://www.mdcalc.com/calc/4057/solitary-pulmonary-nodule-spn-malignancy-risk-score-mayo-clinic-model) devuelven la probabilidad post-PET (~67–70 %). Herder ahora aplica en el rango Mayo (≥4 mm) con aviso clínico si &lt;8 mm; Mayo se etiqueta explícitamente como pre-PET y Herder se recomienda cuando hay PET disponible.
 - **Modelo Mayo (Swensen 1997)**: Corregidos los coeficientes de espiculación (0.71 → 1.0407) y lóbulo superior (1.138 → 0.7838), que estaban intercambiados y con valores erróneos respecto a la publicación original. También se refinó la precisión de los demás coeficientes.
 - **Modelo Brock/PanCan (McWilliams 2013)**: Reimplementado conforme al modelo parsimonioso con espiculación publicado. Correcciones: el tamaño del nódulo ahora usa la transformación no lineal `−5.3854·[(tamaño/10)^−0.5 − 1.58113883]` en vez de un coeficiente lineal; la edad se centra en 62; el número de nódulos se centra en 4; y se corrigieron los coeficientes de intercepto (−8.4852 → −6.7892), espiculación (0.3543 → 0.7729) y lóbulo superior (0.3138 → 0.6581). El error en el tamaño causaba una subestimación del riesgo de hasta ~30× en nódulos de cribado.
 - **Modelo Herder**: Hereda automáticamente las correcciones del riesgo pre-test (Mayo/Brock).

@@ -1,4 +1,4 @@
-import { getPredictiveSummaries } from '@lib/predictive';
+import { getPredictiveSummaries, getRecommendedPredictiveModel } from '@lib/predictive';
 import { AssessmentInput } from '@lib/schemas/noduleInput';
 
 describe('Predictive models', () => {
@@ -286,6 +286,159 @@ describe('Predictive models', () => {
     expect(summary.riskBand).toBe('intermediate');
   });
 
+  test('Brock Model 2a (without spiculation) is used when hasSpiculation is undefined', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 65,
+        riskLevel: 'low',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: undefined,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+        scanType: 'baseline',
+      },
+    };
+
+    const summary = getSummary(input, 'brock');
+    expect(summary.status).toBe('available');
+    expect(summary.missingFields).toBeUndefined();
+    expect(summary.probability).toBeCloseTo(0.2974, 4);
+    expect(summary.riskBand).toBe('intermediate');
+    expect(summary.notes?.[0]).toContain('Variante sin espiculación');
+  });
+
+  test('Brock Model 2a and 2b produce different probabilities for the same nodule', () => {
+    const base: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 65,
+        riskLevel: 'low',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+        scanType: 'baseline',
+      },
+    };
+
+    const withoutSpic = getSummary(
+      { ...base, nodule: { ...base.nodule, hasSpiculation: undefined } },
+      'brock',
+    );
+    const withSpic = getSummary(
+      { ...base, nodule: { ...base.nodule, hasSpiculation: true } },
+      'brock',
+    );
+
+    expect(withoutSpic.probability).not.toBeCloseTo(withSpic.probability as number, 4);
+    expect(withoutSpic.probability).toBeLessThan(withSpic.probability as number);
+  });
+
+  test('Brock Model 2a differs from 2b when spiculation is absent vs not evaluable', () => {
+    const base: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 65,
+        riskLevel: 'low',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+        scanType: 'baseline',
+      },
+    };
+
+    const notEvaluable = getSummary(
+      { ...base, nodule: { ...base.nodule, hasSpiculation: undefined } },
+      'brock',
+    );
+    const absent = getSummary(
+      { ...base, nodule: { ...base.nodule, hasSpiculation: false } },
+      'brock',
+    );
+
+    expect(notEvaluable.probability).toBeCloseTo(0.2974, 4);
+    expect(absent.probability).toBeCloseTo(0.2537, 3);
+    expect(notEvaluable.probability).not.toBeCloseTo(absent.probability as number, 3);
+    expect(notEvaluable.probability).toBeGreaterThan(absent.probability as number);
+  });
+
+  test('Mayo requires spiculation when not evaluable', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'incidental',
+      patient: {
+        clinicalContext: 'incidental',
+        age: 60,
+        riskLevel: 'low',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 12,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        hasSpiculation: undefined,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+      },
+    };
+
+    const summary = getSummary(input, 'mayo');
+    expect(summary.status).toBe('insufficient_data');
+    expect(summary.missingFields).toContain('Espiculación');
+  });
+
   // Regression guard: in Mayo the spiculation coefficient (1.0407) is larger
   // than the upper-lobe coefficient (0.7838). An earlier bug had them swapped,
   // so a spiculated lower-lobe nodule must score higher than a smooth
@@ -327,5 +480,42 @@ describe('Predictive models', () => {
     expect(spiculatedLowerLobe.probability).toBeGreaterThan(
       smoothUpperLobe.probability as number,
     );
+  });
+
+  test('incidental 7 mm with intense PET: Mayo pre-PET ~18.7%, Herder post-PET ~70% (MDCalc-style)', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'incidental',
+      patient: {
+        clinicalContext: 'incidental',
+        age: 74,
+        riskLevel: 'high',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: true,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 7,
+        isMultiple: false,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'intense',
+      },
+    };
+
+    const mayo = getSummary(input, 'mayo');
+    const herder = getSummary(input, 'herder');
+
+    expect(mayo.probability).toBeCloseTo(0.187, 3);
+    expect(mayo.notes?.[0]).toContain('pre-PET');
+    expect(herder.status).toBe('available');
+    expect(herder.probability).toBeCloseTo(0.696, 2);
+    expect(herder.preTestProbability).toBeCloseTo(0.187, 3);
+    expect(getRecommendedPredictiveModel(input)).toBe('herder');
   });
 });
