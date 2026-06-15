@@ -1,3 +1,8 @@
+## [1.6.2] - 2026-06-16
+
+### Changed
+- **CI/CD:** eliminados workflows redundantes de deploy vía Vercel CLI (`deploy-production.yml`, `deploy-preview.yml`, `deploy-staging.yml`). El despliegue lo gestiona la integración Git nativa de Vercel; la validación queda en `ci.yml` (lint, tests, build, E2E, Lighthouse en PR).
+
 ## [1.6.1] - 2026-06-16
 
 ### Fixed

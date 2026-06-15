@@ -47,7 +47,7 @@ La aplicación ha corregido la mayor parte de los hallazgos técnicos, de privac
 | Seguridad/Operación | Resuelto | `public/sw.js` usa `network-first` para contenido clínico y caché versionado | `public/sw.js` |
 | UX clínica | Resuelto | Eliminados defaults clínicos significativos del wizard | `components/wizard/WizardContainer.tsx` |
 | Accesibilidad | Resuelto | Documento HTML en español y toggle con `aria-expanded` | `app/layout.tsx`, `components/LegalFooter.tsx` |
-| Gobernanza | Resuelto | Preview/staging ya ejecutan `lint`, `tsc`, `test` y `build` antes de desplegar | `.github/workflows/deploy-preview.yml`, `.github/workflows/deploy-staging.yml` |
+| Gobernanza | Resuelto | Validación en CI (`lint`, tests, build, E2E) antes de merge; deploy vía integración Git de Vercel | `.github/workflows/ci.yml` |
 | Flujo real | Resuelto | `isIncompleteStudy` ya está cableado en schema y wizard | `lib/schemas/noduleInput.ts`, `components/wizard/NoduleStep.tsx`, `components/wizard/WizardContainer.tsx` |
 | Consistencia interna | Resuelto | Eliminada la categoría standalone `S` de schema/config/UI residual | `lib/schemas/noduleInput.ts`, `config/guidelines.ts`, `components/wizard/NoduleStep.tsx` |
 | Modelos predictivos | Resuelto | Se eliminó la edad sintética en screening; la edad queda como input opcional real | `components/wizard/RiskStep.tsx`, `components/wizard/WizardContainer.tsx` |

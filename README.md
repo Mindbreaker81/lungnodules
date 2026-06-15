@@ -5,7 +5,7 @@ Aplicación clínica para recomendar seguimiento de nódulos pulmonares según F
 [![Security: Status](https://img.shields.io/badge/Security-Active-brightgreen.svg)](SECURITY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[![Version: 1.6.1](https://img.shields.io/badge/Version-1.6.1-blue.svg)](CHANGELOG.md)
+[![Version: 1.6.2](https://img.shields.io/badge/Version-1.6.2-blue.svg)](CHANGELOG.md)
 ## :rotating_light: Seguridad y Disclaimer Médico
 
 **⚠️ Importante:** Esta herramienta es solo para soporte de decisiones clínicas. Ver [MEDICAL_DISCLAIMER.md](MEDICAL_DISCLAIMER.md) para información importante sobre su uso.
@@ -40,3 +40,7 @@ Aplicación clínica para recomendar seguimiento de nódulos pulmonares según F
 - `dev`: arranca Next.js en modo desarrollo
 - `test`: ejecuta pruebas unitarias
 - `lint`: ejecuta ESLint/Prettier
+
+## CI/CD
+- **GitHub Actions (`ci.yml`):** lint, tests, build, E2E y Lighthouse (en PR).
+- **Vercel (integración Git):** preview en PR y producción en `main`; no requiere `VERCEL_TOKEN` en Actions.
