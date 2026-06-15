@@ -1,4 +1,4 @@
-export type PredictiveModelId = "mayo" | "brock" | "herder";
+export type PredictiveModelId = "mayo" | "brock" | "herder" | "herder-logistic";
 export type PredictiveStatus = "available" | "insufficient_data" | "not_applicable";
 export type PredictiveRiskBand = "low" | "intermediate" | "high";
 

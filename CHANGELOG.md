@@ -1,3 +1,24 @@
+## [1.5.0] - 2026-06-15
+
+### Added
+- **Herder — segunda variante (regresión logística Herder 2005)**: implementado el modelo logístico original del paper (`id: "herder-logistic"`): `x = −4.739 + 3.691·P_pre + βFDG`, `P = 1/(1+e^−x)`, con βFDG faint +2.322 / moderate +4.617 / intense +4.771. Se expone junto a la variante BTS (LR) en igualdad de condiciones, cada tarjeta con su fuente y cálculo.
+- **Helper de elegibilidad compartido** `evaluateHerderEligibility` en `lib/predictive/index.ts`, reutilizado por ambas variantes Herder.
+- **PDF de referencia** Herder 2005 (Chest) en `research/pdf/` para verificación primaria de la fórmula logística (reproducida también en Mourato 2020, PMC7159041).
+
+### Changed
+- **Etiquetas de modelo**: `herder` → "Herder (BTS · LR)" y nueva `herder-logistic` → "Herder (logístico · 2005)" en `lib/predictive/index.ts`, `ResultsStep.tsx` y `ExportResults.tsx`.
+- **Texto UI** (`config/i18n.ts`): disclaimer de modelos predictivos describe ahora las dos variantes Herder y su diferencia metodológica.
+- **Documentación predictiva**: `variables_y_coeficientes.md` §3 reescrita (corregido el etiquetado invertido: §3a = BTS, §3b = logística publicada y verificada como PRIMARIA), `coefficients.md` Step 5 corregido y `ESTADO_Y_PENDIENTES.md` actualizado con el mapa de las dos variantes.
+
+### Fixed
+- **Coeficientes Herder logístico**: eliminados de `coefficients.md` los valores erróneos faint +1.439 / moderate +3.893 / intense +5.534; sustituidos por los verificados contra el PDF (+2.322 / +4.617 / +4.771), sumados al intercepto −4.739 (no al log-odds Mayo).
+- **Documentación Herder**: corregida la afirmación de que el método LR (BTS) era "el método original del paper"; el paper publica la regresión logística. Eliminada la cita inexistente a una "Tabla 4" de Herder 2005.
+
+### Tests
+- Variante logística Herder 2005 (~67.3 % en caso 18.7 % pre-test + PET intenso) y verificación de la escala 0–1 de `P_pre`.
+- Coexistencia de ambas variantes Herder con probabilidades distintas para el mismo nódulo.
+- Snapshot de `getPredictiveSummaries` actualizado para incluir la cuarta variante.
+
 ## [1.4.0] - 2026-06-15
 
 ### Added

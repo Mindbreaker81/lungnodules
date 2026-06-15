@@ -2,7 +2,10 @@ import { getPredictiveSummaries, getRecommendedPredictiveModel } from '@lib/pred
 import { AssessmentInput } from '@lib/schemas/noduleInput';
 
 describe('Predictive models', () => {
-  const getSummary = (input: AssessmentInput, id: 'mayo' | 'brock' | 'herder') => {
+  const getSummary = (
+    input: AssessmentInput,
+    id: 'mayo' | 'brock' | 'herder' | 'herder-logistic',
+  ) => {
     const summary = getPredictiveSummaries(input).find((item) => item.id === id);
     if (!summary) {
       throw new Error(`Missing summary for ${id}`);
@@ -244,6 +247,14 @@ describe('Predictive models', () => {
           "riskBand": "high",
           "status": "available",
         },
+        {
+          "id": "herder-logistic",
+          "preTestProbability": 0.9035,
+          "probability": 0.9666,
+          "reason": undefined,
+          "riskBand": "high",
+          "status": "available",
+        },
       ]
     `);
   });
@@ -477,9 +488,7 @@ describe('Predictive models', () => {
       'mayo',
     );
 
-    expect(spiculatedLowerLobe.probability).toBeGreaterThan(
-      smoothUpperLobe.probability as number,
-    );
+    expect(spiculatedLowerLobe.probability).toBeGreaterThan(smoothUpperLobe.probability as number);
   });
 
   test('incidental 7 mm with intense PET: Mayo pre-PET ~18.7%, Herder post-PET ~70% (MDCalc-style)', () => {
@@ -517,5 +526,76 @@ describe('Predictive models', () => {
     expect(herder.probability).toBeCloseTo(0.696, 2);
     expect(herder.preTestProbability).toBeCloseTo(0.187, 3);
     expect(getRecommendedPredictiveModel(input)).toBe('herder');
+  });
+
+  test('Herder logistic variant (Herder 2005) computes published formula with P_pre as 0-1 fraction', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'incidental',
+      patient: {
+        clinicalContext: 'incidental',
+        age: 74,
+        riskLevel: 'high',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: true,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 7,
+        isMultiple: false,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'intense',
+      },
+    };
+
+    const logistic = getSummary(input, 'herder-logistic');
+
+    // x = -4.739 + 3.691*0.187 + 4.771 = 0.7222 -> P = 1/(1+e^-x) ~ 0.673.
+    // (Scale check: if P_pre were entered as 0-100 the result would saturate to ~1.)
+    expect(logistic.status).toBe('available');
+    expect(logistic.probability).toBeCloseTo(0.673, 2);
+    expect(logistic.preTestProbability).toBeCloseTo(0.187, 3);
+  });
+
+  test('both Herder variants are exposed and differ for the same nodule', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'incidental',
+      patient: {
+        clinicalContext: 'incidental',
+        age: 74,
+        riskLevel: 'high',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: true,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 7,
+        isMultiple: false,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'moderate',
+      },
+    };
+
+    const summaries = getPredictiveSummaries(input);
+    const bts = summaries.find((s) => s.id === 'herder');
+    const logistic = summaries.find((s) => s.id === 'herder-logistic');
+
+    expect(bts?.status).toBe('available');
+    expect(logistic?.status).toBe('available');
+    expect(bts?.probability).not.toBeCloseTo(logistic?.probability as number, 3);
+    expect(logistic?.notes?.some((n) => n.includes('Herder 2005'))).toBe(true);
   });
 });

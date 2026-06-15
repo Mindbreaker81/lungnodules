@@ -29,7 +29,8 @@ const NODULE_TYPE_LABELS: Record<string, string> = {
 const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {
   mayo: "Mayo Clinic",
   brock: "Brock (Pan-Can)",
-  herder: "Herder (post-PET)",
+  herder: "Herder (BTS · LR)",
+  "herder-logistic": "Herder (logístico · 2005)",
 };
 
 const PREDICTIVE_STATUS_LABELS: Record<PredictiveModelSummary["status"], string> = {

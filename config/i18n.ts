@@ -26,7 +26,7 @@ export const UI_TEXTS = {
             title: 'Modelos predictivos (beta)',
             show: 'Ver',
             hide: 'Ocultar',
-            disclaimer: 'Mayo/Brock estiman riesgo pre-PET. Si hay FDG-PET, Herder ajusta la probabilidad post-PET (como MDCalc con PET rellenado). Verifica aplicabilidad clínica.',
+            disclaimer: 'Mayo/Brock estiman riesgo pre-PET. Si hay FDG-PET se muestran dos variantes Herder: BTS (odds × likelihood ratios) y logística (fórmula original Herder 2005). Pueden diferir; cada tarjeta indica su fuente y cálculo. Verifica aplicabilidad clínica.',
             probability: 'Probabilidad',
             preTest: 'Pre-test (Mayo/Brock)',
             missingFields: 'Campos requeridos:',

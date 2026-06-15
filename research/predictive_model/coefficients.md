@@ -69,9 +69,13 @@ $$ x = -6.8071 + 0.0321(\text{Age}-62) + 0.5635\,\text{Female} + 0.3013\,\text{F
 ---
 
 ### 3. Herder Model (Herder et al., 2005)
-The Herder model uses the **Mayo Clinic score** as a "pre-PET" probability and then modifies the odds based on FDG-PET uptake levels.
 
-**Step 1:** Calculate the Mayo probability (\( P_{Mayo} \)).
+> **Note (2026-06-15):** the original paper publishes **only** the logistic regression of Step 5. The odds×LR approach (Steps 1–4) is the **BTS 2015 / MDCalc** variant, not a table from the paper. The app implements **both** variants (`id: "herder"` = BTS-LR, `id: "herder-logistic"` = published logistic).
+
+#### 3a. BTS variant — odds × likelihood ratio (`id: "herder"`)
+Uses the **Mayo/Brock pre-test** probability and modifies the odds based on FDG-PET uptake levels.
+
+**Step 1:** Calculate the pre-test probability (\( P_{pre} \), Mayo for incidental / Brock for screening).
 **Step 2:** Convert probability to Pre-PET Odds (\( O_{pre} \)):
 $$ O_{pre} = \frac{P_{Mayo}}{1 - P_{Mayo}} $$
 **Step 3:** Multiply by the Likelihood Ratio (LR) corresponding to the PET uptake level:
@@ -88,11 +92,16 @@ $$ O_{post} = O_{pre} \times \text{LR} $$
 **Step 4:** Convert Post-PET Odds back to Probability (\( P_{Herder} \)):
 $$ P_{Herder} = \frac{O_{post}}{1 + O_{post}} $$
 
-**Step 5 (Formula Adjustment):**
-Herder also published a specific logistic regression version where PET is an additional coefficient in the Mayo formula:
-*   **Mayo Score (x):** Same as above.
-*   **PET Level Coefficients (\(\beta\)):**
-    *   Faint: +1.439
-    *   Moderate: +3.893
-    *   Intense: +5.534
-    *   (Absent is the reference)
+#### 3b. Published logistic regression — original Herder 2005 model (`id: "herder-logistic"`)
+This is the actual multivariable model in the paper. It combines the pre-test probability (Mayo/Swensen) with the visual FDG uptake category:
+
+$$ x = -4.739 + 3.691 \cdot P_{pre} + \beta_{FDG} \qquad P_{Herder} = \frac{1}{1 + e^{-x}} $$
+
+*   **\( P_{pre} \):** pre-test probability as a **fraction 0–1** (not 0–100). Verified by reproduction: \( P_{pre}=0.187 \) + intense → \( x = 0.722 \) → \( P \approx 0.673 \).
+*   **PET Level Coefficients (\(\beta_{FDG}\)), verified against the paper PDF and Mourato 2020 (PMC7159041):**
+    *   Absent: 0 (reference)
+    *   Faint: +2.322
+    *   Moderate: +4.617
+    *   Intense: +4.771
+
+> ⚠️ The previous values (Faint +1.439 / Moderate +3.893 / Intense +5.534) were **incorrect** and have been removed (2026-06-15). \( \beta_{FDG} \) is added to the model intercept −4.739, **not** to the Mayo log-odds.
