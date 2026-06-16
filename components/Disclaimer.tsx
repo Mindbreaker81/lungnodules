@@ -32,17 +32,17 @@ export default function Disclaimer({
 
   if (variant === 'inline') {
     return (
-      <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+      <div className="rounded-md border border-border bg-muted p-3 text-xs text-foreground">
         <div className="flex items-start gap-2">
-          <span className="text-amber-500">⚠️</span>
+          <span className="text-warning">⚠️</span>
           <div className="flex-1">
             <p className="whitespace-pre-line">{disclaimerText}</p>
             {showExportButton && (
               <button
                 onClick={handleExport}
-                className="mt-2 text-blue-600 hover:underline"
+                className="mt-2 text-primary hover:underline"
               >
-                Export disclaimer
+                Exportar disclaimer
               </button>
             )}
           </div>
@@ -53,18 +53,18 @@ export default function Disclaimer({
 
   if (variant === 'full') {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <div className="rounded-lg border border-warning/30 bg-warning/10 p-4">
         <div className="flex items-start gap-3">
           <span className="text-2xl">⚠️</span>
           <div className="flex-1">
-            <h3 className="font-semibold text-amber-900">Medical Disclaimer</h3>
-            <p className="mt-2 whitespace-pre-line text-sm text-amber-800">{disclaimerText}</p>
+            <h3 className="font-semibold text-foreground">Disclaimer Médico</h3>
+            <p className="mt-2 whitespace-pre-line text-sm text-foreground">{disclaimerText}</p>
             {showExportButton && (
               <button
                 onClick={handleExport}
-                className="mt-3 rounded-md bg-amber-100 px-3 py-1 text-sm text-amber-800 hover:bg-amber-200"
+                className="mt-3 rounded-md bg-warning/20 px-3 py-1 text-sm text-foreground hover:bg-warning/30"
               >
-                Export as text file
+                Exportar como archivo de texto
               </button>
             )}
           </div>
@@ -75,26 +75,26 @@ export default function Disclaimer({
 
   // Modal variant - collapsible
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50">
+    <div className="rounded-md border border-border bg-muted">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between p-3 text-left text-xs text-slate-600 hover:bg-slate-100"
+        className="flex w-full items-center justify-between p-3 text-left text-xs text-foreground hover:bg-muted/80"
       >
         <span className="flex items-center gap-2">
-          <span className="text-amber-500">⚠️</span>
-          <span className="font-medium">Medical Disclaimer</span>
+          <span className="text-warning">⚠️</span>
+          <span className="font-medium">Disclaimer Médico</span>
         </span>
-        <span className="text-slate-400">{isExpanded ? '▼' : '▶'}</span>
+        <span className="text-muted-foreground">{isExpanded ? '▼' : '▶'}</span>
       </button>
       {isExpanded && (
-        <div className="border-t border-slate-200 p-3 text-xs text-slate-600">
+        <div className="border-t border-border p-3 text-xs text-foreground">
           <p className="whitespace-pre-line">{disclaimerText}</p>
           {showExportButton && (
             <button
               onClick={handleExport}
-              className="mt-2 text-blue-600 hover:underline"
+              className="mt-2 text-primary hover:underline"
             >
-              Export disclaimer
+              Exportar disclaimer
             </button>
           )}
         </div>

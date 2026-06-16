@@ -50,7 +50,7 @@ export default function RiskStep({ clinicalContext }: Props) {
       {clinicalContext === "incidental" ? (
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-slate-300">Edad (años)</label>
+            <label className="block text-sm font-medium text-foreground">Edad (años)</label>
             <Input
               type="number"
               min={0}
@@ -61,10 +61,10 @@ export default function RiskStep({ clinicalContext }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-slate-300">
+            <div className="flex items-center gap-2 text-sm text-foreground">
               <span>Factores de riesgo (Fleischner)</span>
               <span
-                className="text-xs text-slate-400 cursor-help"
+                className="text-xs text-muted-foreground cursor-help"
                 title={RISK_FACTOR_TOOLTIP}
                 aria-label="Factores de alto riesgo (Fleischner)"
               >
@@ -73,7 +73,7 @@ export default function RiskStep({ clinicalContext }: Props) {
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {RISK_FACTORS.high.map((factor) => (
-                <label key={factor.id} className="flex items-center gap-2 text-white">
+                <label key={factor.id} className="flex items-center gap-2 text-foreground">
                   <input
                     type="checkbox"
                     aria-label={factor.label}
@@ -84,22 +84,22 @@ export default function RiskStep({ clinicalContext }: Props) {
                 </label>
               ))}
             </div>
-            <div className="flex flex-wrap items-center gap-2 rounded-md border border-slate-700/60 bg-slate-900/40 px-3 py-2 text-sm">
-              <span className="text-slate-300">Riesgo calculado:</span>
+            <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
+              <span className="text-foreground">Riesgo calculado:</span>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                  hasHighRisk ? "bg-rose-500/20 text-rose-200" : "bg-emerald-500/20 text-emerald-200"
+                  hasHighRisk ? "bg-destructive/20 text-destructive" : "bg-success/20 text-success"
                 }`}
               >
                 {hasHighRisk ? "ALTO" : "BAJO"}
               </span>
-              <span className="text-xs text-slate-400">Se ajusta automáticamente según los factores seleccionados.</span>
+              <span className="text-xs text-muted-foreground">Se ajusta automáticamente según los factores seleccionados.</span>
             </div>
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-300">Exclusiones Fleischner</p>
+            <p className="text-sm font-medium text-foreground">Exclusiones Fleischner</p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <label className="flex items-center gap-2 text-white">
+              <label className="flex items-center gap-2 text-foreground">
                 <input
                   type="checkbox"
                   aria-label="Cáncer conocido"
@@ -108,7 +108,7 @@ export default function RiskStep({ clinicalContext }: Props) {
                 />
                 Cáncer conocido
               </label>
-              <label className="flex items-center gap-2 text-white">
+              <label className="flex items-center gap-2 text-foreground">
                 <input
                   type="checkbox"
                   aria-label="Inmunocompromiso"
@@ -120,7 +120,7 @@ export default function RiskStep({ clinicalContext }: Props) {
             </div>
             {hasExclusion && (
               <div
-                className="rounded-md border border-amber-900/50 bg-amber-900/20 p-3 text-sm text-amber-200"
+                className="rounded-md border border-warning/50 bg-warning/20 p-3 text-sm text-foreground"
                 role="alert"
               >
                 Fleischner no aplica en pacientes con cáncer conocido o inmunocompromiso. Usa guía clínica específica.
@@ -131,20 +131,20 @@ export default function RiskStep({ clinicalContext }: Props) {
       ) : (
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-slate-300">Tipo de scan</label>
+            <label className="block text-sm font-medium text-foreground">Tipo de scan</label>
             <select
-              className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               aria-label="Tipo de scan"
               {...register("nodule.scanType")}
             >
-              <option value="baseline" className="bg-surface">Baseline</option>
-              <option value="follow-up" className="bg-surface">Follow-up</option>
+              <option value="baseline" className="bg-popover">Baseline</option>
+              <option value="follow-up" className="bg-popover">Follow-up</option>
             </select>
           </div>
           {scanType === "follow-up" && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-slate-300">Diámetro previo (mm)</label>
+                <label className="block text-sm font-medium text-foreground">Diámetro previo (mm)</label>
                 <Input
                   type="number"
                   min={0}
@@ -156,7 +156,7 @@ export default function RiskStep({ clinicalContext }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300">Meses desde scan previo</label>
+                <label className="block text-sm font-medium text-foreground">Meses desde scan previo</label>
                 <Input
                   type="number"
                   min={0}
@@ -171,38 +171,38 @@ export default function RiskStep({ clinicalContext }: Props) {
           )}
           {scanType === "follow-up" && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-300">Stepped management (opcional)</p>
+              <p className="text-sm font-medium text-foreground">Stepped management (opcional)</p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Categoría previa</label>
+                  <label className="block text-sm font-medium text-foreground">Categoría previa</label>
                   <select
-                    className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                    className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground"
                     aria-label="Categoría Lung-RADS previa"
                     defaultValue=""
                     {...register("priorCategory", { setValueAs: (value) => value || undefined })}
                   >
-                    <option value="" className="bg-surface">Sin categoría previa</option>
-                    <option value="0" className="bg-surface">0</option>
-                    <option value="1" className="bg-surface">1</option>
-                    <option value="2" className="bg-surface">2</option>
-                    <option value="3" className="bg-surface">3</option>
-                    <option value="4A" className="bg-surface">4A</option>
-                    <option value="4B" className="bg-surface">4B</option>
-                    <option value="4X" className="bg-surface">4X</option>
+                    <option value="" className="bg-popover">Sin categoría previa</option>
+                    <option value="0" className="bg-popover">0</option>
+                    <option value="1" className="bg-popover">1</option>
+                    <option value="2" className="bg-popover">2</option>
+                    <option value="3" className="bg-popover">3</option>
+                    <option value="4A" className="bg-popover">4A</option>
+                    <option value="4B" className="bg-popover">4B</option>
+                    <option value="4X" className="bg-popover">4X</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300">Estado previo</label>
+                  <label className="block text-sm font-medium text-foreground">Estado previo</label>
                   <select
-                    className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+                    className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground"
                     aria-label="Estado Lung-RADS previo"
                     defaultValue=""
                     {...register("priorStatus", { setValueAs: (value) => value || undefined })}
                   >
-                    <option value="" className="bg-surface">Sin estado previo</option>
-                    <option value="stable" className="bg-surface">Estable (step-down permitido)</option>
-                    <option value="decreasing" className="bg-surface">Decreciente (step-down permitido)</option>
-                    <option value="progression" className="bg-surface">Progresión</option>
+                    <option value="" className="bg-popover">Sin estado previo</option>
+                    <option value="stable" className="bg-popover">Estable (step-down permitido)</option>
+                    <option value="decreasing" className="bg-popover">Decreciente (step-down permitido)</option>
+                    <option value="progression" className="bg-popover">Progresión</option>
                   </select>
                 </div>
               </div>
@@ -211,13 +211,13 @@ export default function RiskStep({ clinicalContext }: Props) {
         </div>
       )}
 
-      <div className="space-y-3 rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
-        <p className="text-sm font-medium text-slate-300">Factores para modelos predictivos (opcional)</p>
+      <div className="space-y-3 rounded-lg border border-border bg-muted/40 p-3">
+        <p className="text-sm font-medium text-foreground">Factores para modelos predictivos (opcional)</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {clinicalContext === "screening" && (
             <div>
-              <label className="block text-sm font-medium text-slate-300">
-                Edad (años) <span className="text-xs text-slate-400">(opcional, para Brock)</span>
+              <label className="block text-sm font-medium text-foreground">
+                Edad (años) <span className="text-xs text-muted-foreground">(opcional, para Brock)</span>
               </label>
               <Input
                 type="number"
@@ -230,50 +230,50 @@ export default function RiskStep({ clinicalContext }: Props) {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-slate-300">Sexo</label>
+            <label className="block text-sm font-medium text-foreground">Sexo</label>
             <select
-              className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground"
               aria-label="Sexo del paciente"
               defaultValue=""
               {...register("patient.sex", { setValueAs: (value) => value || undefined })}
             >
-              <option value="" className="bg-surface">Sin especificar</option>
-              <option value="female" className="bg-surface">Femenino</option>
-              <option value="male" className="bg-surface">Masculino</option>
+              <option value="" className="bg-popover">Sin especificar</option>
+              <option value="female" className="bg-popover">Femenino</option>
+              <option value="male" className="bg-popover">Masculino</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300">Tabaquismo</label>
+            <label className="block text-sm font-medium text-foreground">Tabaquismo</label>
             <select
-              className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground"
               aria-label="Estado de tabaquismo"
               defaultValue=""
               {...register("patient.smokingStatus", { setValueAs: (value) => value || undefined })}
             >
-              <option value="" className="bg-surface">Sin especificar</option>
-              <option value="never" className="bg-surface">Nunca fumador</option>
-              <option value="former" className="bg-surface">Exfumador</option>
-              <option value="current" className="bg-surface">Fumador actual</option>
+              <option value="" className="bg-popover">Sin especificar</option>
+              <option value="never" className="bg-popover">Nunca fumador</option>
+              <option value="former" className="bg-popover">Exfumador</option>
+              <option value="current" className="bg-popover">Fumador actual</option>
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-300">Cáncer extratorácico</label>
+            <label className="block text-sm font-medium text-foreground">Cáncer extratorácico</label>
             <select
-              className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100"
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground"
               aria-label="Historia de cáncer extratorácico"
               defaultValue=""
               {...register("patient.extrathoracicCancerHistory", { setValueAs: (value) => value || undefined })}
             >
-              <option value="" className="bg-surface">Sin especificar</option>
-              <option value="none" className="bg-surface">No</option>
-              <option value="over5y" className="bg-surface">Sí, &gt;5 años</option>
-              <option value="recent" className="bg-surface">Sí, &lt;5 años</option>
+              <option value="" className="bg-popover">Sin especificar</option>
+              <option value="none" className="bg-popover">No</option>
+              <option value="over5y" className="bg-popover">Sí, &gt;5 años</option>
+              <option value="recent" className="bg-popover">Sí, &lt;5 años</option>
             </select>
           </div>
         </div>
         {clinicalContext === "screening" && (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label className="flex items-center gap-2 text-white">
+            <label className="flex items-center gap-2 text-foreground">
               <input
                 type="checkbox"
                 aria-label="Antecedentes familiares de cáncer de pulmón"
@@ -282,7 +282,7 @@ export default function RiskStep({ clinicalContext }: Props) {
               />
               Antecedentes familiares de cáncer de pulmón
             </label>
-            <label className="flex items-center gap-2 text-white">
+            <label className="flex items-center gap-2 text-foreground">
               <input
                 type="checkbox"
                 aria-label="Enfisema en TC"
@@ -294,7 +294,7 @@ export default function RiskStep({ clinicalContext }: Props) {
           </div>
         )}
         {extrathoracicCancerHistory === "recent" && (
-          <div className="rounded-md border border-amber-900/50 bg-amber-900/20 p-3 text-sm text-amber-200" role="alert">
+          <div className="rounded-md border border-warning/50 bg-warning/20 p-3 text-sm text-foreground" role="alert">
             Mayo no aplica si el cáncer extratorácico fue diagnosticado en los últimos 5 años.
           </div>
         )}

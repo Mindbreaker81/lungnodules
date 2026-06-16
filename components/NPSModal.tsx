@@ -29,9 +29,9 @@ export default function NPSModal({ isOpen, onClose }: NPSModalProps) {
   };
 
   const getScoreLabel = (s: number): string => {
-    if (s <= 6) return 'Not likely';
+    if (s <= 6) return 'Poco probable';
     if (s <= 8) return 'Neutral';
-    return 'Very likely';
+    return 'Muy probable';
   };
 
   return (
@@ -40,15 +40,15 @@ export default function NPSModal({ isOpen, onClose }: NPSModalProps) {
         {submitted ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-4">🙏</div>
-            <DialogTitle className="text-lg font-semibold text-foreground">Thank you!</DialogTitle>
-            <DialogDescription className="text-muted-foreground mt-2">Your feedback helps us improve.</DialogDescription>
+            <DialogTitle className="text-lg font-semibold text-foreground">¡Gracias!</DialogTitle>
+            <DialogDescription className="text-muted-foreground mt-2">Tu opinión nos ayuda a mejorar.</DialogDescription>
           </div>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>How likely are you to recommend this tool?</DialogTitle>
+              <DialogTitle>¿Qué probabilidad hay de que recomiendes esta herramienta?</DialogTitle>
               <DialogDescription>
-                On a scale of 0-10, how likely are you to recommend this tool to a colleague?
+                En una escala del 0 al 10, ¿qué probabilidad hay de que recomiendes esta herramienta a un colega?
               </DialogDescription>
             </DialogHeader>
 
@@ -74,8 +74,8 @@ export default function NPSModal({ isOpen, onClose }: NPSModalProps) {
               </div>
 
               <div className="flex justify-between text-xs text-muted-foreground mb-4">
-                <span>Not likely</span>
-                <span>Very likely</span>
+                <span>Poco probable</span>
+                <span>Muy probable</span>
               </div>
 
               {score !== null && (
@@ -90,24 +90,24 @@ export default function NPSModal({ isOpen, onClose }: NPSModalProps) {
 
               <div className="mb-2">
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  Any additional feedback? (optional)
+                  ¿Algún comentario adicional? (opcional)
                 </label>
                 <textarea
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
                   className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   rows={3}
-                  placeholder="What could we improve?"
+                  placeholder="¿Qué podríamos mejorar?"
                 />
               </div>
             </div>
 
             <DialogFooter className="flex-row gap-2 sm:justify-end">
               <Button type="button" variant="outline" onClick={onClose} className="flex-1 sm:flex-none">
-                Skip
+                Omitir
               </Button>
               <Button type="button" onClick={handleSubmit} disabled={score === null} className="flex-1 sm:flex-none">
-                Submit
+                Enviar
               </Button>
             </DialogFooter>
           </>

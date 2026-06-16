@@ -1,3 +1,18 @@
+## [1.6.3] - 2026-06-16
+
+### Added
+- **Tema claro/oscuro**: soporte completo de theming con `next-themes`, variables CSS para modo claro (escala slate) y modo oscuro existente.
+- **Header global**: barra superior sticky con navegación a inicio y toggle de tema (Sol/Luna/Sistema).
+- **ThemeProvider**: contenedor `next-themes` integrado en `app/layout.tsx`.
+
+### Changed
+- **Traducción UI**: `Assessment Wizard` → `Asistente de Evaluación`, breadcrumbs traducidos y textos residuales en inglés de `NPSModal`, `Disclaimer` y otros componentes pasados a español.
+- **Refactor visual**: reemplazo masivo de clases Tailwind hardcodeadas (`bg-slate-900`, `text-white`, `border-slate-700`, etc.) por clases semánticas de shadcn (`bg-background`, `text-foreground`, `border-border`, `bg-card`, `text-muted-foreground`, etc.) en todas las páginas y componentes del wizard.
+- **Componentes base**: `Input`, `Header`, `LegalFooter`, `OfflineBanner`, `ExportResults`, `GuidelineVersion`, `Disclaimer`, `NPSModal`, `ResultsStep`, `RiskStep`, `NoduleStep`, `ContextStep`, `WizardContainer`, `HomePage`, `EligibilityPage`, `ReferencesPage`.
+
+### Fixed
+- Contraste y legibilidad de formularios, alertas y botones en modo claro.
+
 ## [1.6.2] - 2026-06-16
 
 ### Changed
