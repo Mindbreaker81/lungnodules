@@ -42,13 +42,13 @@ export function OfflineBanner() {
     <div className="fixed bottom-16 left-0 right-0 z-20 flex justify-center px-4 md:bottom-4">
       {isOffline ? (
         <div
-          className="flex items-center gap-2 rounded-lg border border-amber-900/50 bg-amber-900/20 px-4 py-2 text-sm text-amber-200 shadow-lg backdrop-blur-sm"
+          className="flex items-center gap-2 rounded-lg border border-warning/50 bg-warning/20 px-4 py-2 text-sm text-foreground shadow-lg backdrop-blur-sm"
           role="status"
           aria-live="polite"
         >
-          <span className="flex h-2 w-2">
-            <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-amber-400 opacity-75"></span>
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-warning opacity-75"></span>
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-warning"></span>
           </span>
           <span>
             <strong>Sin conexión</strong> — La herramienta funciona offline. Los resultados se calculan localmente.
@@ -56,11 +56,11 @@ export function OfflineBanner() {
         </div>
       ) : showReconnected ? (
         <div
-          className="flex items-center gap-2 rounded-lg border border-green-900/50 bg-green-900/20 px-4 py-2 text-sm text-green-200 shadow-lg backdrop-blur-sm"
+          className="flex items-center gap-2 rounded-lg border border-success/50 bg-success/20 px-4 py-2 text-sm text-foreground shadow-lg backdrop-blur-sm"
           role="status"
           aria-live="polite"
         >
-          <span className="text-green-500">✓</span>
+          <span className="text-success">✓</span>
           <span>Conexión restaurada</span>
         </div>
       ) : null}

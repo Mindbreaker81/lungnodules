@@ -40,9 +40,9 @@ const PREDICTIVE_STATUS_LABELS: Record<PredictiveModelSummary["status"], string>
 };
 
 const PREDICTIVE_STATUS_STYLES: Record<PredictiveModelSummary["status"], string> = {
-  available: "border-emerald-900/50 bg-emerald-900/20 text-emerald-200",
-  insufficient_data: "border-amber-900/50 bg-amber-900/20 text-amber-200",
-  not_applicable: "border-slate-700 bg-slate-900/40 text-slate-400",
+  available: "border-success/50 bg-success/20 text-success",
+  insufficient_data: "border-warning/50 bg-warning/20 text-foreground",
+  not_applicable: "border-border bg-muted/40 text-muted-foreground",
 };
 
 const PREDICTIVE_RISK_LABELS: Record<NonNullable<PredictiveModelSummary["riskBand"]>, string> = {
@@ -119,7 +119,7 @@ export default function ResultsStep({ result, input }: Props) {
   const [showPredictive, setShowPredictive] = useState(false);
 
   if (!result) {
-    return <p className="text-slate-600" aria-live="polite">Completa los pasos para ver la recomendación.</p>;
+    return <p className="text-muted-foreground" aria-live="polite">Completa los pasos para ver la recomendación.</p>;
   }
 
   const handleCopy = async () => {
@@ -164,14 +164,14 @@ export default function ResultsStep({ result, input }: Props) {
 
   return (
     <section
-      className="space-y-4 rounded-xl border border-slate-700 bg-surface p-4 shadow-sm"
+      className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm"
       aria-live="polite"
       aria-label="Resultados de la evaluación"
     >
       <header className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-wide text-slate-400">Guía</p>
-          <h2 className="text-lg font-semibold text-white">{guidelineInfo.label}</h2>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Guía</p>
+          <h2 className="text-lg font-semibold text-card-foreground">{guidelineInfo.label}</h2>
           <GuidelineVersion guideline={result.guideline} compact showLabel={false} />
         </div>
         <div className="rounded-md bg-primary/20 border border-primary/50 px-3 py-1 text-sm font-semibold text-primary" aria-label="Categoría asignada">
@@ -180,34 +180,34 @@ export default function ResultsStep({ result, input }: Props) {
       </header>
 
       <div className="space-y-1">
-        <p className="text-sm text-slate-400">Recomendación</p>
-        <p className="text-lg font-semibold text-white">{result.recommendation}</p>
-        <p className="text-sm text-slate-300">Intervalo: {result.followUpInterval}</p>
-        {result.imagingModality && <p className="text-sm text-slate-300">Modalidad: {result.imagingModality}</p>}
-        {result.malignancyRisk && <p className="text-sm text-slate-300">Riesgo estimado: {result.malignancyRisk}</p>}
+        <p className="text-sm text-muted-foreground">Recomendación</p>
+        <p className="text-lg font-semibold text-card-foreground">{result.recommendation}</p>
+        <p className="text-sm text-card-foreground">Intervalo: {result.followUpInterval}</p>
+        {result.imagingModality && <p className="text-sm text-card-foreground">Modalidad: {result.imagingModality}</p>}
+        {result.malignancyRisk && <p className="text-sm text-card-foreground">Riesgo estimado: {result.malignancyRisk}</p>}
         {growthLabel && (
           <p
-            className={`text-sm ${isGrowing ? "text-amber-400" : "text-emerald-400"}`}
+            className={`text-sm ${isGrowing ? "text-warning" : "text-success"}`}
             aria-label="Estado de crecimiento"
           >
             {growthLabel}
           </p>
         )}
-        {measurementNote && <p className="text-sm text-slate-400">{measurementNote}</p>}
+        {measurementNote && <p className="text-sm text-muted-foreground">{measurementNote}</p>}
         {hasMultiple && (
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-card-foreground">
             Múltiples nódulos: recomendaciones aplican al nódulo dominante; evaluar el resto con la misma guía.
           </p>
         )}
       </div>
 
       <div className="space-y-1">
-        <p className="text-sm text-slate-400">Racional</p>
-        <p className="text-sm text-slate-300">{result.rationale}</p>
+        <p className="text-sm text-muted-foreground">Racional</p>
+        <p className="text-sm text-card-foreground">{result.rationale}</p>
       </div>
 
       {result.warnings && result.warnings.length > 0 && (
-        <div className="rounded-md border border-amber-900/50 bg-amber-900/20 p-3 text-sm text-amber-200" role="alert">
+        <div className="rounded-md border border-warning/50 bg-warning/20 p-3 text-sm text-foreground" role="alert">
           <p className="font-semibold">Advertencias</p>
           <ul className="list-disc space-y-1 pl-5">
             {result.warnings.map((w) => (
@@ -217,22 +217,22 @@ export default function ResultsStep({ result, input }: Props) {
         </div>
       )}
 
-      <div className="rounded-lg border border-slate-700/60 bg-slate-900/40 p-3">
+      <div className="rounded-lg border border-border bg-muted/40 p-3">
         <button
           type="button"
           onClick={() => setShowPredictive((prev) => !prev)}
-          className="flex w-full items-center justify-between text-left text-sm font-medium text-slate-200"
+          className="flex w-full items-center justify-between text-left text-sm font-medium text-foreground"
         >
           <span>{UI_TEXTS.results.predictiveModels.title}</span>
-          <span className="text-slate-400">{showPredictive ? UI_TEXTS.results.predictiveModels.hide : UI_TEXTS.results.predictiveModels.show}</span>
+          <span className="text-muted-foreground">{showPredictive ? UI_TEXTS.results.predictiveModels.hide : UI_TEXTS.results.predictiveModels.show}</span>
         </button>
         {showPredictive && (
           <div className="mt-3 space-y-3">
             {recommendedSummary && (
-              <p className="text-sm text-slate-300">
-                Modelo recomendado por contexto: <span className="font-semibold text-white">{recommendedSummary.label}</span>
+              <p className="text-sm text-card-foreground">
+                Modelo recomendado por contexto: <span className="font-semibold text-card-foreground">{recommendedSummary.label}</span>
                 {recommendedSummary.probability !== undefined && recommendedSummary.riskBand && (
-                  <span className="ml-2 text-xs text-slate-400">
+                  <span className="ml-2 text-xs text-muted-foreground">
                     ({formatProbability(recommendedSummary.probability)} · {PREDICTIVE_RISK_LABELS[recommendedSummary.riskBand]})
                   </span>
                 )}
@@ -240,21 +240,21 @@ export default function ResultsStep({ result, input }: Props) {
             )}
             <div className="space-y-3">
               {predictiveSummaries.map((summary) => (
-                <div key={summary.id} className="rounded-md border border-slate-700/60 bg-slate-950/40 p-3">
+                <div key={summary.id} className="rounded-md border border-border bg-muted/40 p-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-white">{summary.label}</p>
+                    <p className="text-sm font-semibold text-card-foreground">{summary.label}</p>
                     <span className={`rounded-full border px-2 py-0.5 text-xs ${PREDICTIVE_STATUS_STYLES[summary.status]}`}>
                       {PREDICTIVE_STATUS_LABELS[summary.status]}
                     </span>
                   </div>
                   {summary.probability !== undefined && summary.riskBand && (
                     <>
-                      <p className="mt-2 text-sm text-slate-200">
-                        {UI_TEXTS.results.predictiveModels.probability}: <span className="font-semibold text-white">{formatProbability(summary.probability)}</span>
-                        <span className="ml-2 text-xs text-slate-400">{PREDICTIVE_RISK_LABELS[summary.riskBand]}</span>
+                      <p className="mt-2 text-sm text-foreground">
+                        {UI_TEXTS.results.predictiveModels.probability}: <span className="font-semibold text-card-foreground">{formatProbability(summary.probability)}</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{PREDICTIVE_RISK_LABELS[summary.riskBand]}</span>
                       </p>
-                      <p className="mt-1 text-xs text-slate-400">
-                        <span className="font-semibold text-slate-300">Sugerencia clínica: </span>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground">Sugerencia clínica: </span>
                         {summary.riskBand === 'low' && "Riesgo bajo (<5%). Se sugiere vigilancia activa con TC (watchful waiting)."}
                         {summary.riskBand === 'intermediate' && "Riesgo intermedio (5-65%). Considerar PET-CT o biopsia no quirúrgica."}
                         {summary.riskBand === 'high' && "Riesgo alto (>65%). Considerar evaluación para biopsia quirúrgica o escisión."}
@@ -262,16 +262,16 @@ export default function ResultsStep({ result, input }: Props) {
                     </>
                   )}
                   {summary.preTestProbability !== undefined && summary.preTestModelId && (
-                    <p className="mt-2 text-xs text-slate-400">
+                    <p className="mt-2 text-xs text-muted-foreground">
                       {UI_TEXTS.results.predictiveModels.preTest} ({PREDICTIVE_MODEL_LABELS[summary.preTestModelId]}): {formatProbability(summary.preTestProbability)}
                     </p>
                   )}
                   {summary.reason && (
-                    <p className="mt-2 text-xs text-slate-400">{summary.reason}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{summary.reason}</p>
                   )}
                   {summary.missingFields && summary.missingFields.length > 0 && (
-                    <div className="mt-2 text-xs text-slate-400">
-                      <p className="font-medium text-slate-300">{UI_TEXTS.results.predictiveModels.missingFields}</p>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <p className="font-medium text-foreground">{UI_TEXTS.results.predictiveModels.missingFields}</p>
                       <ul className="mt-1 list-disc space-y-1 pl-4">
                         {summary.missingFields.map((field) => (
                           <li key={field}>{field}</li>
@@ -280,7 +280,7 @@ export default function ResultsStep({ result, input }: Props) {
                     </div>
                   )}
                   {summary.notes && summary.notes.length > 0 && (
-                    <ul className="mt-2 text-xs text-slate-400">
+                    <ul className="mt-2 text-xs text-muted-foreground">
                       {summary.notes.map((note) => (
                         <li key={note}>• {note}</li>
                       ))}
@@ -289,7 +289,7 @@ export default function ResultsStep({ result, input }: Props) {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               {UI_TEXTS.results.predictiveModels.disclaimer}
             </p>
           </div>
@@ -297,7 +297,7 @@ export default function ResultsStep({ result, input }: Props) {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex-1 rounded-md border border-slate-700 bg-slate-800/50 p-3 text-xs text-slate-400">
+        <div className="flex-1 rounded-md border border-border bg-muted/50 p-3 text-xs text-muted-foreground">
           {UI_TEXTS.results.medicalDisclaimer}
         </div>
         <Button
@@ -306,7 +306,7 @@ export default function ResultsStep({ result, input }: Props) {
           size="sm"
           aria-label="Copiar recomendación"
           onClick={handleCopy}
-          className={`shrink-0 ${copyStatus === 'copied' ? 'bg-green-900/20 text-green-400 border-green-800' : copyStatus === 'error' ? 'bg-red-900/20 text-red-400 border-red-800' : ''}`}
+          className={`shrink-0 ${copyStatus === 'copied' ? 'bg-success/20 text-success border-success/50' : copyStatus === 'error' ? 'bg-destructive/20 text-destructive border-destructive/50' : ''}`}
         >
           {copyStatus === 'copied' ? UI_TEXTS.results.copyButton.copied : copyStatus === 'error' ? UI_TEXTS.results.copyButton.error : UI_TEXTS.results.copyButton.idle}
         </Button>

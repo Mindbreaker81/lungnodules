@@ -31,13 +31,13 @@ export default function ContextStep() {
                       className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 shadow-sm transition-all ${
                         context === "incidental"
                           ? "border-primary bg-primary/10 ring-1 ring-primary/40"
-                          : "border-slate-700 bg-card hover:border-slate-600"
+                          : "border-border bg-card hover:border-muted-foreground/50"
                       }`}
                     >
-                      <RadioGroupItem value="incidental" className="mt-1" />
+                      <RadioGroupItem value="incidental" className="mt-1" aria-label="Incidental (Fleischner 2017)" />
                       <div>
                         <div className="font-semibold text-foreground">Incidental (Fleischner 2017)</div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground/80">
                           Pacientes ≥35 años, hallazgo casual. Requiere riesgo bajo/alto.
                         </p>
                       </div>
@@ -51,13 +51,13 @@ export default function ContextStep() {
                       className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 shadow-sm transition-all ${
                         context === "screening"
                           ? "border-primary bg-primary/10 ring-1 ring-primary/40"
-                          : "border-slate-700 bg-card hover:border-slate-600"
+                          : "border-border bg-card hover:border-muted-foreground/50"
                       }`}
                     >
-                      <RadioGroupItem value="screening" className="mt-1" />
+                      <RadioGroupItem value="screening" className="mt-1" aria-label="Screening (Lung-RADS v2022)" />
                       <div>
                         <div className="font-semibold text-foreground">Screening (Lung-RADS v2022)</div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground/80">
                           Programas de cribado de alto riesgo; requiere tipo de scan baseline/follow-up.
                         </p>
                       </div>

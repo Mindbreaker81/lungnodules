@@ -243,34 +243,34 @@ export default function ExportResults({ result, input }: ExportResultsProps) {
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className={exportStatus === 'success' ? 'bg-green-50 text-green-700 border-green-300' : ''}
+        className={exportStatus === 'success' ? 'bg-success/20 text-success border-success/50' : ''}
       >
         {exportStatus === 'success' ? '✓ Exportado' : 'Exportar'}
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-10 mt-2 w-64 rounded-md border border-slate-700 bg-surface shadow-lg">
-          <div className="border-b border-slate-700 px-3 py-2">
+        <div className="absolute right-0 top-full z-10 mt-2 w-64 rounded-md border border-border bg-popover shadow-lg">
+          <div className="border-b border-border px-3 py-2">
             <GuidelineVersion guideline={result.guideline} compact />
           </div>
           <div className="p-1">
             <button
               onClick={() => handleExport('clipboard')}
-              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-100 hover:bg-slate-800"
+              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-popover-foreground hover:bg-muted"
             >
               <span>📋</span>
               Copiar al portapapeles
             </button>
             <button
               onClick={() => handleExport('txt')}
-              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-100 hover:bg-slate-800"
+              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-popover-foreground hover:bg-muted"
             >
               <span>📄</span>
               Descargar como .txt
             </button>
             <button
               onClick={() => handleExport('json')}
-              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-slate-100 hover:bg-slate-800"
+              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-popover-foreground hover:bg-muted"
             >
               <span>📊</span>
               Descargar como .json

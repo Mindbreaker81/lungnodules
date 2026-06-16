@@ -1,6 +1,8 @@
 import './globals.css';
 import type { ReactNode } from 'react';
 import { Manrope } from 'next/font/google';
+import { ThemeProvider } from '@components/theme-provider';
+import { Header } from '@components/header';
 import { ServiceWorkerRegister } from '@components/ServiceWorkerRegister';
 import { OfflineBanner } from '@components/OfflineBanner';
 import LegalFooter from '@components/LegalFooter';
@@ -26,12 +28,15 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es">
-      <body className={`${manrope.className} min-h-screen bg-background text-slate-100 font-display`}>
-        <ServiceWorkerRegister />
-        <OfflineBanner />
-        <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-24 lg:max-w-4xl">{children}</main>
-        <LegalFooter />
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${manrope.className} min-h-screen bg-background text-foreground font-display`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ServiceWorkerRegister />
+          <Header />
+          <OfflineBanner />
+          <main className="mx-auto w-full max-w-2xl px-4 py-6 pb-24 lg:max-w-4xl">{children}</main>
+          <LegalFooter />
+        </ThemeProvider>
       </body>
     </html>
   );

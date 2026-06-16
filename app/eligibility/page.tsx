@@ -74,25 +74,25 @@ export default function EligibilityPage() {
     <section className="space-y-8">
       <Link
         href="/"
-        className="inline-flex items-center gap-1 text-sm text-slate-500 transition-colors hover:text-slate-300"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         aria-label="Volver al inicio"
       >
         <span aria-hidden>←</span> Inicio
       </Link>
       <header className="space-y-1">
-        <p className="text-sm text-slate-500">Elegibilidad para cribado • Riesgo a 6 años</p>
+        <p className="text-sm text-muted-foreground">Elegibilidad para cribado • Riesgo a 6 años</p>
         <h1 className="text-2xl font-semibold text-primary">Elegibilidad para cribado</h1>
-        <p className="text-slate-400">
+        <p className="text-muted-foreground">
           Calcule el riesgo de cáncer de pulmón a 6 años para valorar elegibilidad para cribado con TC de baja dosis (LDCT). No sustituye el manejo del nódulo (Fleischner / Lung-RADS).
         </p>
       </header>
 
       <div className="space-y-4">
-        <label className="block text-sm font-medium text-slate-300">
+        <label className="block text-sm font-medium text-foreground">
           Modelo de riesgo
         </label>
         <select
-          className="w-full max-w-xs rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100 focus-visible:outline focus-visible:ring-1 focus-visible:ring-primary"
+          className="w-full max-w-xs rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground focus-visible:outline focus-visible:ring-1 focus-visible:ring-ring"
           value={selectedModelId}
           onChange={(e) => {
             setSelectedModelId(e.target.value);
@@ -101,7 +101,7 @@ export default function EligibilityPage() {
           aria-label="Seleccionar modelo de elegibilidad"
         >
           {eligibilityModels.map((m) => (
-            <option key={m.id} value={m.id} className="bg-surface">
+            <option key={m.id} value={m.id} className="bg-popover">
               {m.label}
             </option>
           ))}
@@ -109,14 +109,14 @@ export default function EligibilityPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <fieldset className="space-y-4 rounded-lg border border-slate-700/60 bg-slate-900/40 p-4">
-          <legend className="text-base font-semibold text-white">
+        <fieldset className="space-y-4 rounded-lg border border-border bg-muted/40 p-4">
+          <legend className="text-base font-semibold text-foreground">
             Datos del paciente (PLCOm2012)
           </legend>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-slate-300">Edad (años)</label>
+              <label className="block text-sm font-medium text-foreground">Edad (años)</label>
               <Input
                 type="number"
                 min={40}
@@ -126,11 +126,11 @@ export default function EligibilityPage() {
                 aria-invalid={!!errors.age}
               />
               {errors.age && (
-                <p className="mt-1 text-sm text-rose-400" role="alert">{errors.age.message}</p>
+                <p className="mt-1 text-sm text-destructive" role="alert">{errors.age.message}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300">IMC (kg/m²)</label>
+              <label className="block text-sm font-medium text-foreground">IMC (kg/m²)</label>
               <Input
                 type="number"
                 min={15}
@@ -141,20 +141,20 @@ export default function EligibilityPage() {
                 aria-invalid={!!errors.bmi}
               />
               {errors.bmi && (
-                <p className="mt-1 text-sm text-rose-400" role="alert">{errors.bmi.message}</p>
+                <p className="mt-1 text-sm text-destructive" role="alert">{errors.bmi.message}</p>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300">Raza / etnia</label>
+            <label className="block text-sm font-medium text-foreground">Raza / etnia</label>
             <select
-              className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100 focus-visible:outline focus-visible:ring-1 focus-visible:ring-primary"
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground focus-visible:outline focus-visible:ring-1 focus-visible:ring-ring"
               {...register("race")}
               aria-invalid={!!errors.race}
             >
               {(Object.entries(RACE_LABELS) as [Plcom2012Input["race"], string][]).map(([value, label]) => (
-                <option key={value} value={value} className="bg-surface">
+                <option key={value} value={value} className="bg-popover">
                   {label}
                 </option>
               ))}
@@ -162,14 +162,14 @@ export default function EligibilityPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300">Nivel educativo (1–6)</label>
+            <label className="block text-sm font-medium text-foreground">Nivel educativo (1–6)</label>
             <select
-              className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100 focus-visible:outline focus-visible:ring-1 focus-visible:ring-primary"
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground focus-visible:outline focus-visible:ring-1 focus-visible:ring-ring"
               {...register("education", { valueAsNumber: true })}
               aria-invalid={!!errors.education}
             >
               {[1, 2, 3, 4, 5, 6].map((n) => (
-                <option key={n} value={n} className="bg-surface">
+                <option key={n} value={n} className="bg-popover">
                   {n} – {EDUCATION_LABELS[n]}
                 </option>
               ))}
@@ -177,36 +177,36 @@ export default function EligibilityPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <label className="flex items-center gap-2 text-white">
+            <label className="flex items-center gap-2 text-foreground">
               <input
                 type="checkbox"
                 {...register("copd")}
-                className="rounded border-slate-600 text-primary focus:ring-primary"
+                className="rounded border-input text-primary focus:ring-primary"
               />
               EPOC
             </label>
-            <label className="flex items-center gap-2 text-white">
+            <label className="flex items-center gap-2 text-foreground">
               <input
                 type="checkbox"
                 {...register("cancer_hist")}
-                className="rounded border-slate-600 text-primary focus:ring-primary"
+                className="rounded border-input text-primary focus:ring-primary"
               />
               Historia personal de cáncer
             </label>
-            <label className="flex items-center gap-2 text-white">
+            <label className="flex items-center gap-2 text-foreground">
               <input
                 type="checkbox"
                 {...register("family_hist_lung_cancer")}
-                className="rounded border-slate-600 text-primary focus:ring-primary"
+                className="rounded border-input text-primary focus:ring-primary"
               />
               Historia familiar de cáncer de pulmón
             </label>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300">Tabaquismo</label>
+            <label className="block text-sm font-medium text-foreground">Tabaquismo</label>
             <select
-              className="mt-1 w-full rounded-md border border-slate-600 bg-transparent px-3 py-2 text-sm text-slate-100 focus-visible:outline focus-visible:ring-1 focus-visible:ring-primary"
+              className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground focus-visible:outline focus-visible:ring-1 focus-visible:ring-ring"
               {...register("smoking_status")}
               onChange={(e) => {
                 const v = e.target.value as "current" | "former";
@@ -214,14 +214,14 @@ export default function EligibilityPage() {
                 if (v === "current") setValue("smoking_quit_time", 0);
               }}
             >
-              <option value="current" className="bg-surface">Fumador actual</option>
-              <option value="former" className="bg-surface">Exfumador</option>
+              <option value="current" className="bg-popover">Fumador actual</option>
+              <option value="former" className="bg-popover">Exfumador</option>
             </select>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-slate-300">
+              <label className="block text-sm font-medium text-foreground">
                 Cigarrillos/día (cuando fumaba)
               </label>
               <Input
@@ -233,11 +233,11 @@ export default function EligibilityPage() {
                 aria-invalid={!!errors.smoking_intensity}
               />
               {errors.smoking_intensity && (
-                <p className="mt-1 text-sm text-rose-400" role="alert">{errors.smoking_intensity.message}</p>
+                <p className="mt-1 text-sm text-destructive" role="alert">{errors.smoking_intensity.message}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300">Duración tabaquismo (años)</label>
+              <label className="block text-sm font-medium text-foreground">Duración tabaquismo (años)</label>
               <Input
                 type="number"
                 min={1}
@@ -247,13 +247,13 @@ export default function EligibilityPage() {
                 aria-invalid={!!errors.duration_smoking}
               />
               {errors.duration_smoking && (
-                <p className="mt-1 text-sm text-rose-400" role="alert">{errors.duration_smoking.message}</p>
+                <p className="mt-1 text-sm text-destructive" role="alert">{errors.duration_smoking.message}</p>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300">
+            <label className="block text-sm font-medium text-foreground">
               Años desde que dejó de fumar (0 si fumador actual)
             </label>
             <Input
@@ -266,7 +266,7 @@ export default function EligibilityPage() {
               aria-invalid={!!errors.smoking_quit_time}
             />
             {errors.smoking_quit_time && (
-              <p className="mt-1 text-sm text-rose-400" role="alert">{errors.smoking_quit_time.message}</p>
+              <p className="mt-1 text-sm text-destructive" role="alert">{errors.smoking_quit_time.message}</p>
             )}
           </div>
         </fieldset>
@@ -278,27 +278,27 @@ export default function EligibilityPage() {
 
       {result && (
         <div
-          className="space-y-4 rounded-xl border border-slate-700/60 bg-surface p-6"
+          className="space-y-4 rounded-xl border border-border bg-card p-6"
           role="status"
           aria-live="polite"
         >
-          <h2 className="text-lg font-semibold text-white">Resultado</h2>
+          <h2 className="text-lg font-semibold text-card-foreground">Resultado</h2>
           <p className="text-2xl font-bold text-primary">
             Riesgo a 6 años: {(result.probability * 100).toFixed(2)}%
           </p>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Umbral usado: {(result.thresholdUsed * 100).toFixed(2)}%
           </p>
           <p
             className={`rounded-lg px-3 py-2 text-sm font-semibold ${
               result.eligible
-                ? "bg-emerald-500/20 text-emerald-200"
-                : "bg-slate-600/40 text-slate-300"
+                ? "bg-success/20 text-success"
+                : "bg-muted/60 text-muted-foreground"
             }`}
           >
             {result.eligible ? "Elegible para cribado" : "No elegible según este umbral"}
           </p>
-          <p className="text-sm text-slate-500 italic">
+          <p className="text-sm text-muted-foreground italic">
             Este riesgo se usa para elegibilidad de cribado. No sustituye Fleischner ni Lung-RADS para el manejo del nódulo.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -316,7 +316,7 @@ export default function EligibilityPage() {
         </div>
       )}
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted-foreground">
         PLCOm2012: Tammemägi et al. NEJM 2013. Selection Criteria for Lung-Cancer Screening.
       </p>
     </section>

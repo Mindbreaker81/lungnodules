@@ -25,18 +25,18 @@ export default function ReferencesPage() {
     <section className="space-y-8 pb-8">
       <Link
         href="/"
-        className="inline-flex items-center gap-1 text-sm text-slate-500 transition-colors hover:text-slate-300"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         aria-label="Volver al inicio"
       >
         <span aria-hidden>←</span> Inicio
       </Link>
 
       <header className="space-y-3">
-        <p className="text-sm text-slate-500">Documentación clínica</p>
-        <h1 className="text-2xl font-semibold text-white sm:text-3xl">
+        <p className="text-sm text-muted-foreground">Documentación clínica</p>
+        <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
           Referencias bibliográficas
         </h1>
-        <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
+        <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
           Fuentes utilizadas por esta herramienta (v{APP_VERSION}). Los enlaces apuntan a
           PubMed, PMC, DOI o sitios oficiales cuando están disponibles. La app no está
           afiliada con la Fleischner Society, el ACR ni la BTS.
@@ -48,20 +48,20 @@ export default function ReferencesPage() {
         return (
           <div
             key={category.id}
-            className="rounded-xl border border-slate-800 bg-surface p-4 sm:p-6"
+            className="rounded-xl border border-border bg-card p-4 sm:p-6"
           >
-            <h2 className="text-lg font-semibold text-white">{category.title}</h2>
-            <p className="mt-1 text-sm text-slate-400">{category.description}</p>
+            <h2 className="text-lg font-semibold text-card-foreground">{category.title}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{category.description}</p>
 
             <ul className="mt-5 space-y-5">
               {entries.map((entry) => (
                 <li
                   key={entry.id}
-                  className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-4"
+                  className="rounded-lg border border-border bg-muted/40 p-4"
                 >
-                  <p className="text-sm leading-relaxed text-slate-200">{entry.citation}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-500">
-                    <span className="font-medium text-slate-400">Uso en la app: </span>
+                  <p className="text-sm leading-relaxed text-foreground">{entry.citation}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                    <span className="font-medium text-foreground">Uso en la app: </span>
                     {entry.usedInApp}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -71,7 +71,7 @@ export default function ReferencesPage() {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/60 px-3 py-1 text-xs font-medium text-blue-300 transition-colors hover:border-blue-600/50 hover:bg-blue-950/40 hover:text-blue-200"
+                        className="inline-flex items-center rounded-full border border-border bg-muted/60 px-3 py-1 text-xs font-medium text-primary transition-colors hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
                       >
                         {LINK_KIND_LABELS[link.kind]}
                         {link.kind === 'web' ? ` · ${link.label}` : ''}
@@ -85,11 +85,11 @@ export default function ReferencesPage() {
         );
       })}
 
-      <p className="text-xs text-slate-600">
+      <p className="text-xs text-muted-foreground">
         Listado mantenido en{' '}
-        <code className="rounded bg-slate-900 px-1 py-0.5 text-slate-400">config/references.ts</code>
+        <code className="rounded bg-muted px-1 py-0.5 text-foreground">config/references.ts</code>
         . Para trazabilidad técnica de coeficientes, ver también{' '}
-        <code className="rounded bg-slate-900 px-1 py-0.5 text-slate-400">
+        <code className="rounded bg-muted px-1 py-0.5 text-foreground">
           research/predictive_model/variables_y_coeficientes.md
         </code>
         .
