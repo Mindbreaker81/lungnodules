@@ -46,7 +46,7 @@ export function OfflineBanner() {
           role="status"
           aria-live="polite"
         >
-          <span className="flex h-2 w-2">
+          <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-warning opacity-75"></span>
             <span className="relative inline-flex h-2 w-2 rounded-full bg-warning"></span>
           </span>

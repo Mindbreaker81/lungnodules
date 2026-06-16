@@ -29,10 +29,10 @@ export default function HomePage() {
           />
           <div className="space-y-4">
             <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-inset ring-primary/20">
-              Support Tool v{APP_VERSION}
+              Herramienta de soporte v{APP_VERSION}
             </div>
             <h1 className="text-3xl font-extrabold tracking-tight text-card-foreground sm:text-4xl lg:text-5xl">
-              Lung Nodule Decision Support
+              Soporte de decisión para nódulos pulmonares
             </h1>
           </div>
         </div>
