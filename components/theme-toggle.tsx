@@ -12,7 +12,7 @@ const themes = [
 ] as const;
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme = "system", setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -21,7 +21,10 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="flex items-center rounded-md border border-border bg-background p-1">
+      <div
+        className="flex items-center rounded-md border border-border bg-background p-1"
+        aria-hidden="true"
+      >
         {themes.map((t) => {
           const Icon = t.icon;
           return (
@@ -42,7 +45,11 @@ export function ThemeToggle() {
   }
 
   return (
-    <div className="flex items-center rounded-md border border-border bg-background p-1">
+    <div
+      className="flex items-center rounded-md border border-border bg-background p-1"
+      role="group"
+      aria-label="Selector de tema"
+    >
       {themes.map((t) => {
         const Icon = t.icon;
         const isActive = theme === t.id;

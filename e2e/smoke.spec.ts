@@ -14,4 +14,23 @@ test.describe("Smoke navigation", () => {
     await expect(page.getByLabel("Incidental (Fleischner 2017)")).toBeVisible();
     await expect(page.getByLabel("Screening (Lung-RADS v2022)")).toBeVisible();
   });
+
+  test("Theme toggle switches light, dark, and system modes", async ({ page }) => {
+    await page.goto("/");
+
+    const themeSelector = page.getByRole("group", { name: "Selector de tema" });
+    await expect(themeSelector).toBeVisible();
+
+    await themeSelector.getByRole("button", { name: "Claro" }).click();
+    await expect(page.locator("html")).toHaveClass(/light/);
+    await expect(themeSelector.getByRole("button", { name: "Claro" })).toHaveAttribute("aria-pressed", "true");
+
+    await themeSelector.getByRole("button", { name: "Oscuro" }).click();
+    await expect(page.locator("html")).toHaveClass(/dark/);
+    await expect(themeSelector.getByRole("button", { name: "Oscuro" })).toHaveAttribute("aria-pressed", "true");
+
+    await themeSelector.getByRole("button", { name: "Sistema" }).click();
+    await expect(themeSelector.getByRole("button", { name: "Sistema" })).toHaveAttribute("aria-pressed", "true");
+    await expect.poll(() => page.evaluate(() => window.localStorage.getItem("theme"))).toBe("system");
+  });
 });
