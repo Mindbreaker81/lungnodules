@@ -1,3 +1,12 @@
+## [1.6.4] - 2026-06-18
+
+### Changed
+- **Dark mode / toggle:** reforzado el selector global claro/oscuro/sistema con semántica accesible y cobertura E2E.
+- **Versionado:** metadatos de aplicación alineados a `1.6.4` en package, manifest, constantes y documentación.
+
+### Tests
+- Smoke E2E añadido para validar el cambio entre temas claro, oscuro y sistema.
+
 ## [1.6.3] - 2026-06-16
 
 ### Added
@@ -354,4 +363,3 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - UI resultados: muestra crecimiento >1.5mm/12m y nota de nódulo dominante/múltiples.
 - Tests de flujo wizard envueltos en `act` para evitar warnings y mejorar estabilidad.
-
