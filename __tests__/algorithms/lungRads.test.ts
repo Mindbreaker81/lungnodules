@@ -170,13 +170,23 @@ describe('Lung-RADS v2022', () => {
     expect(res.category).toBe('4B');
   });
 
-  test('TC-LR-016d Atypical cyst auto stable growing cystic component -> Category 3', () => {
+  test('TC-LR-016d Atypical cyst auto thick-walled stable growing cystic component -> Category 3', () => {
+    const res = run({
+      isAtypicalCyst: true,
+      atypicalCystThickWalled: true,
+      atypicalCystPreviouslyStable: true,
+      atypicalCystGrowingCysticComponent: true,
+    });
+    expect(res.category).toBe('3');
+  });
+
+  test('TC-LR-016j Atypical cyst stable growing cystic component without thick wall -> insufficient descriptors', () => {
     const res = run({
       isAtypicalCyst: true,
       atypicalCystPreviouslyStable: true,
       atypicalCystGrowingCysticComponent: true,
     });
-    expect(res.category).toBe('3');
+    expect(res.rationale).toMatch(/descriptores morfológicos insuficientes/i);
   });
 
   test('TC-LR-016e Manual override 3 when auto would be 4A', () => {
@@ -217,6 +227,7 @@ describe('Lung-RADS v2022', () => {
   test('TC-LR-016h Adjacent nodule takes higher category (cyst 3 vs solid 15mm -> 4B)', () => {
     const res = run({
       isAtypicalCyst: true,
+      atypicalCystThickWalled: true,
       atypicalCystPreviouslyStable: true,
       atypicalCystGrowingCysticComponent: true,
       atypicalCystAdjacentNodule: true,

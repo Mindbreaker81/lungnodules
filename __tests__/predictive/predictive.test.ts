@@ -4,7 +4,7 @@ import { AssessmentInput } from '@lib/schemas/noduleInput';
 describe('Predictive models', () => {
   const getSummary = (
     input: AssessmentInput,
-    id: 'mayo' | 'brock' | 'herder' | 'herder-logistic',
+    id: 'mayo' | 'brock' | 'herder',
   ) => {
     const summary = getPredictiveSummaries(input).find((item) => item.id === id);
     if (!summary) {
@@ -148,7 +148,7 @@ describe('Predictive models', () => {
     expect(summary.missingFields).toContain('Edad');
   });
 
-  test('Herder requires pre-test probability ≥10%', () => {
+  test('Herder computes below 10% pre-test and notes the BTS guidance', () => {
     const input: AssessmentInput = {
       clinicalContext: 'incidental',
       patient: {
@@ -176,11 +176,13 @@ describe('Predictive models', () => {
     };
 
     const summary = getSummary(input, 'herder');
-    expect(summary.status).toBe('not_applicable');
-    expect(summary.reason).toContain('10%');
+    expect(summary.status).toBe('available');
+    expect(summary.preTestModelId).toBe('mayo');
+    expect(summary.probability).toBeCloseTo(0.4826, 3);
+    expect(summary.notes?.some((note) => note.includes('BTS') && note.includes('≥10%'))).toBe(true);
   });
 
-  test('Herder uses Mayo pre-test odds with PET LR', () => {
+  test('Herder applies the published logistic model on Mayo pre-test', () => {
     const input: AssessmentInput = {
       clinicalContext: 'incidental',
       patient: {
@@ -211,7 +213,8 @@ describe('Predictive models', () => {
     expect(summary.status).toBe('available');
     expect(summary.preTestModelId).toBe('mayo');
     expect(summary.preTestProbability).toBeCloseTo(0.1636, 4);
-    expect(summary.probability).toBeCloseTo(0.2709, 4);
+    // x = -4.739 + 3.691·0.1636 + 4.617 = 0.482 → P ≈ 0.6182.
+    expect(summary.probability).toBeCloseTo(0.6182, 4);
     expect(summary.riskBand).toBe('intermediate');
   });
 
@@ -275,14 +278,6 @@ describe('Predictive models', () => {
         },
         {
           "id": "herder",
-          "preTestProbability": 0.9035,
-          "probability": 0.9893,
-          "reason": undefined,
-          "riskBand": "high",
-          "status": "available",
-        },
-        {
-          "id": "herder-logistic",
           "preTestProbability": 0.9035,
           "probability": 0.9666,
           "reason": undefined,
@@ -525,7 +520,7 @@ describe('Predictive models', () => {
     expect(spiculatedLowerLobe.probability).toBeGreaterThan(smoothUpperLobe.probability as number);
   });
 
-  test('incidental 7 mm with intense PET: Mayo pre-PET ~18.7%, Herder post-PET ~70% (MDCalc-style)', () => {
+  test('incidental 7 mm with intense PET: Mayo pre-PET ~18.7%, Herder post-PET ~67%', () => {
     const input: AssessmentInput = {
       clinicalContext: 'incidental',
       patient: {
@@ -557,12 +552,12 @@ describe('Predictive models', () => {
     expect(mayo.probability).toBeCloseTo(0.187, 3);
     expect(mayo.notes?.[0]).toContain('pre-PET');
     expect(herder.status).toBe('available');
-    expect(herder.probability).toBeCloseTo(0.696, 2);
+    expect(herder.probability).toBeCloseTo(0.673, 2);
     expect(herder.preTestProbability).toBeCloseTo(0.187, 3);
     expect(getRecommendedPredictiveModel(input)).toBe('herder');
   });
 
-  test('Herder logistic variant (Herder 2005) computes published formula with P_pre as 0-1 fraction', () => {
+  test('Herder computes published formula with P_pre as 0-1 fraction', () => {
     const input: AssessmentInput = {
       clinicalContext: 'incidental',
       patient: {
@@ -588,7 +583,7 @@ describe('Predictive models', () => {
       },
     };
 
-    const logistic = getSummary(input, 'herder-logistic');
+    const logistic = getSummary(input, 'herder');
 
     // x = -4.739 + 3.691*0.187 + 4.771 = 0.7222 -> P = 1/(1+e^-x) ~ 0.673.
     // (Scale check: if P_pre were entered as 0-100 the result would saturate to ~1.)
@@ -597,7 +592,7 @@ describe('Predictive models', () => {
     expect(logistic.preTestProbability).toBeCloseTo(0.187, 3);
   });
 
-  test('both Herder variants are exposed and differ for the same nodule', () => {
+  test('a single Herder model is exposed (published logistic regression)', () => {
     const input: AssessmentInput = {
       clinicalContext: 'incidental',
       patient: {
@@ -624,12 +619,213 @@ describe('Predictive models', () => {
     };
 
     const summaries = getPredictiveSummaries(input);
-    const bts = summaries.find((s) => s.id === 'herder');
-    const logistic = summaries.find((s) => s.id === 'herder-logistic');
+    expect(summaries.map((s) => s.id)).toEqual(['mayo', 'brock', 'herder']);
 
-    expect(bts?.status).toBe('available');
-    expect(logistic?.status).toBe('available');
-    expect(bts?.probability).not.toBeCloseTo(logistic?.probability as number, 3);
-    expect(logistic?.notes?.some((n) => n.includes('Herder 2005'))).toBe(true);
+    const herder = summaries.find((s) => s.id === 'herder');
+    expect(herder?.status).toBe('available');
+    expect(herder?.notes?.some((n) => n.includes('Herder 2005'))).toBe(true);
+  });
+
+  test('Herder uses Mayo pre-test in screening too (not Brock)', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 60,
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'moderate',
+        scanType: 'baseline',
+      },
+    };
+
+    const herder = getSummary(input, 'herder');
+    expect(herder.status).toBe('available');
+    expect(herder.preTestModelId).toBe('mayo');
+    // Mayo: x = -6.8272 + 2.346 + 0.7917 + 1.911 + 0.7838 = -0.9947 → P ≈ 0.270.
+    expect(herder.preTestProbability).toBeCloseTo(0.27, 3);
+    // Herder: x = -4.739 + 3.691·0.27 + 4.617 = 0.875 → P ≈ 0.7057.
+    expect(herder.probability).toBeCloseTo(0.7057, 3);
+  });
+
+  test('Herder reports missing Mayo fields in screening instead of using Brock', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 60,
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'moderate',
+        scanType: 'baseline',
+      },
+    };
+
+    const herder = getSummary(input, 'herder');
+    expect(herder.status).toBe('insufficient_data');
+    expect(herder.preTestModelId).toBe('mayo');
+    expect(herder.missingFields).toContain('Tabaquismo');
+    expect(herder.missingFields).toContain('Cáncer extratorácico (>5 años)');
+  });
+
+  test('Herder reports insufficient_data with the missing Mayo fields when diameter is absent and PET is available', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 60,
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'moderate',
+        scanType: 'baseline',
+      },
+    };
+
+    const herder = getSummary(input, 'herder');
+    expect(herder.status).toBe('insufficient_data');
+    expect(herder.preTestModelId).toBe('mayo');
+    expect(herder.missingFields).toContain('Diámetro');
+  });
+
+  test('Herder stays not_applicable for a known diameter below 4 mm', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 60,
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 3,
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'moderate',
+        scanType: 'baseline',
+      },
+    };
+
+    const herder = getSummary(input, 'herder');
+    expect(herder.status).toBe('not_applicable');
+    expect(herder.missingFields).toBeUndefined();
+  });
+
+  test('Brock uses the maximum transverse diameter when provided', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 65,
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        maxDiameterMm: 20,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+        scanType: 'baseline',
+      },
+    };
+
+    const summary = getSummary(input, 'brock');
+    expect(summary.status).toBe('available');
+    expect(summary.probability).toBeCloseTo(0.38, 2);
+    expect(summary.notes?.some((n) => n.includes('diámetro máximo transversal'))).not.toBe(true);
+  });
+
+  test('Brock falls back to the mean diameter with an underestimation note', () => {
+    const input: AssessmentInput = {
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 65,
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'female',
+        smokingStatus: 'former',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 15,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        noduleCount: 1,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: false,
+        petUptake: undefined,
+        scanType: 'baseline',
+      },
+    };
+
+    const summary = getSummary(input, 'brock');
+    expect(summary.status).toBe('available');
+    expect(summary.probability).toBeCloseTo(0.2537, 3);
+    expect(summary.notes?.some((n) => n.includes('diámetro máximo transversal'))).toBe(true);
   });
 });

@@ -24,13 +24,13 @@ const MANUAL_CATEGORY_MAP = {
 >;
 
 const MANUAL_RATIONALE: Record<AtypicalCystCategory, string> = {
-  '3': 'Quiste atípico con componente quístico en crecimiento (override manual)',
+  '3': 'Quiste de pared gruesa previamente estable con componente quístico en crecimiento (override manual)',
   '4A': 'Quiste atípico con pared gruesa o multiloculado (override manual)',
   '4B': 'Quiste atípico con crecimiento o nodularidad (override manual)',
 };
 
 const AUTO_RATIONALE: Record<AtypicalCystCategory, string> = {
-  '3': 'Quiste atípico previamente estable con componente quístico en crecimiento',
+  '3': 'Quiste de pared gruesa previamente estable con componente quístico en crecimiento',
   '4A': 'Quiste atípico con pared gruesa (≥2 mm) o multilocular',
   '4B': 'Quiste atípico con crecimiento de pared/multilocular o aumento de loculación/densidad',
 };
@@ -103,16 +103,14 @@ export function classifyAtypicalCyst(
     return { category: '4B', rationale: AUTO_RATIONALE['4B'] };
   }
 
+  // Category 3: thick-walled cyst that is stable but has a growing cystic
+  // component (ACR Lung-RADS v2022 § I.A). Must be checked before the 4A rule.
+  if (thickWalled && !multilocular && previouslyStable && growingCysticComponent) {
+    return { category: '3', rationale: AUTO_RATIONALE['3'] };
+  }
+
   if (thickWalled || multilocular) {
     return { category: '4A', rationale: AUTO_RATIONALE['4A'] };
-  }
-
-  if (previouslyStable && thickWalled && growingCysticComponent) {
-    return { category: '3', rationale: AUTO_RATIONALE['3'] };
-  }
-
-  if (previouslyStable && growingCysticComponent) {
-    return { category: '3', rationale: AUTO_RATIONALE['3'] };
   }
 
   return null;

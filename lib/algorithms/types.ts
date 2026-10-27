@@ -23,6 +23,7 @@ export interface PatientProfile {
 export interface NoduleCharacteristics {
   type: NoduleType;
   diameterMm: number;
+  maxDiameterMm?: number;
   solidComponentMm?: number;
   isMultiple: boolean;
   isPerifissural?: boolean;

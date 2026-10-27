@@ -1,3 +1,19 @@
+## [1.7.0] - 2026-10-27
+
+### Added
+- **Diámetro máximo transversal** (opcional) en el paso del nódulo, usado solo por Brock (McWilliams 2013). Si falta, Brock usa el diámetro medio y lo avisa. Validación: máximo ≥ medio. El informe TXT y el texto copiado muestran ambas medidas (LUN-18).
+
+### Changed
+- **Herder (2005):** queda un único modelo con la regresión logística publicada (−4.739 + 3.691·P_Mayo + βFDG). Se elimina la variante «BTS · LR» con likelihood ratios no publicados (LUN-16).
+- **Herder usa siempre Mayo como pre-test**, también en cribado (antes usaba Brock); si faltan datos de Mayo, indica cuáles. El umbral BTS del 10 % pasa a nota informativa y la nota <8 mm se reformula como precaución sobre la sensibilidad del PET (LUN-17).
+- **Documentación de `research/`** alineada con el código; el roadmap antiguo queda archivado.
+
+### Fixed
+- **Quiste atípico (Lung-RADS v2022):** el quiste de pared gruesa previamente estable con componente quístico en crecimiento ahora da categoría 3 (orden 4B → 3 → 4A). Se elimina la asignación de 3 a quistes sin pared gruesa (LUN-26).
+
+### Tests
+- Casos de referencia de Herder (61,82 % / 70,57 %), Brock con diámetro medio y máximo, quiste atípico, validación del esquema y exportación.
+
 ## [1.6.5] - 2026-10-27
 
 ### Added

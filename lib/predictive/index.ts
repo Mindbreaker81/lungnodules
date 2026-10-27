@@ -11,8 +11,7 @@ export type {
 const MODEL_LABELS: Record<PredictiveModelId, string> = {
   mayo: "Mayo Clinic",
   brock: "Brock (Pan-Can)",
-  herder: "Herder (BTS · LR)",
-  "herder-logistic": "Herder (logístico · 2005)",
+  herder: "Herder (2005)",
 };
 
 const hasNumber = (value: unknown): value is number =>
@@ -87,13 +86,6 @@ const BROCK_COEFFICIENTS_NO_SPIC = {
   partSolid: 0.3395,
 } as const;
 
-const HERDER_LIKELIHOOD_RATIOS: Record<string, number> = {
-  absent: 0.08,
-  faint: 0.17,
-  moderate: 1.9,
-  intense: 9.9,
-};
-
 // Herder/Leiden logistic regression model (Herder et al., Chest 2005;128:2490-2496).
 // Published formula (single multivariable model in the paper):
 //   x = -4.739 + 3.691·P_pretest + βFDG
@@ -101,12 +93,12 @@ const HERDER_LIKELIHOOD_RATIOS: Record<string, number> = {
 // P_pretest is the Mayo/Swensen probability entered as a FRACTION 0–1 (not 0–100):
 // e.g. P_pretest=0.187 + intense → x = -4.739 + 0.690 + 4.771 = 0.722 → P≈0.673.
 // FDG uptake is the 4-point visual scale of the paper (absent/faint/moderate/intense).
-const HERDER_LOGISTIC_COEFFICIENTS = {
+const HERDER_COEFFICIENTS = {
   intercept: -4.739,
   preTest: 3.691,
 } as const;
 
-const HERDER_LOGISTIC_FDG: Record<string, number> = {
+const HERDER_FDG: Record<string, number> = {
   absent: 0,
   faint: 2.322,
   moderate: 4.617,
@@ -116,8 +108,8 @@ const HERDER_LOGISTIC_FDG: Record<string, number> = {
 /** Mayo/Herder valid diameter range (Swensen 1997; MDCalc uses 4–30 mm). */
 const MAYO_MIN_DIAMETER_MM = 4;
 
-/** BTS guidance: Herder was primarily validated for nodules ≥8 mm. */
-const HERDER_VALIDATED_MIN_DIAMETER_MM = 8;
+/** Below this size, FDG-PET uptake is less reliable; shown as a caution note. */
+const HERDER_SMALL_NODULE_CAUTION_MM = 8;
 
 export function getRecommendedPredictiveModel(
   input: AssessmentInput | null,
@@ -133,51 +125,35 @@ export function getPredictiveSummaries(
 ): PredictiveModelSummary[] {
   if (!input) return [];
 
-  const mayoSummary = buildMayoSummary(input);
+  const mayoComputation = computeMayo(input);
+  const mayoSummary = buildMayoSummary(input, mayoComputation);
   const brockSummary = buildBrockSummary(input);
-  const eligibility = evaluateHerderEligibility(input, { mayoSummary, brockSummary });
+  const eligibility = evaluateHerderEligibility(input, mayoComputation);
   const herderSummary = buildHerderSummary(input, eligibility);
-  const herderLogisticSummary = buildHerderLogisticSummary(input, eligibility);
 
-  return [mayoSummary, brockSummary, herderSummary, herderLogisticSummary];
+  return [mayoSummary, brockSummary, herderSummary];
 }
 
-function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
+type MayoComputation =
+  | { status: "available"; probability: number }
+  | { status: "insufficient_data"; missingFields: string[] }
+  | { status: "not_applicable"; reason: string };
+
+function computeMayo(input: AssessmentInput): MayoComputation {
   const missingFields: string[] = [];
   const age = input.patient.age;
   const diameter = input.nodule.diameterMm;
 
-  if (input.clinicalContext !== "incidental") {
-    return {
-      id: "mayo",
-      label: MODEL_LABELS.mayo,
-      status: "not_applicable",
-      reason: "Recomendado para hallazgos incidentales; usa Brock en screening.",
-    };
-  }
-
   if (isMassTooLarge(diameter)) {
-    return {
-      id: "mayo",
-      label: MODEL_LABELS.mayo,
-      status: "not_applicable",
-      reason: "No aplicar a masas >30 mm.",
-    };
+    return { status: "not_applicable", reason: "No aplicar a masas >30 mm." };
   }
 
   if (input.patient.hasKnownMalignancy) {
-    return {
-      id: "mayo",
-      label: MODEL_LABELS.mayo,
-      status: "not_applicable",
-      reason: "No aplica con cáncer conocido.",
-    };
+    return { status: "not_applicable", reason: "No aplica con cáncer conocido." };
   }
 
   if (input.patient.extrathoracicCancerHistory === "recent") {
     return {
-      id: "mayo",
-      label: MODEL_LABELS.mayo,
       status: "not_applicable",
       reason: "No aplica si cáncer extratorácico fue <5 años.",
     };
@@ -191,12 +167,7 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
   if (!hasBoolean(input.nodule.hasSpiculation)) missingFields.push("Espiculación");
 
   if (missingFields.length > 0) {
-    return {
-      id: "mayo",
-      label: MODEL_LABELS.mayo,
-      status: "insufficient_data",
-      missingFields,
-    };
+    return { status: "insufficient_data", missingFields };
   }
 
   const resolvedAge = age as number;
@@ -216,7 +187,39 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
     MAYO_COEFFICIENTS.spiculation * spiculation +
     MAYO_COEFFICIENTS.upper * upper;
 
-  const probability = logistic(logOdds);
+  return { status: "available", probability: logistic(logOdds) };
+}
+
+function buildMayoSummary(
+  input: AssessmentInput,
+  mayo: MayoComputation,
+): PredictiveModelSummary {
+  if (input.clinicalContext !== "incidental") {
+    return {
+      id: "mayo",
+      label: MODEL_LABELS.mayo,
+      status: "not_applicable",
+      reason: "Recomendado para hallazgos incidentales; usa Brock en screening.",
+    };
+  }
+
+  if (mayo.status === "not_applicable") {
+    return {
+      id: "mayo",
+      label: MODEL_LABELS.mayo,
+      status: "not_applicable",
+      reason: mayo.reason,
+    };
+  }
+
+  if (mayo.status === "insufficient_data") {
+    return {
+      id: "mayo",
+      label: MODEL_LABELS.mayo,
+      status: "insufficient_data",
+      missingFields: mayo.missingFields,
+    };
+  }
 
   const notes =
     input.nodule.hasPet && input.nodule.petUptake
@@ -229,8 +232,8 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
     id: "mayo",
     label: MODEL_LABELS.mayo,
     status: "available",
-    probability,
-    riskBand: toRiskBand(probability),
+    probability: mayo.probability,
+    riskBand: toRiskBand(mayo.probability),
     notes,
   };
 }
@@ -238,7 +241,12 @@ function buildMayoSummary(input: AssessmentInput): PredictiveModelSummary {
 function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
   const missingFields: string[] = [];
   const age = input.patient.age;
-  const diameter = input.nodule.diameterMm;
+  // McWilliams 2013 was developed on the maximum transverse diameter;
+  // fall back to the mean diameter when it was not recorded.
+  const usesMaxDiameter = hasNumber(input.nodule.maxDiameterMm);
+  const brockDiameter = usesMaxDiameter
+    ? (input.nodule.maxDiameterMm as number)
+    : input.nodule.diameterMm;
   const resolvedNoduleCount =
     input.nodule.noduleCount ?? (input.nodule.isMultiple ? undefined : 1);
 
@@ -251,7 +259,7 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
     };
   }
 
-  if (isMassTooLarge(diameter)) {
+  if (isMassTooLarge(brockDiameter)) {
     return {
       id: "brock",
       label: MODEL_LABELS.brock,
@@ -264,7 +272,7 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
   if (!input.patient.sex) missingFields.push("Sexo");
   if (!hasBoolean(input.patient.hasFamilyHistoryLungCancer)) missingFields.push("Historia familiar");
   if (!hasBoolean(input.patient.hasEmphysema)) missingFields.push("Enfisema");
-  if (!hasNumber(diameter)) missingFields.push("Diámetro");
+  if (!hasNumber(brockDiameter)) missingFields.push("Diámetro");
   if (!input.nodule.type) missingFields.push("Tipo de nódulo");
   if (!hasBoolean(input.nodule.isUpperLobe)) missingFields.push("Lóbulo superior");
   if (!resolvedNoduleCount) missingFields.push("Número de nódulos");
@@ -279,7 +287,7 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
   }
 
   const resolvedAge = age as number;
-  const resolvedDiameter = diameter as number;
+  const resolvedDiameter = brockDiameter as number;
 
   // Model 2b (with spiculation) when spiculation is evaluated;
   // Model 2a (without spiculation) when it is not.
@@ -314,9 +322,16 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
 
   const probability = logistic(logOdds);
 
-  const notes = useSpiculation
-    ? undefined
-    : ["Variante sin espiculación (Model 2a): la espiculación no se evaluó."];
+  const notes = [
+    ...(useSpiculation
+      ? []
+      : ["Variante sin espiculación (Model 2a): la espiculación no se evaluó."]),
+    ...(!usesMaxDiameter
+      ? [
+          "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo.",
+        ]
+      : []),
+  ];
 
   return {
     id: "brock",
@@ -324,27 +339,27 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
     status: "available",
     probability,
     riskBand: toRiskBand(probability),
-    notes,
+    notes: notes.length > 0 ? notes : undefined,
   };
 }
 
-/** Shared eligibility/pre-test resolution for both Herder variants (BTS-LR and logistic). */
+/** Herder eligibility: PET available and a calculable Mayo pre-test probability. */
 type HerderEligibility =
   | { kind: "blocked"; fields: Omit<PredictiveModelSummary, "id" | "label"> }
   | { kind: "ok"; preTestProbability: number; preTestModelId: PredictiveModelId };
 
 function evaluateHerderEligibility(
   input: AssessmentInput,
-  summaries: {
-    mayoSummary: PredictiveModelSummary;
-    brockSummary: PredictiveModelSummary;
-  },
+  mayo: MayoComputation,
 ): HerderEligibility {
   const diameter = input.nodule.diameterMm;
-  const preTestSummary =
-    input.clinicalContext === "screening" ? summaries.brockSummary : summaries.mayoSummary;
 
-  if (!input.nodule.hasPet || !hasNumber(diameter) || diameter < MAYO_MIN_DIAMETER_MM) {
+  // Absent diameter is not an exclusion: it falls through to the Mayo result,
+  // which reports it as a missing field (insufficient_data).
+  if (
+    !input.nodule.hasPet ||
+    (hasNumber(diameter) && diameter < MAYO_MIN_DIAMETER_MM)
+  ) {
     return {
       kind: "blocked",
       fields: {
@@ -361,21 +376,23 @@ function evaluateHerderEligibility(
     };
   }
 
-  if (preTestSummary.status === "not_applicable") {
+  // The published regression was fitted on the Mayo pre-test probability;
+  // Herder always uses Mayo in both contexts (never Brock).
+  if (mayo.status === "not_applicable") {
     return {
       kind: "blocked",
       fields: {
         status: "not_applicable",
-        reason: "Riesgo pre-test no aplicable para este contexto.",
-        preTestModelId: preTestSummary.id,
+        reason: `Pre-test Mayo no aplicable: ${mayo.reason}`,
+        preTestModelId: "mayo",
       },
     };
   }
 
   const missingFields: string[] = [];
   if (!input.nodule.petUptake) missingFields.push("Captación FDG");
-  if (preTestSummary.status !== "available" || preTestSummary.probability === undefined) {
-    missingFields.push("Riesgo pre-test (Mayo/Brock)");
+  if (mayo.status === "insufficient_data") {
+    missingFields.push(...mayo.missingFields);
   }
 
   if (missingFields.length > 0) {
@@ -384,20 +401,20 @@ function evaluateHerderEligibility(
       fields: {
         status: "insufficient_data",
         missingFields,
-        preTestModelId: preTestSummary.id,
-        preTestProbability: preTestSummary.probability,
+        preTestModelId: "mayo",
+        preTestProbability: mayo.status === "available" ? mayo.probability : undefined,
       },
     };
   }
 
   return {
     kind: "ok",
-    preTestProbability: preTestSummary.probability ?? 0,
-    preTestModelId: preTestSummary.id,
+    preTestProbability: mayo.status === "available" ? mayo.probability : 0,
+    preTestModelId: "mayo",
   };
 }
 
-// Herder BTS variant: post-test odds = pre-test odds × likelihood ratio of FDG uptake.
+// Herder 2005: multivariable logistic regression on Mayo pre-test + FDG uptake.
 function buildHerderSummary(
   input: AssessmentInput,
   eligibility: HerderEligibility,
@@ -409,23 +426,11 @@ function buildHerderSummary(
   const { preTestProbability, preTestModelId } = eligibility;
   const diameter = input.nodule.diameterMm;
 
-  // BTS only recommends Herder when pre-test risk is ≥10%.
-  if (preTestProbability < 0.1) {
-    return {
-      id: "herder",
-      label: MODEL_LABELS.herder,
-      status: "not_applicable",
-      reason: "BTS: usar Herder solo si riesgo pre-test ≥10%.",
-      preTestModelId,
-      preTestProbability,
-    };
-  }
-
-  const likelihoodRatio = input.nodule.petUptake
-    ? HERDER_LIKELIHOOD_RATIOS[input.nodule.petUptake]
+  const fdgTerm = input.nodule.petUptake
+    ? HERDER_FDG[input.nodule.petUptake]
     : undefined;
 
-  if (!likelihoodRatio) {
+  if (fdgTerm === undefined) {
     return {
       id: "herder",
       label: MODEL_LABELS.herder,
@@ -436,11 +441,11 @@ function buildHerderSummary(
     };
   }
 
-  // Clamp to avoid division by zero (preTest=1.0) or negative odds (preTest<0)
-  const clampedPreTest = Math.min(Math.max(preTestProbability, 0.001), 0.999);
-  const preTestOdds = clampedPreTest / (1 - clampedPreTest);
-  const postTestOdds = preTestOdds * likelihoodRatio;
-  const probability = postTestOdds / (1 + postTestOdds);
+  const x =
+    HERDER_COEFFICIENTS.intercept +
+    HERDER_COEFFICIENTS.preTest * preTestProbability +
+    fdgTerm;
+  const probability = logistic(x);
 
   return {
     id: "herder",
@@ -451,74 +456,19 @@ function buildHerderSummary(
     preTestModelId,
     preTestProbability,
     notes: [
-      "Variante BTS: ajusta las odds pre-test con likelihood ratios de FDG-PET (absent 0.08 · faint 0.17 · moderate 1.9 · intense 9.9).",
-      "Cálculo: odds_post = odds_pre × LR; P = odds/(1+odds).",
-      "Fuente: British Thoracic Society 2015 (Callister et al.) / MDCalc; LR derivados de Herder 2005.",
-      ...(hasNumber(diameter) && diameter < HERDER_VALIDATED_MIN_DIAMETER_MM
-        ? [
-            `Nota: Herder se validó principalmente en nódulos ≥${HERDER_VALIDATED_MIN_DIAMETER_MM} mm; interpretar con cautela en nódulos más pequeños.`,
-          ]
-        : []),
-      ...(preTestModelId === "brock"
-        ? ["Nota: Herder fue validado originalmente con Mayo. Su uso con Brock tiene evidencia limitada."]
-        : []),
-    ],
-  };
-}
-
-// Herder logistic variant: multivariable logistic regression published in Herder 2005.
-function buildHerderLogisticSummary(
-  input: AssessmentInput,
-  eligibility: HerderEligibility,
-): PredictiveModelSummary {
-  if (eligibility.kind === "blocked") {
-    return { id: "herder-logistic", label: MODEL_LABELS["herder-logistic"], ...eligibility.fields };
-  }
-
-  const { preTestProbability, preTestModelId } = eligibility;
-  const diameter = input.nodule.diameterMm;
-
-  const fdgTerm = input.nodule.petUptake
-    ? HERDER_LOGISTIC_FDG[input.nodule.petUptake]
-    : undefined;
-
-  if (fdgTerm === undefined) {
-    return {
-      id: "herder-logistic",
-      label: MODEL_LABELS["herder-logistic"],
-      status: "insufficient_data",
-      missingFields: ["Captación FDG"],
-      preTestModelId,
-      preTestProbability,
-    };
-  }
-
-  const x =
-    HERDER_LOGISTIC_COEFFICIENTS.intercept +
-    HERDER_LOGISTIC_COEFFICIENTS.preTest * preTestProbability +
-    fdgTerm;
-  const probability = logistic(x);
-
-  return {
-    id: "herder-logistic",
-    label: MODEL_LABELS["herder-logistic"],
-    status: "available",
-    probability,
-    riskBand: toRiskBand(probability),
-    preTestModelId,
-    preTestProbability,
-    notes: [
-      "Variante logística: regresión multivariable publicada en el paper original Herder 2005.",
+      "Regresión logística multivariable publicada en Herder 2005.",
       "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
-      "P_pre es la probabilidad Mayo/Brock como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+      "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
       "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041).",
-      ...(hasNumber(diameter) && diameter < HERDER_VALIDATED_MIN_DIAMETER_MM
+      ...(hasNumber(diameter) && diameter < HERDER_SMALL_NODULE_CAUTION_MM
         ? [
-            `Nota: Herder se validó principalmente en nódulos ≥${HERDER_VALIDATED_MIN_DIAMETER_MM} mm; interpretar con cautela en nódulos más pequeños.`,
+            `Precaución: la captación FDG-PET es menos sensible en nódulos <${HERDER_SMALL_NODULE_CAUTION_MM} mm; interpretar el resultado con cautela.`,
           ]
         : []),
-      ...(preTestModelId === "brock"
-        ? ["Nota: el pre-test original del modelo es Mayo/Swensen; su uso con Brock tiene evidencia limitada."]
+      ...(preTestProbability < 0.1
+        ? [
+            "Nota informativa: la guía BTS 2015 recomienda PET-CT (y por tanto Herder) cuando el riesgo pre-test es ≥10%; no es una restricción del modelo.",
+          ]
         : []),
     ],
   };

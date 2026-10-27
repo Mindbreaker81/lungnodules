@@ -185,6 +185,25 @@ export default function NoduleStep({ clinicalContext }: Props) {
         )}
       </div>
 
+      <div>
+        <label className="block text-sm font-medium text-foreground">
+          Diámetro máximo transversal (mm) <span className="text-xs text-muted-foreground">— opcional, usado por Brock</span>
+        </label>
+        <Input
+          type="number"
+          min={1}
+          max={100}
+          step="0.1"
+          aria-label="Diámetro máximo transversal en milímetros"
+          placeholder="Diámetro máximo transversal (mm)"
+          className="mt-1"
+          {...register("nodule.maxDiameterMm", { setValueAs: parseOptionalNumber })}
+        />
+        <p className="mt-1 text-xs text-muted-foreground">
+          Si se omite, Brock calcula con el valor del campo anterior.
+        </p>
+      </div>
+
       {type === "part-solid" && (
         <div>
           <label className="block text-sm font-medium text-foreground">Componente sólido (mm)</label>
@@ -426,7 +445,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
                       {...register("nodule.atypicalCystPreviouslyStable")}
                       className="text-primary rounded focus:ring-primary"
                     />
-                    Previamente estable (Cat 3)
+                    Previamente estable (Cat 3, requiere pared gruesa)
                   </label>
                   <label className="flex items-center gap-2 text-foreground">
                     <input
@@ -435,7 +454,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
                       {...register("nodule.atypicalCystGrowingCysticComponent")}
                       className="text-primary rounded focus:ring-primary"
                     />
-                    Componente quístico en crecimiento (Cat 3)
+                    Componente quístico en crecimiento (Cat 3, requiere pared gruesa)
                   </label>
                   <label className="flex items-center gap-2 text-foreground">
                     <input
@@ -503,7 +522,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
                     {...register("nodule.atypicalCystCategory", { setValueAs: (value) => value || undefined })}
                   >
                     <option value="" className="bg-popover">Selecciona una categoría</option>
-                    <option value="category3" className="bg-popover">Categoría 3 (quiste estable con crecimiento quístico)</option>
+                    <option value="category3" className="bg-popover">Categoría 3 (quiste de pared gruesa estable con componente quístico creciente)</option>
                     <option value="category4A" className="bg-popover">Categoría 4A (pared gruesa/multilocular)</option>
                     <option value="category4B" className="bg-popover">Categoría 4B (crecimiento o nodularidad)</option>
                   </select>

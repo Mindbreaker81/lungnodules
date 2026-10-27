@@ -29,8 +29,7 @@ const NODULE_TYPE_LABELS: Record<string, string> = {
 const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {
   mayo: "Mayo Clinic",
   brock: "Brock (Pan-Can)",
-  herder: "Herder (BTS · LR)",
-  "herder-logistic": "Herder (logístico · 2005)",
+  herder: "Herder (2005)",
 };
 
 const PREDICTIVE_STATUS_LABELS: Record<PredictiveModelSummary["status"], string> = {
@@ -55,7 +54,7 @@ const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
 const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
 const hasNumber = (value: unknown): value is number => typeof value === "number" && !Number.isNaN(value);
 
-function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
+export function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo =
     result.guideline === "fleischner-2017"
       ? GUIDELINE_VERSIONS.fleischner
@@ -97,7 +96,10 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
       `DATOS DE ENTRADA:`,
       `  Contexto: ${input.clinicalContext}`,
       `  Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
-      hasNumber(input.nodule.diameterMm) ? `  Diámetro: ${formatMeasurement(input.nodule.diameterMm)}mm` : null,
+      hasNumber(input.nodule.diameterMm) ? `  Diámetro medio: ${formatMeasurement(input.nodule.diameterMm)}mm` : null,
+      hasNumber(input.nodule.maxDiameterMm)
+        ? `  Diámetro máximo transversal: ${formatMeasurement(input.nodule.maxDiameterMm)}mm (usado por Brock)`
+        : null,
       input.nodule.solidComponentMm !== undefined
         ? `  Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
         : null,

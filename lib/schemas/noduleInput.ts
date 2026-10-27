@@ -56,6 +56,7 @@ export const patientSchema = z.object({
 export const noduleBaseSchema = z.object({
   type: z.enum(noduleTypeValues),
   diameterMm: diameterSchema.optional(),
+  maxDiameterMm: diameterSchema.optional(),
   solidComponentMm: solidComponentSchema,
   isMultiple: z.boolean(),
   isPerifissural: z.boolean().optional(),
@@ -122,6 +123,16 @@ const fleischnerCoreSchema = z.object({
 });
 
 export const fleischnerInputSchema = fleischnerCoreSchema
+  .refine(
+    (data: z.infer<typeof fleischnerCoreSchema>) =>
+      data.nodule.maxDiameterMm === undefined ||
+      data.nodule.diameterMm === undefined ||
+      data.nodule.maxDiameterMm >= data.nodule.diameterMm,
+    {
+      message: 'El diámetro máximo no puede ser menor que el diámetro medio',
+      path: ['nodule', 'maxDiameterMm'],
+    },
+  )
   .refine((data: z.infer<typeof fleischnerCoreSchema>) => data.patient.clinicalContext === 'incidental', {
     message: 'Fleischner aplica a hallazgos incidentales',
     path: ['patient', 'clinicalContext'],
@@ -168,6 +179,16 @@ const lungRadsCoreSchema = z.object({
 });
 
 export const lungRadsInputSchema = lungRadsCoreSchema
+  .refine(
+    (data: z.infer<typeof lungRadsCoreSchema>) =>
+      data.nodule.maxDiameterMm === undefined ||
+      data.nodule.diameterMm === undefined ||
+      data.nodule.maxDiameterMm >= data.nodule.diameterMm,
+    {
+      message: 'El diámetro máximo no puede ser menor que el diámetro medio',
+      path: ['nodule', 'maxDiameterMm'],
+    },
+  )
   .refine((data: z.infer<typeof lungRadsCoreSchema>) => data.patient.clinicalContext === 'screening', {
     message: 'Lung-RADS aplica al contexto de screening',
     path: ['patient', 'clinicalContext'],
@@ -223,6 +244,18 @@ export const assessmentInputSchema = z
     screeningAssessmentSchema.merge(steppedManagementSchema),
   ])
   .superRefine((data, ctx) => {
+    if (
+      data.nodule.maxDiameterMm !== undefined &&
+      data.nodule.diameterMm !== undefined &&
+      data.nodule.maxDiameterMm < data.nodule.diameterMm
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El diámetro máximo no puede ser menor que el diámetro medio',
+        path: ['nodule', 'maxDiameterMm'],
+      });
+    }
+
     if (data.clinicalContext === 'incidental') {
       if (data.patient.hasKnownMalignancy) {
         ctx.addIssue({

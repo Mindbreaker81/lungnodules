@@ -127,6 +127,7 @@ El siguiente árbol de decisión simple puede ser implementado en la interfaz de
 * Pregunta 2: ¿Se dispone de una tomografía por emisión de positrones (PET-CT)?
   * Si el nódulo es ≥ 8 mm y el riesgo pre-test (calculado con Mayo o Brock) es >10%:
     * Acción: Recomendar la integración de los hallazgos del PET-CT utilizando el Modelo de Herder para refinar la probabilidad de malignidad.
+    * Nota de implementación (LUN-17, 2026-10-27): este umbral decide **cuándo integrar el PET** según el riesgo del contexto (Mayo en incidental, Brock en screening); no debe confundirse con el pre-test que entra en la fórmula de Herder, que en la app es **siempre la probabilidad Mayo** y nunca se sustituye por Brock.
     * Descripción: El modelo de Herder incorpora la intensidad de captación de FDG, clasificada en una escala de cuatro puntos, para ajustar el riesgo pre-test:
       * Ausente (Absent): Captación indiscernible del tejido pulmonar de fondo.
       * Leve (Faint): Captación menor o igual a la del pool sanguíneo mediastínico.

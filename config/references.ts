@@ -127,7 +127,7 @@ export const BIBLIOGRAPHY: Record<ReferenceCategoryId, BibliographyEntry[]> = {
       citation:
         'Herder GJ, et al. Clinical prediction model to characterize pulmonary nodules: validation and added value of 18F-fluorodeoxyglucose positron emission tomography. Chest. 2005;128(4):2490-2496.',
       usedInApp:
-        'Variante logística Herder 2005 (`id: "herder-logistic"`): x = −4.739 + 3.691·P_pre + βFDG.',
+        'Modelo Herder 2005 (`id: "herder"`): x = −4.739 + 3.691·P_Mayo + βFDG; P_Mayo es el pre-test en ambos contextos.',
       links: [pubmed('16236914')],
     },
     {
@@ -135,7 +135,7 @@ export const BIBLIOGRAPHY: Record<ReferenceCategoryId, BibliographyEntry[]> = {
       citation:
         'Callister MEJ, Baldwin DR, Akram AR, et al. British Thoracic Society guidelines for the investigation and management of pulmonary nodules: accredited by NICE. Thorax. 2015;70(Suppl 2):ii1-ii54.',
       usedInApp:
-        'Variante Herder BTS por likelihood ratios de FDG-PET (`id: "herder"`); umbrales de manejo pre-test ≥10%.',
+        'Guía de manejo de nódulos; remite al modelo logístico Herder 2005 para el ajuste post-PET y usa umbrales de manejo pre-test ≥10% (nota informativa en la app).',
       links: [
         pubmed('26082159'),
         doi('10.1136/thoraxjnl-2015-207168'),

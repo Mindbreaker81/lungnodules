@@ -47,6 +47,7 @@ const defaultValues = {
   nodule: {
     type: "solid",
     diameterMm: undefined,
+    maxDiameterMm: undefined,
     solidComponentMm: undefined,
     isMultiple: false,
     isPerifissural: false,
@@ -216,6 +217,17 @@ export default function WizardContainer() {
       if (diameter < 1 || diameter > 100) {
         methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Ingresa un diámetro entre 1 y 100 mm" });
         return false;
+      }
+      const maxDiameter = methods.getValues("nodule.maxDiameterMm");
+      if (maxDiameter !== undefined) {
+        if (Number.isNaN(maxDiameter) || maxDiameter < 1 || maxDiameter > 100) {
+          methods.setError("nodule.maxDiameterMm" as any, { type: "manual", message: "Ingresa un diámetro entre 1 y 100 mm" });
+          return false;
+        }
+        if (maxDiameter < diameter) {
+          methods.setError("nodule.maxDiameterMm" as any, { type: "manual", message: "El diámetro máximo no puede ser menor que el diámetro medio" });
+          return false;
+        }
       }
       const type = methods.getValues("nodule.type");
       if (type === "part-solid") {
