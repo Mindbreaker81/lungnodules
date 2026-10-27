@@ -1,3 +1,12 @@
+## [1.6.5] - 2026-10-27
+
+### Added
+- **Informe de revisión** `INFORME_REVISION_2026-10-27.md`: revisión clínica y técnica conjunta (claude-nodules + codex-nodules) de modelos predictivos, PLCOm2012, Fleischner 2017, Lung-RADS v2022 y referencias; hallazgos registrados en YouTrack (LUN-16…LUN-36, padre LUN-15).
+
+### Changed
+- **Gestión de tareas:** `AGENTS.md` migra de `td` a YouTrack (proyecto LUN); histórico del CHANGELOG cargado como issues (LUN-1…LUN-12).
+- **Versionado:** metadatos alineados a `1.6.5`.
+
 ## [1.6.4] - 2026-06-18
 
 ### Changed
