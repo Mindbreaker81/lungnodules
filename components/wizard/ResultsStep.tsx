@@ -288,9 +288,25 @@ export default function ResultsStep({ result, input }: Props) {
                       ))}
                     </ul>
                   )}
+                  <details className="mt-2 text-xs text-muted-foreground">
+                    <summary className="cursor-pointer font-medium text-foreground">
+                      {UI_TEXTS.results.predictiveModels.howTitle}
+                    </summary>
+                    <dl className="mt-2 space-y-1">
+                      {(["purpose", "variables", "method", "applicability"] as const).map((key) => (
+                        <div key={key}>
+                          <dt className="font-medium text-foreground">{UI_TEXTS.results.predictiveModels.labels[key]}</dt>
+                          <dd>{UI_TEXTS.results.predictiveModels.explanations[summary.id][key]}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </details>
                 </div>
               ))}
             </div>
+            <p className="text-xs text-muted-foreground">
+              {UI_TEXTS.results.predictiveModels.riskBands}
+            </p>
             <p className="text-xs text-muted-foreground">
               {UI_TEXTS.results.predictiveModels.disclaimer}
             </p>

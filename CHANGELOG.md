@@ -1,3 +1,8 @@
+## [1.7.1] - 2026-10-27
+
+### Added
+- **Explicación de los modelos predictivos:** cada tarjeta (Mayo, Brock, Herder) tiene un desplegable «¿Cómo se calcula?» con para qué sirve, qué datos usa, cómo los combina y cuándo se calcula, y se explican las bandas de riesgo (LUN-37).
+
 ## [1.7.0] - 2026-10-27
 
 ### Added

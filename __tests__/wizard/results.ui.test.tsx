@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import ResultsStep from "@components/wizard/ResultsStep";
 import { AssessmentResult } from "@lib/algorithms";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
@@ -56,5 +56,26 @@ describe("ResultsStep UI", () => {
     expect(
       screen.getByText(/Múltiples nódulos: recomendaciones aplican al nódulo dominante/i),
     ).toBeInTheDocument();
+  });
+
+  it("explains how each predictive model is calculated", () => {
+    const input: AssessmentInput = {
+      clinicalContext: "screening",
+      patient: { clinicalContext: "screening", age: 60 },
+      nodule: {
+        type: "solid",
+        diameterMm: 8,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        scanType: "baseline",
+      },
+    };
+
+    render(<ResultsStep result={baseResult} input={input} />);
+    fireEvent.click(screen.getByText("Modelos predictivos (beta)"));
+
+    expect(screen.getAllByText("¿Cómo se calcula?")).toHaveLength(3);
+    expect(screen.getByText(/−4,739 \+ 3,691 × probabilidad de Mayo/)).toBeInTheDocument();
+    expect(screen.getByText(/Bandas de riesgo orientativas/)).toBeInTheDocument();
   });
 });
