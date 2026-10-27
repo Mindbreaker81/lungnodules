@@ -43,6 +43,7 @@ const defaultValues = {
     extrathoracicCancerHistory: undefined,
     hasFamilyHistoryLungCancer: false,
     hasEmphysema: false,
+    hasLungCancerHistory: false,
   },
   nodule: {
     type: "solid",
@@ -253,6 +254,10 @@ export default function WizardContainer() {
         const count = methods.getValues("nodule.noduleCount");
         if (count === undefined || Number.isNaN(count) || count < 1) {
           methods.setError("nodule.noduleCount" as any, { type: "manual", message: "Ingresa el número de nódulos" });
+          return false;
+        }
+        if (!Number.isInteger(count)) {
+          methods.setError("nodule.noduleCount" as any, { type: "manual", message: "El número de nódulos debe ser entero" });
           return false;
         }
       }

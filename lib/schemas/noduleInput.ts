@@ -31,7 +31,8 @@ const diameterSchema = z
 
 const ageSchema = z
   .number({ invalid_type_error: 'La edad debe ser positiva' })
-  .min(0, 'La edad debe ser positiva');
+  .min(0, 'La edad debe ser positiva')
+  .max(110, 'La edad no puede superar 110 años');
 
 const solidComponentSchema = z
   .number({ invalid_type_error: 'El componente sólido no puede exceder el total' })
@@ -51,6 +52,7 @@ export const patientSchema = z.object({
   extrathoracicCancerHistory: z.enum(extrathoracicCancerHistoryValues).optional(),
   hasFamilyHistoryLungCancer: z.boolean().optional(),
   hasEmphysema: z.boolean().optional(),
+  hasLungCancerHistory: z.boolean().optional(),
 });
 
 export const noduleBaseSchema = z.object({
@@ -64,6 +66,7 @@ export const noduleBaseSchema = z.object({
   isUpperLobe: z.boolean().optional(),
   noduleCount: z
     .number({ invalid_type_error: 'Ingresa el número de nódulos' })
+    .int('El número de nódulos debe ser entero')
     .min(1, 'Ingresa el número de nódulos')
     .max(50, 'Ingresa el número de nódulos (≤50)')
     .optional(),

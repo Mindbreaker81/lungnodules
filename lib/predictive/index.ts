@@ -24,11 +24,44 @@ const isMassTooLarge = (diameterMm?: number) =>
 
 const logistic = (value: number) => 1 / (1 + Math.exp(-value));
 
-const toRiskBand = (probability: number): PredictiveRiskBand => {
-  if (probability < 0.05) return "low";
-  if (probability <= 0.65) return "intermediate";
+// Pre-test bands (ACCP 2013, Gould et al.): <5% / 5–65% / >65%.
+const PRE_TEST_BANDS = { low: 0.05, high: 0.65 } as const;
+// Post-PET bands after Herder (BTS 2015, Callister et al., p.ii3): <10% / 10–70% / >70%.
+const POST_PET_BANDS = { low: 0.1, high: 0.7 } as const;
+
+const toRiskBand = (
+  probability: number,
+  bands: { low: number; high: number } = PRE_TEST_BANDS,
+): PredictiveRiskBand => {
+  if (probability < bands.low) return "low";
+  if (probability <= bands.high) return "intermediate";
   return "high";
 };
+
+/** Brock development cohort (PanCan): ages 50–75, first screening CT. */
+const BROCK_COHORT_AGE = { min: 50, max: 75 } as const;
+
+// Swensen 1997 derived Mayo on solitary, essentially solid nodules of 4–30 mm.
+function mayoExtrapolationNotes(input: AssessmentInput): string[] {
+  const notes: string[] = [];
+  const diameter = input.nodule.diameterMm;
+  if (hasNumber(diameter) && diameter < MAYO_MIN_DIAMETER_MM) {
+    notes.push(
+      `Extrapolación: Mayo se desarrolló con nódulos de ${MAYO_MIN_DIAMETER_MM}–30 mm; este nódulo es menor.`,
+    );
+  }
+  if (input.nodule.isMultiple) {
+    notes.push(
+      "Extrapolación: Mayo se desarrolló con nódulos solitarios; se aplica al nódulo dominante.",
+    );
+  }
+  if (input.nodule.type !== "solid") {
+    notes.push(
+      "Extrapolación: Mayo se desarrolló con nódulos esencialmente sólidos; interpretar con cautela en nódulos subsólidos.",
+    );
+  }
+  return notes;
+}
 
 // Mayo Clinic model (Swensen et al., Arch Intern Med 1997;157:849-855).
 // x = -6.8272 + 0.0391·age + 0.7917·smoking + 1.3388·cancer + 0.1274·diameter
@@ -159,6 +192,13 @@ function computeMayo(input: AssessmentInput): MayoComputation {
     };
   }
 
+  if (input.patient.hasLungCancerHistory) {
+    return {
+      status: "not_applicable",
+      reason: "No aplica con antecedente de cáncer de pulmón (excluido en Swensen 1997).",
+    };
+  }
+
   if (!hasNumber(age)) missingFields.push("Edad");
   if (!input.patient.smokingStatus) missingFields.push("Tabaquismo");
   if (!input.patient.extrathoracicCancerHistory) missingFields.push("Cáncer extratorácico (>5 años)");
@@ -221,12 +261,14 @@ function buildMayoSummary(
     };
   }
 
-  const notes =
-    input.nodule.hasPet && input.nodule.petUptake
+  const notes = [
+    ...(input.nodule.hasPet && input.nodule.petUptake
       ? [
           "Probabilidad pre-PET (modelo Mayo). No incorpora captación FDG; ver Herder para riesgo post-PET.",
         ]
-      : undefined;
+      : []),
+    ...mayoExtrapolationNotes(input),
+  ];
 
   return {
     id: "mayo",
@@ -234,7 +276,7 @@ function buildMayoSummary(
     status: "available",
     probability: mayo.probability,
     riskBand: toRiskBand(mayo.probability),
-    notes,
+    notes: notes.length > 0 ? notes : undefined,
   };
 }
 
@@ -264,7 +306,17 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
       id: "brock",
       label: MODEL_LABELS.brock,
       status: "not_applicable",
-      reason: "No aplicar a masas >30 mm.",
+      reason:
+        "La app no aplica Brock a lesiones >30 mm (masas); es una decisión de la app, no un límite del estudio original.",
+    };
+  }
+
+  if (input.patient.hasLungCancerHistory) {
+    return {
+      id: "brock",
+      label: MODEL_LABELS.brock,
+      status: "not_applicable",
+      reason: "No aplica con antecedente de cáncer de pulmón (excluido en PanCan).",
     };
   }
 
@@ -329,6 +381,21 @@ function buildBrockSummary(input: AssessmentInput): PredictiveModelSummary {
     ...(!usesMaxDiameter
       ? [
           "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo.",
+        ]
+      : []),
+    ...(resolvedAge < BROCK_COHORT_AGE.min || resolvedAge > BROCK_COHORT_AGE.max
+      ? [
+          `Extrapolación: Brock se desarrolló en personas de ${BROCK_COHORT_AGE.min}–${BROCK_COHORT_AGE.max} años.`,
+        ]
+      : []),
+    ...(input.nodule.isPerifissural
+      ? [
+          "Nódulo perifisural: en PanCan/BCCA ninguno fue maligno (0/571) y se excluyeron del ajuste del modelo; el resultado probablemente sobreestima el riesgo.",
+        ]
+      : []),
+    ...(input.nodule.scanType === "follow-up"
+      ? [
+          "Extrapolación: Brock se desarrolló con nódulos del primer TC de cribado, no de seguimiento.",
         ]
       : []),
   ];
@@ -452,7 +519,7 @@ function buildHerderSummary(
     label: MODEL_LABELS.herder,
     status: "available",
     probability,
-    riskBand: toRiskBand(probability),
+    riskBand: toRiskBand(probability, POST_PET_BANDS),
     preTestModelId,
     preTestProbability,
     notes: [
@@ -465,11 +532,9 @@ function buildHerderSummary(
             `Precaución: la captación FDG-PET es menos sensible en nódulos <${HERDER_SMALL_NODULE_CAUTION_MM} mm; interpretar el resultado con cautela.`,
           ]
         : []),
-      ...(preTestProbability < 0.1
-        ? [
-            "Nota informativa: la guía BTS 2015 recomienda PET-CT (y por tanto Herder) cuando el riesgo pre-test es ≥10%; no es una restricción del modelo.",
-          ]
-        : []),
+      "Bandas post-PET de BTS 2015: <10% vigilancia con TC · 10–70% biopsia guiada por imagen · >70% resección.",
+      "BTS 2015 indica el PET-CT cuando el riesgo inicial con Brock es >10% y el nódulo supera el umbral de detección del PET; no es una restricción del modelo.",
+      ...mayoExtrapolationNotes(input),
     ],
   };
 }

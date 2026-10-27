@@ -61,3 +61,36 @@ describe('assessmentInputSchema — maxDiameterMm', () => {
     expect(tooLarge.success).toBe(false);
   });
 });
+
+describe('assessmentInputSchema — noduleCount', () => {
+  const multiple = (noduleCount: number) => ({
+    clinicalContext: 'screening' as const,
+    patient: { clinicalContext: 'screening' as const },
+    nodule: { type: 'solid' as const, diameterMm: 8, isMultiple: true, noduleCount, scanType: 'baseline' as const },
+  });
+
+  test('rejects a fractional nodule count', () => {
+    const result = assessmentInputSchema.safeParse(multiple(1.5));
+    expect(result.success).toBe(false);
+  });
+
+  test('accepts an integer nodule count', () => {
+    expect(assessmentInputSchema.safeParse(multiple(3)).success).toBe(true);
+  });
+});
+
+describe('assessmentInputSchema — patient age', () => {
+  const withAge = (age: number) => ({
+    clinicalContext: 'screening' as const,
+    patient: { clinicalContext: 'screening' as const, age },
+    nodule: { type: 'solid' as const, diameterMm: 8, isMultiple: false, scanType: 'baseline' as const },
+  });
+
+  test('rejects implausible ages above 110', () => {
+    expect(assessmentInputSchema.safeParse(withAge(120)).success).toBe(false);
+  });
+
+  test('accepts 110', () => {
+    expect(assessmentInputSchema.safeParse(withAge(110)).success).toBe(true);
+  });
+});

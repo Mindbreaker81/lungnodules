@@ -287,8 +287,13 @@ export default function EligibilityPage() {
             Riesgo a 6 años: {(result.probability * 100).toFixed(2)}%
           </p>
           <p className="text-sm text-muted-foreground">
-            Umbral usado: {(result.thresholdUsed * 100).toFixed(2)}%
+            Umbral usado: {(result.thresholdUsed * 100).toFixed(2)}% (Tammemägi 2014, percentil 65 de riesgo)
           </p>
+          {result.warnings.map((warning) => (
+            <p key={warning} className="rounded-lg bg-warning/20 px-3 py-2 text-sm text-foreground">
+              {warning}
+            </p>
+          ))}
           <p
             className={`rounded-lg px-3 py-2 text-sm font-semibold ${
               result.eligible

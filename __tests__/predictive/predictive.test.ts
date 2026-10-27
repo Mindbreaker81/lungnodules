@@ -148,7 +148,7 @@ describe('Predictive models', () => {
     expect(summary.missingFields).toContain('Edad');
   });
 
-  test('Herder computes below 10% pre-test and notes the BTS guidance', () => {
+  test('Herder computes below 10% pre-test and states the BTS PET criterion (Brock >10%)', () => {
     const input: AssessmentInput = {
       clinicalContext: 'incidental',
       patient: {
@@ -179,7 +179,8 @@ describe('Predictive models', () => {
     expect(summary.status).toBe('available');
     expect(summary.preTestModelId).toBe('mayo');
     expect(summary.probability).toBeCloseTo(0.4826, 3);
-    expect(summary.notes?.some((note) => note.includes('BTS') && note.includes('≥10%'))).toBe(true);
+    expect(summary.notes?.some((note) => note.includes('BTS') && note.includes('Brock es >10%'))).toBe(true);
+    expect(summary.notes?.some((note) => note.includes('≥10%'))).toBe(false);
   });
 
   test('Herder applies the published logistic model on Mayo pre-test', () => {
@@ -827,5 +828,124 @@ describe('Predictive models', () => {
     expect(summary.status).toBe('available');
     expect(summary.probability).toBeCloseTo(0.2537, 3);
     expect(summary.notes?.some((n) => n.includes('diámetro máximo transversal'))).toBe(true);
+  });
+
+  describe('risk bands and extrapolation notes', () => {
+    const base = (overrides: Partial<AssessmentInput['nodule']> = {}, age = 74): AssessmentInput => ({
+      clinicalContext: 'incidental',
+      patient: {
+        clinicalContext: 'incidental',
+        age,
+        riskLevel: 'low',
+        hasKnownMalignancy: false,
+        isImmunocompromised: false,
+        sex: 'male',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 7,
+        solidComponentMm: undefined,
+        isMultiple: false,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        hasPet: true,
+        petUptake: 'intense',
+        ...overrides,
+      },
+    });
+
+    test('Herder uses BTS 2015 post-PET bands (10/70%), Mayo keeps ACCP 2013 (5/65%)', () => {
+      const herder = getSummary(base(), 'herder');
+      // 67.3% is "high" with ACCP (>65%) but "intermediate" with BTS (10–70%).
+      expect(herder.probability).toBeCloseTo(0.6735, 4);
+      expect(herder.riskBand).toBe('intermediate');
+
+      const mayo = getSummary(base({ hasPet: false, petUptake: undefined }), 'mayo');
+      expect(mayo.probability).toBeCloseTo(0.1875, 4);
+      expect(mayo.riskBand).toBe('intermediate');
+    });
+
+    test('Herder below 10% is low with BTS bands', () => {
+      const herder = getSummary(base({ petUptake: 'absent' }), 'herder');
+      expect(herder.probability as number).toBeLessThan(0.1);
+      expect(herder.riskBand).toBe('low');
+    });
+
+    test('Mayo warns when used outside its development domain', () => {
+      const small = getSummary(base({ diameterMm: 3, hasPet: false, petUptake: undefined }), 'mayo');
+      expect(small.status).toBe('available');
+      expect(small.notes?.some((note) => note.includes('4–30 mm'))).toBe(true);
+
+      const multiple = getSummary(base({ isMultiple: true, noduleCount: 3 }), 'mayo');
+      expect(multiple.notes?.some((note) => note.includes('solitarios'))).toBe(true);
+
+      const subsolid = getSummary(base({ type: 'part-solid', solidComponentMm: 3 }), 'herder');
+      expect(subsolid.notes?.some((note) => note.includes('subsólidos'))).toBe(true);
+
+      const typical = getSummary(base(), 'mayo');
+      expect(typical.notes?.some((note) => note.startsWith('Extrapolación'))).toBe(false);
+    });
+
+    test('Brock warns outside the PanCan cohort (age 50–75, first screening CT)', () => {
+      const screening = (age: number, scanType: 'baseline' | 'follow-up'): AssessmentInput => ({
+        ...base({ scanType, hasPet: false, petUptake: undefined }, age),
+        clinicalContext: 'screening',
+        patient: { ...base({}, age).patient, clinicalContext: 'screening' },
+      } as AssessmentInput);
+
+      expect(getSummary(screening(62, 'baseline'), 'brock').notes?.some((n) => n.startsWith('Extrapolación'))).toBeFalsy();
+      expect(getSummary(screening(80, 'baseline'), 'brock').notes?.some((n) => n.includes('50–75 años'))).toBe(true);
+      expect(getSummary(screening(62, 'follow-up'), 'brock').notes?.some((n) => n.includes('primer TC'))).toBe(true);
+    });
+  });
+
+  describe('input domain (LUN-25)', () => {
+    const screening = (patient: Partial<AssessmentInput['patient']>, nodule: Partial<AssessmentInput['nodule']> = {}): AssessmentInput => ({
+      clinicalContext: 'screening',
+      patient: {
+        clinicalContext: 'screening',
+        age: 62,
+        sex: 'female',
+        smokingStatus: 'current',
+        extrathoracicCancerHistory: 'none',
+        hasFamilyHistoryLungCancer: false,
+        hasEmphysema: false,
+        ...patient,
+      },
+      nodule: {
+        type: 'solid',
+        diameterMm: 12,
+        isMultiple: false,
+        hasSpiculation: false,
+        isUpperLobe: true,
+        scanType: 'baseline',
+        hasPet: true,
+        petUptake: 'moderate',
+        ...nodule,
+      },
+    } as AssessmentInput);
+
+    test('prior lung cancer makes Mayo, Brock and Herder not applicable', () => {
+      const input = screening({ hasLungCancerHistory: true });
+      expect(getSummary(input, 'brock').status).toBe('not_applicable');
+      expect(getSummary(input, 'brock').reason).toMatch(/cáncer de pulmón/);
+      expect(getSummary(input, 'herder').status).toBe('not_applicable');
+      expect(getSummary(input, 'herder').reason).toMatch(/cáncer de pulmón/);
+    });
+
+    test('perifissural nodule adds an overestimation note to Brock', () => {
+      const notes = getSummary(screening({}, { isPerifissural: true }), 'brock').notes ?? [];
+      expect(notes.some((note) => note.includes('0/571'))).toBe(true);
+    });
+
+    test('Brock >30 mm reason states it is an app decision', () => {
+      const summary = getSummary(screening({}, { diameterMm: 35 }), 'brock');
+      expect(summary.status).toBe('not_applicable');
+      expect(summary.reason).toMatch(/decisión de la app/);
+    });
   });
 });

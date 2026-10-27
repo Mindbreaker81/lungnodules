@@ -1,0 +1,122 @@
+[
+  {
+    "name": "age40",
+    "input": {
+      "age": 40,
+      "race": "white",
+      "education": 4,
+      "bmi": 27,
+      "copd": false,
+      "cancer_hist": false,
+      "family_hist_lung_cancer": false,
+      "smoking_status": "former",
+      "smoking_intensity": 80,
+      "duration_smoking": 27,
+      "smoking_quit_time": 10
+    },
+    "accepted": true,
+    "result": {
+      "probability": 0.0032016800890646902,
+      "eligible": false,
+      "thresholdUsed": 0.0151
+    }
+  },
+  {
+    "name": "age90",
+    "input": {
+      "age": 90,
+      "race": "white",
+      "education": 4,
+      "bmi": 27,
+      "copd": false,
+      "cancer_hist": false,
+      "family_hist_lung_cancer": false,
+      "smoking_status": "former",
+      "smoking_intensity": 80,
+      "duration_smoking": 27,
+      "smoking_quit_time": 10
+    },
+    "accepted": true,
+    "result": {
+      "probability": 0.13628050458149846,
+      "eligible": true,
+      "thresholdUsed": 0.0151
+    }
+  },
+  {
+    "name": "impossible40y+70smoke+60quit",
+    "input": {
+      "age": 40,
+      "race": "white",
+      "education": 4,
+      "bmi": 27,
+      "copd": false,
+      "cancer_hist": false,
+      "family_hist_lung_cancer": false,
+      "smoking_status": "former",
+      "smoking_intensity": 80,
+      "duration_smoking": 70,
+      "smoking_quit_time": 60
+    },
+    "accepted": true,
+    "result": {
+      "probability": 0.002680006479293252,
+      "eligible": false,
+      "thresholdUsed": 0.0151
+    }
+  },
+  {
+    "name": "current quit10",
+    "input": {
+      "age": 62,
+      "race": "white",
+      "education": 4,
+      "bmi": 27,
+      "copd": false,
+      "cancer_hist": false,
+      "family_hist_lung_cancer": false,
+      "smoking_status": "current",
+      "smoking_intensity": 80,
+      "duration_smoking": 27,
+      "smoking_quit_time": 10
+    },
+    "accepted": false,
+    "result": null
+  },
+  {
+    "name": "zero intensity",
+    "input": {
+      "age": 62,
+      "race": "white",
+      "education": 4,
+      "bmi": 27,
+      "copd": false,
+      "cancer_hist": false,
+      "family_hist_lung_cancer": false,
+      "smoking_status": "former",
+      "smoking_intensity": 0,
+      "duration_smoking": 27,
+      "smoking_quit_time": 10
+    },
+    "accepted": false,
+    "result": null
+  },
+  {
+    "name": "unknown race",
+    "input": {
+      "age": 62,
+      "race": "unknown",
+      "education": 4,
+      "bmi": 27,
+      "copd": false,
+      "cancer_hist": false,
+      "family_hist_lung_cancer": false,
+      "smoking_status": "former",
+      "smoking_intensity": 80,
+      "duration_smoking": 27,
+      "smoking_quit_time": 10
+    },
+    "accepted": false,
+    "result": null
+  }
+]

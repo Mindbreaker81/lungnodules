@@ -154,6 +154,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
             <Input
               type="number"
               min={1}
+              step={1}
               max={50}
               aria-label="Número de nódulos"
               className="mt-1"

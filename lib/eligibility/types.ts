@@ -38,6 +38,8 @@ export interface EligibilityResult {
   probability: number;
   eligible: boolean;
   thresholdUsed: number;
+  /** Cautions about extrapolation beyond the model's development cohort. */
+  warnings: string[];
 }
 
 /** Generic input for any eligibility model (union or discriminated by model id). */

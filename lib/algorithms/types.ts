@@ -18,6 +18,8 @@ export interface PatientProfile {
   extrathoracicCancerHistory?: ExtrathoracicCancerHistory;
   hasFamilyHistoryLungCancer?: boolean;
   hasEmphysema?: boolean;
+  /** Prior lung cancer: excluded from the Mayo (Swensen) and Brock (PanCan) cohorts. */
+  hasLungCancerHistory?: boolean;
 }
 
 export interface NoduleCharacteristics {

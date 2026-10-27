@@ -1,3 +1,21 @@
+## [1.8.0] - 2026-10-27
+
+### Added
+- **Antecedente personal de cáncer de pulmón** en factores de riesgo: si se marca, Mayo, Brock y Herder no se calculan (excluido en Swensen y PanCan) (LUN-25).
+- **Avisos de extrapolación:** Mayo/Herder con nódulo <4 mm, múltiple o subsólido; Brock fuera de 50–75 años, en TC de seguimiento o con nódulo perifisural (0/571 malignos en PanCan); PLCOm2012 fuera de 55–74 años (LUN-19, LUN-21, LUN-25).
+- **Casos de referencia en el repo:** tabla 3 de Swensen (144 celdas, transcrita dos veces), perfil de la figura 1 de PLCOm2012 y comparación con una implementación independiente escrita desde los artículos (`__tests__/predictive/referenceCases.test.ts`).
+- **Auditoría del recálculo independiente** (Codex y Devin, 0 discrepancias numéricas) en `research/verification/2026-10-27/` (LUN-38).
+- **Fuentes:** PDF de la guía BTS 2015 en `research/pdf/`; referencias ACCP 2013 y Tammemägi 2014 en la página de referencias.
+
+### Changed
+- **Bandas de riesgo de Herder:** usa las bandas post-PET de BTS 2015 (<10 %, 10–70 %, >70 %) con sus sugerencias de manejo; Mayo y Brock mantienen las de ACCP 2013 (5/65 %). La nota BTS indica que el PET se recomienda con riesgo inicial Brock >10 % (LUN-20).
+- **Umbral PLCOm2012 1,51 %:** atribuido a Tammemägi 2014 (PLoS Med 11:e1001764, percentil 65 de riesgo) (LUN-23).
+- **Textos:** explicación de Brock más precisa; el límite de 30 mm de Brock se presenta como decisión de la app.
+
+### Fixed
+- **PLCOm2012:** se rechazan historias de tabaquismo imposibles (años fumando + años desde el abandono > edad) (LUN-22) y umbrales que no sean una fracción finita entre 0 y 1 (LUN-24).
+- **Entradas:** el número de nódulos debe ser entero y la edad no puede superar 110 años (LUN-25).
+
 ## [1.7.1] - 2026-10-27
 
 ### Added
