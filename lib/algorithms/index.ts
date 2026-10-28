@@ -4,7 +4,7 @@ export {
   checkFleischnerApplicability,
   getFleischnerWarnings,
 } from './fleischner';
-export { assessLungRads, calculateLungRadsGrowth } from './lungRads';
+export { assessLungRads, calculateLungRadsGrowth, calculateLungRadsGrowthResult } from './lungRads';
 export {
   classifyAtypicalCyst,
   hasAtypicalCystMorphologyDescriptor,

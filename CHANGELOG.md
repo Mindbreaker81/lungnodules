@@ -1,3 +1,24 @@
+## [1.9.0] - 2026-10-28
+
+### Added
+- **Lung-RADS:** campo de componente sólido previo en semi-sólidos; un componente sólido nuevo o que crece da 4A/4B (LUN-28).
+- **Juxtapleural:** controles de márgenes lisos y forma (triangular, lentiforme u ovoide); la categoría 2 exige <10 mm, estudio basal o nódulo nuevo y esa morfología (LUN-29).
+- **Vía aérea:** selector de categoría (0 o 2) para el hallazgo de probable origen inflamatorio (LUN-31).
+- **Nódulo nuevo:** casilla propia; no pide medidas previas e ignora categoría previa y crecimiento lento (LUN-34).
+- **Avisos:** GGN que duplica su tamaño en ≤12 meses (nota 14) y GGN ≥30 mm que aumenta en un intervalo >12 meses (3 provisional).
+
+### Changed
+- **Crecimiento Lung-RADS:** solo cuenta un aumento >1,5 mm en ≤12 meses (notas 6–8), comparado en décimas de mm; con intervalos mayores se clasifica por tamaño y se sugiere «crecimiento lento» (LUN-27).
+- **GGN ≥30 mm estable** en seguimiento pasa a categoría 2 (LUN-32).
+- **Vía aérea persistente:** 4B solo si es segmentaria o más proximal; subsegmentaria persistente queda en 2 con aviso (LUN-31).
+- **Modificador S** se conserva en las categorías especiales (LUN-30).
+- **Fleischner:** la edad ya no marca por sí sola el riesgo alto; «>65 años» se presenta como heurística local y el riesgo como «orientativo» (LUN-33).
+- **Resultados y exportación:** muestran por separado el crecimiento total y el del componente sólido, e incluyen los datos nuevos (texto compartido en `lib/reportFormat.ts`).
+
+### Removed
+- **«~3 %» de malignidad** en Fleischner >8 mm: es la media de un nódulo de 8 mm (MacMahon 2017, p. 233), no el riesgo del paciente (LUN-35).
+- Constantes sin uso en `config/guidelines.ts` (LUN-35).
+
 ## [1.8.1] - 2026-10-28
 
 ### Fixed

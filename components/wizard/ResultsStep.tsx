@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AssessmentResult, calculateLungRadsGrowth } from "@lib/algorithms";
+import { AssessmentResult, calculateLungRadsGrowthResult } from "@lib/algorithms";
 import { AssessmentInput } from "@lib/schemas/noduleInput";
+import { hasNumber, inputParameterLines } from "@lib/reportFormat";
 import {
   getPredictiveSummaries,
   getRecommendedPredictiveModel,
@@ -19,12 +20,6 @@ interface Props {
   result: AssessmentResult | null;
   input?: AssessmentInput | null;
 }
-
-const NODULE_TYPE_LABELS: Record<string, string> = {
-  solid: "Sólido",
-  "ground-glass": "Vidrio deslustrado (GGN / no sólido)",
-  "part-solid": "Semi-sólido",
-};
 
 const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {
   mayo: "Mayo Clinic",
@@ -64,25 +59,13 @@ const POST_PET_SUGGESTIONS: Record<NonNullable<PredictiveModelSummary["riskBand"
   high: "Riesgo alto tras PET (>70%). Ofrecer resección quirúrgica; tratamiento no quirúrgico si no es candidato.",
 };
 
-const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
 const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
-const hasNumber = (value: unknown): value is number => typeof value === "number" && !Number.isNaN(value);
 
 export function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo =
     result.guideline === "fleischner-2017"
       ? GUIDELINE_VERSIONS.fleischner
       : GUIDELINE_VERSIONS.lungRads;
-  const measurementContext = input?.clinicalContext;
-  const formatMeasurement = (value: number) => {
-    if (measurementContext === "incidental") {
-      return Math.round(value).toString();
-    }
-    if (measurementContext === "screening") {
-      return value.toFixed(1);
-    }
-    return value.toString();
-  };
   const lines = [
     `REPORTE DE EVALUACIÓN DE NÓDULO PULMONAR`,
     `Generado: ${new Date().toISOString()}`,
@@ -109,15 +92,7 @@ export function formatResultForCopy(result: AssessmentResult, input: AssessmentI
       ``,
       `DATOS DE ENTRADA:`,
       `  Contexto: ${input.clinicalContext}`,
-      `  Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
-      hasNumber(input.nodule.diameterMm) ? `  Diámetro medio: ${formatMeasurement(input.nodule.diameterMm)}mm` : null,
-      hasNumber(input.nodule.maxDiameterMm)
-        ? `  Diámetro máximo transversal: ${formatMeasurement(input.nodule.maxDiameterMm)}mm (usado por Brock)`
-        : null,
-      input.nodule.solidComponentMm !== undefined
-        ? `  Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
-        : null,
-      `  Múltiple: ${input.nodule.isMultiple ? 'Sí' : 'No'}`,
+      ...inputParameterLines(input).map((line) => `  ${line}`),
     );
   }
 
@@ -157,18 +132,64 @@ export default function ResultsStep({ result, input }: Props) {
       ? GUIDELINE_VERSIONS.fleischner
       : GUIDELINE_VERSIONS.lungRads;
   const screeningInput = input && input.clinicalContext === "screening" ? input : undefined;
-  const isFollowUp = screeningInput?.nodule.scanType === "follow-up";
-  const isGrowing =
-    isFollowUp &&
-    screeningInput &&
-    hasNumber(screeningInput.nodule.diameterMm)
-      ? calculateLungRadsGrowth(
-        screeningInput.nodule.diameterMm,
-        screeningInput.nodule.priorDiameterMm,
-        screeningInput.nodule.priorScanMonthsAgo
-      )
-      : false;
-  const growthLabel = isFollowUp ? (isGrowing ? "Crecimiento detectado (>1.5mm/12m)" : "Sin crecimiento significativo") : null;
+  const screeningNodule = screeningInput?.nodule;
+  const isFollowUp = screeningNodule?.scanType === "follow-up";
+  const describeGrowth = (growth: { isGrowing: boolean; isIntervalGrowth: boolean }) =>
+    growth.isGrowing
+      ? "Crecimiento detectado (>1,5 mm/12m)"
+      : growth.isIntervalGrowth
+        ? "Aumento en intervalo >12 meses (no cumple la definición de crecimiento ACR)"
+        : "Sin crecimiento significativo";
+  const growthLines: { text: string; highlight: boolean; label: string }[] = [];
+  if (isFollowUp && screeningNodule && hasNumber(screeningNodule.diameterMm)) {
+    if (screeningNodule.isNew) {
+      growthLines.push({
+        text: "Diámetro total: nódulo nuevo (sin medición previa)",
+        highlight: true,
+        label: "Estado de crecimiento",
+      });
+    } else {
+      const totalGrowth = calculateLungRadsGrowthResult(
+        screeningNodule.diameterMm,
+        screeningNodule.priorDiameterMm,
+        screeningNodule.priorScanMonthsAgo,
+      );
+      growthLines.push({
+        text: `Diámetro total: ${describeGrowth(totalGrowth)}`,
+        highlight: totalGrowth.isGrowing || totalGrowth.isIntervalGrowth,
+        label: "Estado de crecimiento",
+      });
+      if (screeningNodule.type === "part-solid") {
+        const priorSolid = screeningNodule.priorSolidComponentMm;
+        const currentSolid = screeningNodule.solidComponentMm;
+        if (priorSolid === undefined) {
+          growthLines.push({
+            text: "Componente sólido: sin medición previa",
+            highlight: false,
+            label: "Estado de crecimiento del componente sólido",
+          });
+        } else if (priorSolid === 0 && (currentSolid ?? 0) > 0) {
+          growthLines.push({
+            text: "Componente sólido: nuevo (apareció desde la medición previa)",
+            highlight: true,
+            label: "Estado de crecimiento del componente sólido",
+          });
+        } else if (currentSolid !== undefined) {
+          const solidGrowth = calculateLungRadsGrowthResult(
+            currentSolid,
+            priorSolid,
+            screeningNodule.priorScanMonthsAgo,
+            true,
+          );
+          growthLines.push({
+            text: `Componente sólido: ${describeGrowth(solidGrowth)}`,
+            highlight: solidGrowth.isGrowing || solidGrowth.isIntervalGrowth,
+            label: "Estado de crecimiento del componente sólido",
+          });
+        }
+      }
+    }
+  }
   const measurementNote =
     input?.clinicalContext === "incidental"
       ? "Fleischner: medición redondeada al mm; crecimiento significativo ≥2 mm."
@@ -201,14 +222,15 @@ export default function ResultsStep({ result, input }: Props) {
         <p className="text-sm text-card-foreground">Intervalo: {result.followUpInterval}</p>
         {result.imagingModality && <p className="text-sm text-card-foreground">Modalidad: {result.imagingModality}</p>}
         {result.malignancyRisk && <p className="text-sm text-card-foreground">Riesgo estimado: {result.malignancyRisk}</p>}
-        {growthLabel && (
+        {growthLines.map((line) => (
           <p
-            className={`text-sm ${isGrowing ? "text-warning" : "text-success"}`}
-            aria-label="Estado de crecimiento"
+            key={line.label}
+            className={`text-sm ${line.highlight ? "text-warning" : "text-success"}`}
+            aria-label={line.label}
           >
-            {growthLabel}
+            {line.text}
           </p>
-        )}
+        ))}
         {measurementNote && <p className="text-sm text-muted-foreground">{measurementNote}</p>}
         {hasMultiple && (
           <p className="text-sm text-card-foreground">

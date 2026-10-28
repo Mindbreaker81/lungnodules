@@ -19,6 +19,7 @@ const parseOptionalNumber = (value: unknown) => {
 export default function RiskStep({ clinicalContext }: Props) {
   const { register, watch, setValue } = useFormContext<AssessmentInput>();
   const scanType = watch("nodule.scanType");
+  const isNew = watch("nodule.isNew");
   const hasKnownMalignancy = watch("patient.hasKnownMalignancy");
   const isImmunocompromised = watch("patient.isImmunocompromised");
   const extrathoracicCancerHistory = watch("patient.extrathoracicCancerHistory");
@@ -27,23 +28,16 @@ export default function RiskStep({ clinicalContext }: Props) {
   const hasHighRisk = riskFactors ? Object.values(riskFactors).some(Boolean) : false;
 
   useEffect(() => {
-    if (clinicalContext === "screening" && scanType === "baseline") {
+    if (clinicalContext === "screening" && (scanType === "baseline" || isNew)) {
       setValue("priorCategory", undefined);
       setValue("priorStatus", undefined);
     }
-  }, [clinicalContext, scanType, setValue]);
+  }, [clinicalContext, scanType, isNew, setValue]);
 
   useEffect(() => {
     if (clinicalContext !== "incidental") return;
     setValue("patient.riskLevel", hasHighRisk ? "high" : "low", { shouldValidate: true });
   }, [clinicalContext, hasHighRisk, setValue]);
-
-  const age = watch("patient.age");
-  useEffect(() => {
-    if (clinicalContext === "incidental" && age !== undefined && !Number.isNaN(age)) {
-      setValue("patient.riskFactors.age65", age > 65, { shouldValidate: true });
-    }
-  }, [clinicalContext, age, setValue]);
 
   return (
     <div className="space-y-4">
@@ -85,7 +79,7 @@ export default function RiskStep({ clinicalContext }: Props) {
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-              <span className="text-foreground">Riesgo calculado:</span>
+              <span className="text-foreground">Riesgo orientativo:</span>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                   hasHighRisk ? "bg-destructive/20 text-destructive" : "bg-success/20 text-success"
@@ -93,7 +87,9 @@ export default function RiskStep({ clinicalContext }: Props) {
               >
                 {hasHighRisk ? "ALTO" : "BAJO"}
               </span>
-              <span className="text-xs text-muted-foreground">Se ajusta automáticamente según los factores seleccionados.</span>
+              <span className="text-xs text-muted-foreground">
+                Orientativo: «cualquier factor marcado → riesgo alto» es una regla heurística de esta herramienta; Fleischner 2017 define el riesgo cualitativamente (categorías ACCP). Contrasta con juicio clínico o los modelos predictivos.
+              </span>
             </div>
           </div>
           <div className="space-y-2">
@@ -142,6 +138,17 @@ export default function RiskStep({ clinicalContext }: Props) {
             </select>
           </div>
           {scanType === "follow-up" && (
+            <label className="flex items-center gap-2 text-foreground">
+              <input
+                type="checkbox"
+                aria-label="Nódulo nuevo sin comparación previa"
+                {...register("nodule.isNew")}
+                className="text-primary rounded focus:ring-primary"
+              />
+              Nódulo nuevo (sin medición previa; exime diámetro, componente sólido y categoría previos)
+            </label>
+          )}
+          {scanType === "follow-up" && !isNew && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-foreground">Diámetro previo (mm)</label>
@@ -169,7 +176,7 @@ export default function RiskStep({ clinicalContext }: Props) {
               </div>
             </div>
           )}
-          {scanType === "follow-up" && (
+          {scanType === "follow-up" && !isNew && (
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">Stepped management (opcional)</p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

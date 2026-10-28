@@ -37,6 +37,51 @@ describe("ResultsStep UI", () => {
     expect(screen.getByText(/Crecimiento detectado/)).toBeInTheDocument();
   });
 
+  it("shows total and solid component growth separately for part-solid nodules", () => {
+    const input: AssessmentInput = {
+      clinicalContext: "screening",
+      patient: { clinicalContext: "screening", age: 60 },
+      nodule: {
+        type: "part-solid",
+        diameterMm: 12,
+        solidComponentMm: 4,
+        isMultiple: false,
+        isNew: false,
+        scanType: "follow-up",
+        priorDiameterMm: 12,
+        priorSolidComponentMm: 2,
+        priorScanMonthsAgo: 12,
+      },
+    };
+
+    render(<ResultsStep result={baseResult} input={input} />);
+
+    expect(screen.getByText(/Diámetro total: Sin crecimiento significativo/)).toBeInTheDocument();
+    expect(screen.getByText(/Componente sólido: Crecimiento detectado/)).toBeInTheDocument();
+  });
+
+  it("marks a solid component that appears (0 -> >0 mm) as new", () => {
+    const input: AssessmentInput = {
+      clinicalContext: "screening",
+      patient: { clinicalContext: "screening", age: 60 },
+      nodule: {
+        type: "part-solid",
+        diameterMm: 12,
+        solidComponentMm: 1,
+        isMultiple: false,
+        isNew: false,
+        scanType: "follow-up",
+        priorDiameterMm: 12,
+        priorSolidComponentMm: 0,
+        priorScanMonthsAgo: 12,
+      },
+    };
+
+    render(<ResultsStep result={baseResult} input={input} />);
+
+    expect(screen.getByText(/Componente sólido: nuevo/)).toBeInTheDocument();
+  });
+
   it("mentions dominant nodule when multiples present", () => {
     const input: AssessmentInput = {
       clinicalContext: "screening",

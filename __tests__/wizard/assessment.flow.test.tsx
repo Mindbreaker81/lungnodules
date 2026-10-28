@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
 import WizardContainer from "@components/wizard/WizardContainer";
-import { AssessmentResult } from "@lib/algorithms";
+import { assessLungRads, AssessmentResult } from "@lib/algorithms";
 
 jest.mock("@lib/algorithms", () => {
   const actual = jest.requireActual("@lib/algorithms");
@@ -44,11 +44,13 @@ describe("WizardContainer", () => {
       fireEvent.blur(ageInput);
     });
 
+    // La edad >65 no marca el factor automáticamente: los criterios son orientativos
     const ageRiskFactor = screen.getByLabelText(/Edad >65 años/i);
+    expect(ageRiskFactor).not.toBeChecked();
     await act(async () => {
       await user.click(ageRiskFactor);
     });
-    expect(screen.getByText(/Riesgo calculado/i)).toBeInTheDocument();
+    expect(screen.getByText(/Riesgo orientativo/i)).toBeInTheDocument();
 
     await act(async () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
@@ -207,6 +209,69 @@ describe("WizardContainer", () => {
       await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
     });
     expect(await screen.findByRole("combobox", { name: /Tipo de nódulo/i })).toBeInTheDocument();
+  });
+
+  test("marcar nódulo nuevo limpia y oculta el crecimiento lento multiestudio", async () => {
+    const user = userEvent.setup();
+    const mockedAssess = assessLungRads as jest.Mock;
+    mockedAssess.mockClear();
+
+    render(<WizardContainer />);
+
+    await act(async () => {
+      await user.click(screen.getByLabelText(/Lung-RADS v2022/i));
+    });
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    const scanSelect = await screen.findByRole("combobox", { name: /Tipo de scan/i });
+    await act(async () => {
+      await user.selectOptions(scanSelect, "follow-up");
+    });
+    const priorDiameterInput = screen.getByLabelText(/Diámetro previo en mm/i);
+    await act(async () => {
+      await user.type(priorDiameterInput, "10");
+    });
+    const priorMonthsInput = screen.getByLabelText(/Meses desde el scan previo/i);
+    await act(async () => {
+      await user.type(priorMonthsInput, "6");
+    });
+
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    // NoduleStep: marcar crecimiento lento y después «nódulo nuevo»
+    const slowCheckbox = await screen.findByLabelText(/Crecimiento lento en múltiples estudios/i);
+    await act(async () => {
+      await user.click(slowCheckbox);
+    });
+    expect(slowCheckbox).toBeChecked();
+
+    const newCheckbox = screen.getByLabelText(/Nódulo nuevo en follow-up/i);
+    await act(async () => {
+      await user.click(newCheckbox);
+    });
+
+    // Un nódulo nuevo no tiene trayectoria multiestudio: el control se oculta
+    expect(screen.queryByLabelText(/Crecimiento lento en múltiples estudios/i)).not.toBeInTheDocument();
+
+    const diameterInput = screen.getByLabelText(/Diámetro en milímetros/i);
+    await act(async () => {
+      await user.clear(diameterInput);
+      await user.type(diameterInput, "12");
+    });
+
+    await act(async () => {
+      await user.click(screen.getAllByRole("button", { name: /siguiente|finalizar/i })[0]);
+    });
+
+    expect(await screen.findByText(/Continue annual LDCT/i)).toBeInTheDocument();
+    expect(mockedAssess).toHaveBeenCalled();
+    const calledNodule = mockedAssess.mock.calls[mockedAssess.mock.calls.length - 1][0].nodule;
+    expect(calledNodule.isNew).toBe(true);
+    expect(calledNodule.isSlowGrowing).toBeFalsy();
   });
 
   test("permite categoría 0 por estudio incompleto sin exigir diámetro", async () => {

@@ -10,6 +10,7 @@ import {
   PredictiveModelSummary,
 } from '@lib/predictive';
 import { analytics } from '@lib/analytics';
+import { hasNumber, inputParameterLines } from '@lib/reportFormat';
 import { DISCLAIMERS, APP_VERSION, GUIDELINE_VERSIONS } from '@config/guidelines';
 import GuidelineVersion from '@components/GuidelineVersion';
 import { Button } from '@components/ui/button';
@@ -20,12 +21,6 @@ interface ExportResultsProps {
 }
 
 type ExportFormat = 'txt' | 'json' | 'clipboard';
-
-const NODULE_TYPE_LABELS: Record<string, string> = {
-  solid: 'Sólido',
-  'ground-glass': 'Vidrio deslustrado (GGN / no sólido)',
-  'part-solid': 'Semi-sólido',
-};
 
 const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {
   mayo: 'Mayo Clinic',
@@ -45,25 +40,12 @@ const PREDICTIVE_RISK_LABELS: Record<NonNullable<PredictiveModelSummary['riskBan
   high: 'Alto',
 };
 
-const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
 const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
-const hasNumber = (value: unknown): value is number => typeof value === 'number' && !Number.isNaN(value);
 
 export function formatAsText(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo = result.guideline === 'fleischner-2017'
     ? GUIDELINE_VERSIONS.fleischner
     : GUIDELINE_VERSIONS.lungRads;
-  const measurementContext = input?.clinicalContext;
-  const formatMeasurement = (value: number) => {
-    if (measurementContext === 'incidental') {
-      return Math.round(value).toString();
-    }
-    if (measurementContext === 'screening') {
-      return value.toFixed(1);
-    }
-    return value.toString();
-  };
-
   const lines = [
     '═'.repeat(60),
     'REPORTE DE EVALUACIÓN DE NÓDULO PULMONAR',
@@ -102,15 +84,7 @@ export function formatAsText(result: AssessmentResult, input: AssessmentInput | 
       hasNumber(input.patient.age) ? `Edad del Paciente: ${input.patient.age} años` : null,
       input.patient.riskLevel ? `Nivel de Riesgo: ${input.patient.riskLevel}` : null,
       '',
-      `Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
-      hasNumber(input.nodule.diameterMm) ? `Diámetro medio: ${formatMeasurement(input.nodule.diameterMm)} mm` : null,
-      hasNumber(input.nodule.maxDiameterMm)
-        ? `Diámetro máximo transversal: ${formatMeasurement(input.nodule.maxDiameterMm)} mm (usado por Brock)`
-        : null,
-      input.nodule.solidComponentMm !== undefined
-        ? `Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)} mm`
-        : null,
-      `Nódulos Múltiples: ${input.nodule.isMultiple ? 'Sí' : 'No'}`,
+      ...inputParameterLines(input),
     );
 
     const predictiveSummaries = getPredictiveSummaries(input);
