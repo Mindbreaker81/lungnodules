@@ -19,7 +19,7 @@ export const GUIDELINE_VERSIONS = {
   },
 } as const;
 
-export const APP_VERSION = '1.9.0';
+export const APP_VERSION = '1.9.1';
 
 // =============================================================================
 // RISK FACTORS
