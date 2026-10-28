@@ -44,6 +44,9 @@ export interface NoduleCharacteristics {
   airwayLocation?: 'subsegmental' | 'segmental-proximal';
   airwayPersistent?: boolean;
   airwayInflammatoryOrInfectious?: boolean;
+  airwayInflammatoryCategory?: 'category0' | 'category2';
+  hasSmoothMargins?: boolean;
+  juxtapleuralShape?: 'triangular' | 'lentiform' | 'ovoid' | 'other';
   atypicalCystCategory?: 'category3' | 'category4A' | 'category4B';
   atypicalCystManualOverride?: boolean;
   atypicalCystThickWalled?: boolean;
@@ -62,6 +65,7 @@ export interface NoduleCharacteristics {
 export interface LungRADSInput extends NoduleCharacteristics {
   scanType: ScanType;
   priorDiameterMm?: number;
+  priorSolidComponentMm?: number;
   priorScanMonthsAgo?: number;
   isIncompleteStudy?: boolean;
 }

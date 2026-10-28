@@ -30,7 +30,10 @@ export default function NoduleStep({ clinicalContext }: Props) {
   const isMultiple = watch("nodule.isMultiple");
   const isIncompleteStudy = watch("nodule.isIncompleteStudy");
   const isAirway = watch("nodule.isAirway");
+  const airwayInflammatoryOrInfectious = watch("nodule.airwayInflammatoryOrInfectious");
   const isInflammatory = watch("nodule.isInflammatory");
+  const isJuxtapleural = watch("nodule.isJuxtapleural");
+  const isPerifissural = watch("nodule.isPerifissural");
   const isAtypicalCyst = watch("nodule.isAtypicalCyst");
   const atypicalCystManualOverride = watch("nodule.atypicalCystManualOverride");
   const atypicalCystThickWalled = watch("nodule.atypicalCystThickWalled");
@@ -92,9 +95,13 @@ export default function NoduleStep({ clinicalContext }: Props) {
     }
   }, [isMultiple, setValue]);
 
+  const scanType = watch("nodule.scanType");
+  const isNew = watch("nodule.isNew");
+
   useEffect(() => {
     if (type !== "part-solid") {
       setValue("nodule.solidComponentMm", undefined);
+      setValue("nodule.priorSolidComponentMm", undefined);
     }
   }, [type, setValue]);
 
@@ -227,6 +234,26 @@ export default function NoduleStep({ clinicalContext }: Props) {
         </div>
       )}
 
+      {isScreening && type === "part-solid" && scanType === "follow-up" && !isNew && (
+        <div>
+          <label className="block text-sm font-medium text-foreground">Componente sólido previo (mm)</label>
+          <Input
+            type="number"
+            min={0}
+            max={100}
+            step="0.1"
+            aria-label="Componente sólido previo en mm"
+            className="mt-1"
+            {...register("nodule.priorSolidComponentMm", {
+              setValueAs: parseOptionalNumber,
+            })}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Usa 0 si el nódulo previo era vidrio esmerilado puro; un componente sólido que aparece escala a 4A/4B.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-2">
         <p className="text-sm font-medium text-foreground">Características morfológicas</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -281,18 +308,43 @@ export default function NoduleStep({ clinicalContext }: Props) {
           </label>
           <label className="flex items-center gap-2 text-foreground">
             <input type="checkbox" aria-label="Perifisural" {...register("nodule.isPerifissural")} className="text-primary rounded focus:ring-primary" /> Perifisural
-            {isScreening && <span className="text-xs text-muted-foreground">benigno (≤10mm)</span>}
+            {isScreening && <span className="text-xs text-muted-foreground">benigno (&lt;10 mm)</span>}
           </label>
           <label className="flex items-center gap-2 text-foreground">
             <input type="checkbox" aria-label="Juxta-pleural" {...register("nodule.isJuxtapleural")} className="text-primary rounded focus:ring-primary" /> Yuxtapleural
-            {isScreening && <span className="text-xs text-muted-foreground">benigno (≤10mm)</span>}
+            {isScreening && <span className="text-xs text-muted-foreground">benigno (&lt;10 mm)</span>}
           </label>
+          {isScreening && (isJuxtapleural || isPerifissural) && (
+            <>
+              <label className="flex items-center gap-2 text-foreground">
+                <input type="checkbox" aria-label="Márgenes lisos" {...register("nodule.hasSmoothMargins")} className="text-primary rounded focus:ring-primary" /> Márgenes lisos
+              </label>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-foreground">Forma del nódulo yuxtapleural/perifisural</label>
+                <select
+                  className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground"
+                  aria-label="Forma del nódulo yuxtapleural"
+                  defaultValue=""
+                  {...register("nodule.juxtapleuralShape", { setValueAs: (value) => value || undefined })}
+                >
+                  <option value="" className="bg-popover">Selecciona una opción</option>
+                  <option value="triangular" className="bg-popover">Triangular</option>
+                  <option value="lentiform" className="bg-popover">Lentiforme</option>
+                  <option value="ovoid" className="bg-popover">Ovoide</option>
+                  <option value="other" className="bg-popover">Otra forma</option>
+                </select>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Categoría 2 solo si es basal o nuevo, &lt;10 mm, sólido, con márgenes lisos y forma triangular, lentiforme u ovoide.
+                </p>
+              </div>
+            </>
+          )}
           {isScreening && (
             <label className="flex items-center gap-2 text-foreground">
               <input type="checkbox" aria-label="Nódulo nuevo en follow-up" {...register("nodule.isNew")} className="text-primary rounded focus:ring-primary" /> Nódulo nuevo en follow-up
             </label>
           )}
-          {isScreening && (
+          {isScreening && !isNew && (
             <label className="flex items-center gap-2 text-foreground">
               <input type="checkbox" aria-label="Crecimiento lento en múltiples estudios" {...register("nodule.isSlowGrowing")} className="text-primary rounded focus:ring-primary" /> Crecimiento lento multiestudio
             </label>
@@ -371,8 +423,23 @@ export default function NoduleStep({ clinicalContext }: Props) {
           {isAirway && (
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-foreground">
-                <input type="checkbox" aria-label="Vía aérea probablemente inflamatoria o infecciosa" {...register("nodule.airwayInflammatoryOrInfectious")} className="text-primary rounded focus:ring-primary" /> Tubular/múltiple probablemente inflamatorio (Cat 0)
+                <input type="checkbox" aria-label="Vía aérea probablemente inflamatoria o infecciosa" {...register("nodule.airwayInflammatoryOrInfectious")} className="text-primary rounded focus:ring-primary" /> Tubular/múltiple probablemente inflamatorio
               </label>
+              {airwayInflammatoryOrInfectious && (
+                <div>
+                  <label className="block text-sm font-medium text-foreground">Categoría de vía aérea inflamatoria</label>
+                  <select
+                    className="mt-1 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-foreground"
+                    aria-label="Categoría de vía aérea inflamatoria"
+                    defaultValue=""
+                    {...register("nodule.airwayInflammatoryCategory", { setValueAs: (value) => value || undefined })}
+                  >
+                    <option value="" className="bg-popover">Selecciona una categoría</option>
+                    <option value="category0" className="bg-popover">Categoría 0 (probablemente infeccioso/inflamatorio)</option>
+                    <option value="category2" className="bg-popover">Categoría 2 (benigno)</option>
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-foreground">Localización vía aérea</label>
                 <select
@@ -387,7 +454,7 @@ export default function NoduleStep({ clinicalContext }: Props) {
                 </select>
               </div>
               <label className="flex items-center gap-2 text-foreground">
-                <input type="checkbox" aria-label="Persistente en control" {...register("nodule.airwayPersistent")} className="text-primary rounded focus:ring-primary" /> Persistente en control 3 meses (Cat 4B)
+                <input type="checkbox" aria-label="Persistente en control" {...register("nodule.airwayPersistent")} className="text-primary rounded focus:ring-primary" /> Persistente en control 3 meses (Cat 4B solo si segmentario/proximal)
               </label>
             </div>
           )}

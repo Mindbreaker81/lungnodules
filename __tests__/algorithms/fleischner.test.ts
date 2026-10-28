@@ -102,4 +102,10 @@ describe('Fleischner 2017', () => {
     const res = run({ type: 'solid', diameterMm: 5.6 }, 'low');
     expect(res.recommendation).toMatch(/6-12 meses|6-12 months/i);
   });
+
+  test('TC-F-016 Solid 20mm >8mm branch -> no fixed malignancyRisk; ~3% only as contextual note', () => {
+    const res = run({ type: 'solid', diameterMm: 20 }, 'high');
+    expect(res.malignancyRisk).toBeUndefined();
+    expect(res.rationale).toMatch(/8mm|8 mm/i);
+  });
 });

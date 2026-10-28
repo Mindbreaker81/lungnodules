@@ -132,6 +132,25 @@ describe('Lung-RADS v2022', () => {
     expect(res.category).toBe('4B');
   });
 
+  test('TC-LR-015b Airway persistent subsegmental -> stays Category 2', () => {
+    const res = run({
+      isAirway: true,
+      airwayLocation: 'subsegmental',
+      airwayPersistent: true,
+    });
+    expect(res.category).toBe('2');
+  });
+
+  test('TC-LR-015c Airway inflammatory classified as benign -> Category 2', () => {
+    const res = run({
+      isAirway: true,
+      airwayLocation: 'subsegmental',
+      airwayInflammatoryOrInfectious: true,
+      airwayInflammatoryCategory: 'category2',
+    });
+    expect(res.category).toBe('2');
+  });
+
   test('TC-LR-016 Atypical cyst manual override -> Category 3/4A/4B', () => {
     expect(
       run({
@@ -256,12 +275,184 @@ describe('Lung-RADS v2022', () => {
       diameterMm: 8,
       isJuxtapleural: true,
       hasSpiculation: false,
+      hasSmoothMargins: true,
+      juxtapleuralShape: 'triangular',
     });
     expect(res.category).toBe('2');
+  });
+
+  test('TC-LR-017b Juxtapleural without benign morphology -> standard classification', () => {
+    const res = run({
+      type: 'solid',
+      diameterMm: 8,
+      isJuxtapleural: true,
+      hasSpiculation: false,
+    });
+    expect(res.category).not.toBe('2');
+    expect(res.warnings).toEqual(
+      expect.arrayContaining([expect.stringMatching(/margen|forma|yuxtapleural/i)]),
+    );
+  });
+
+  test('TC-LR-017c Juxtapleural growing -> not Category 2', () => {
+    const res = run({
+      type: 'solid',
+      diameterMm: 8,
+      scanType: 'follow-up',
+      priorDiameterMm: 6,
+      priorScanMonthsAgo: 12,
+      isJuxtapleural: true,
+      hasSpiculation: false,
+      hasSmoothMargins: true,
+      juxtapleuralShape: 'triangular',
+    });
+    expect(res.category).not.toBe('2');
+  });
+
+  test('TC-LR-017d Juxtapleural existing in follow-up -> rule limited to baseline or new', () => {
+    const res = run({
+      type: 'solid',
+      diameterMm: 8,
+      scanType: 'follow-up',
+      priorDiameterMm: 8,
+      priorScanMonthsAgo: 12,
+      isNew: false,
+      isJuxtapleural: true,
+      hasSpiculation: false,
+      hasSmoothMargins: true,
+      juxtapleuralShape: 'triangular',
+    });
+    expect(res.category).not.toBe('2');
+    expect(res.warnings).toEqual(
+      expect.arrayContaining([expect.stringMatching(/basal o n[óo]dulo nuevo/i)]),
+    );
+  });
+
+  test('TC-LR-017e New juxtapleural with benign morphology -> Category 2', () => {
+    const res = run({
+      type: 'solid',
+      diameterMm: 8,
+      scanType: 'follow-up',
+      isNew: true,
+      isJuxtapleural: true,
+      hasSpiculation: false,
+      hasSmoothMargins: true,
+      juxtapleuralShape: 'ovoid',
+    });
+    expect(res.category).toBe('2');
+  });
+
+  test('TC-LR-017f Juxtapleural diameter boundary: <10mm required by official table', () => {
+    const benignMorphology = {
+      type: 'solid' as const,
+      isJuxtapleural: true,
+      hasSpiculation: false,
+      hasSmoothMargins: true,
+      juxtapleuralShape: 'triangular' as const,
+      scanType: 'baseline' as const,
+    };
+    // 9.9 mm -> Category 2
+    expect(run({ ...benignMorphology, diameterMm: 9.9 }).category).toBe('2');
+    // exactly 10.0 mm -> strict <10mm bound fails, standard baseline 8-<15mm -> 4A
+    const at10 = run({ ...benignMorphology, diameterMm: 10 });
+    expect(at10.category).toBe('4A');
+    expect(at10.warnings).toEqual(
+      expect.arrayContaining([expect.stringMatching(/<10 mm/)]),
+    );
+    // 10.1 mm -> 4A
+    expect(run({ ...benignMorphology, diameterMm: 10.1 }).category).toBe('4A');
   });
 
   test('TC-LR-018 Spiculation upgrades to 4X', () => {
     const res = run({ type: 'solid', diameterMm: 7, hasSpiculation: true });
     expect(res.category).toBe('4X');
+  });
+
+  test('TC-LR-019 S modifier preserved on special categories', () => {
+    expect(run({ isBenign: true, hasSignificantFinding: true }).category).toBe('1S');
+    expect(run({ isIncompleteStudy: true, hasSignificantFinding: true } as any).category).toBe('0S');
+    expect(
+      run({ isInflammatory: true, inflammatoryCategory: 'category2', hasSignificantFinding: true }).category,
+    ).toBe('2S');
+    expect(
+      run({ isAirway: true, airwayLocation: 'subsegmental', hasSignificantFinding: true }).category,
+    ).toBe('2S');
+  });
+
+  test('TC-LR-020 Interval-growth warning preserved on special categories', () => {
+    const res = run({
+      isBenign: true,
+      scanType: 'follow-up',
+      priorDiameterMm: 6,
+      priorScanMonthsAgo: 24,
+      diameterMm: 8,
+    });
+    expect(res.category).toBe('1');
+    expect(res.warnings).toEqual(
+      expect.arrayContaining([expect.stringMatching(/intervalo >12 meses/i)]),
+    );
+  });
+
+  test('TC-LR-021 Part-solid escalation uses solid component growth', () => {
+    const growing = run({
+      type: 'part-solid',
+      diameterMm: 12,
+      solidComponentMm: 4,
+      scanType: 'follow-up',
+      priorDiameterMm: 11,
+      priorSolidComponentMm: 2,
+      priorScanMonthsAgo: 12,
+      isNew: false,
+    });
+    expect(growing.category).toBe('4B');
+
+    const stable = run({
+      type: 'part-solid',
+      diameterMm: 12,
+      solidComponentMm: 4,
+      scanType: 'follow-up',
+      priorDiameterMm: 9,
+      priorSolidComponentMm: 4,
+      priorScanMonthsAgo: 12,
+      isNew: false,
+    });
+    expect(stable.category).toBe('3');
+  });
+
+  test('TC-LR-022 Follow-up part-solid without prior solid component -> warning', () => {
+    const res = run({
+      type: 'part-solid',
+      diameterMm: 12,
+      solidComponentMm: 4,
+      scanType: 'follow-up',
+      priorDiameterMm: 9,
+      priorScanMonthsAgo: 12,
+      isNew: false,
+    });
+    expect(res.warnings).toEqual(
+      expect.arrayContaining([expect.stringMatching(/Componente sólido previo no indicado/i)]),
+    );
+  });
+
+  test('TC-LR-023 GGN ≥30mm stable in follow-up -> Category 2 without prior category', () => {
+    const res = run({
+      type: 'ground-glass',
+      diameterMm: 35,
+      scanType: 'follow-up',
+      priorDiameterMm: 34,
+      priorScanMonthsAgo: 12,
+      isNew: false,
+    });
+    expect(res.category).toBe('2');
+  });
+
+  test('TC-LR-024 GGN ≥30mm new in follow-up -> Category 3', () => {
+    const res = run({
+      type: 'ground-glass',
+      diameterMm: 35,
+      scanType: 'follow-up',
+      isNew: true,
+    });
+    expect(res.category).toBe('3');
   });
 });

@@ -11,6 +11,7 @@ const extrathoracicCancerHistoryValues = ['none', 'over5y', 'recent'] as const;
 const petUptakeValues = ['absent', 'faint', 'moderate', 'intense'] as const;
 const airwayLocationValues = ['subsegmental', 'segmental-proximal'] as const;
 const inflammatoryCategoryValues = ['category0', 'category2'] as const;
+const juxtapleuralShapeValues = ['triangular', 'lentiform', 'ovoid', 'other'] as const;
 const atypicalCystCategoryValues = ['category3', 'category4A', 'category4B'] as const;
 const lungRadsCategoryValues = ['0', '1', '2', '3', '4A', '4B', '4X'] as const;
 const priorStatusValues = ['stable', 'decreasing', 'progression'] as const;
@@ -83,6 +84,9 @@ export const noduleBaseSchema = z.object({
   airwayLocation: z.enum(airwayLocationValues).optional(),
   airwayPersistent: z.boolean().optional(),
   airwayInflammatoryOrInfectious: z.boolean().optional(),
+  airwayInflammatoryCategory: z.enum(inflammatoryCategoryValues).optional(),
+  hasSmoothMargins: z.boolean().optional(),
+  juxtapleuralShape: z.enum(juxtapleuralShapeValues).optional(),
   atypicalCystCategory: z.enum(atypicalCystCategoryValues).optional(),
   atypicalCystManualOverride: z.boolean().optional(),
   atypicalCystThickWalled: z.boolean().optional(),
@@ -101,6 +105,7 @@ export const noduleBaseSchema = z.object({
 export const lungRadsExtension = z.object({
   scanType: z.enum(scanTypeValues),
   priorDiameterMm: z.number().min(0).optional(),
+  priorSolidComponentMm: z.number().min(0).max(100).optional(),
   priorScanMonthsAgo: z.number().min(0).optional(),
 });
 
@@ -176,6 +181,106 @@ export const fleischnerInputSchema = fleischnerCoreSchema
     }
   });
 
+type ScreeningNodule = z.infer<typeof screeningNoduleSchema>;
+
+// Screening (Lung-RADS) nodule-level refinements shared by lungRadsInputSchema
+// and assessmentInputSchema so both contracts validate the same rules
+const refineScreeningNodule = (nodule: ScreeningNodule, ctx: z.RefinementCtx) => {
+  if (
+    nodule.priorSolidComponentMm !== undefined &&
+    nodule.priorDiameterMm !== undefined &&
+    nodule.priorSolidComponentMm > nodule.priorDiameterMm
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El componente sólido previo no puede exceder el diámetro previo',
+      path: ['nodule', 'priorSolidComponentMm'],
+    });
+  }
+
+  if (nodule.isIncompleteStudy) {
+    return;
+  }
+
+  if (nodule.isAirway && !nodule.airwayLocation) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecciona la localización del nódulo de vía aérea',
+      path: ['nodule', 'airwayLocation'],
+    });
+  }
+  if (nodule.isAirway && nodule.airwayInflammatoryOrInfectious && !nodule.airwayInflammatoryCategory) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecciona la categoría para la anomalía de vía aérea inflamatoria/infecciosa',
+      path: ['nodule', 'airwayInflammatoryCategory'],
+    });
+  }
+  if ((nodule.isJuxtapleural || nodule.isPerifissural) && !nodule.juxtapleuralShape) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecciona la forma del nódulo yuxtapleural/perifisural',
+      path: ['nodule', 'juxtapleuralShape'],
+    });
+  }
+  if (nodule.isInflammatory && !nodule.inflammatoryCategory) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecciona la categoría para hallazgos inflamatorios/infecciosos',
+      path: ['nodule', 'inflammatoryCategory'],
+    });
+  }
+  if (nodule.isAtypicalCyst) {
+    if (nodule.atypicalCystManualOverride) {
+      if (!nodule.atypicalCystCategory) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Selecciona la categoría del quiste pulmonar atípico',
+          path: ['nodule', 'atypicalCystCategory'],
+        });
+      }
+    } else {
+      const hasDescriptor =
+        Boolean(nodule.atypicalCystUnilocularThinWalled) ||
+        Boolean(nodule.atypicalCystSolidDominant) ||
+        Boolean(nodule.atypicalCystThickWalled) ||
+        Boolean(nodule.atypicalCystMultilocular) ||
+        Boolean(nodule.atypicalCystPreviouslyStable) ||
+        Boolean(nodule.atypicalCystGrowingCysticComponent) ||
+        Boolean(nodule.atypicalCystWallOrCystGrowing) ||
+        Boolean(nodule.atypicalCystIncreasedLoculationOrDensity);
+      if (!hasDescriptor) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Indica al menos un descriptor morfológico del quiste atípico o una exclusión ACR',
+          path: ['nodule', 'atypicalCystThickWalled'],
+        });
+      }
+    }
+  }
+  if (nodule.hasPet && !nodule.petUptake) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Selecciona la captación FDG si hay PET-CT disponible',
+      path: ['nodule', 'petUptake'],
+    });
+  }
+  if (nodule.petUptake && !nodule.hasPet) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Marca PET-CT disponible para indicar la captación',
+      path: ['nodule', 'hasPet'],
+    });
+  }
+  if (nodule.isMultiple && !nodule.noduleCount) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Indica el número de nódulos si son múltiples',
+      path: ['nodule', 'noduleCount'],
+    });
+  }
+};
+
 const lungRadsCoreSchema = z.object({
   patient: patientSchema,
   nodule: screeningNoduleSchema,
@@ -218,7 +323,7 @@ export const lungRadsInputSchema = lungRadsCoreSchema
   .refine(
     (data: z.infer<typeof lungRadsCoreSchema>) => {
       if (data.nodule.isIncompleteStudy) return true;
-      if (data.nodule.scanType === 'follow-up') {
+      if (data.nodule.scanType === 'follow-up' && !data.nodule.isNew) {
         return data.nodule.priorDiameterMm !== undefined && data.nodule.priorScanMonthsAgo !== undefined;
       }
       return true;
@@ -227,7 +332,8 @@ export const lungRadsInputSchema = lungRadsCoreSchema
       message: 'Diámetro e intervalo previos son requeridos para seguimiento',
       path: ['nodule', 'priorDiameterMm'],
     },
-  );
+  )
+  .superRefine((data, ctx) => refineScreeningNodule(data.nodule, ctx));
 
 const incidentalAssessmentSchema = z.object({
   clinicalContext: z.literal('incidental'),
@@ -285,7 +391,7 @@ export const assessmentInputSchema = z
       });
     }
 
-    if (!data.nodule.isIncompleteStudy && data.nodule.scanType === 'follow-up') {
+    if (!data.nodule.isIncompleteStudy && data.nodule.scanType === 'follow-up' && !data.nodule.isNew) {
       if (data.nodule.priorDiameterMm === undefined || data.nodule.priorScanMonthsAgo === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -295,73 +401,8 @@ export const assessmentInputSchema = z
       }
     }
 
-    if (data.nodule.isIncompleteStudy) {
-      return;
-    }
+    refineScreeningNodule(data.nodule, ctx);
 
-    if (data.nodule.isAirway && !data.nodule.airwayLocation) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecciona la localización del nódulo de vía aérea',
-        path: ['nodule', 'airwayLocation'],
-      });
-    }
-    if (data.nodule.isInflammatory && !data.nodule.inflammatoryCategory) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecciona la categoría para hallazgos inflamatorios/infecciosos',
-        path: ['nodule', 'inflammatoryCategory'],
-      });
-    }
-    if (data.nodule.isAtypicalCyst) {
-      if (data.nodule.atypicalCystManualOverride) {
-        if (!data.nodule.atypicalCystCategory) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Selecciona la categoría del quiste pulmonar atípico',
-            path: ['nodule', 'atypicalCystCategory'],
-          });
-        }
-      } else {
-        const hasDescriptor =
-          Boolean(data.nodule.atypicalCystUnilocularThinWalled) ||
-          Boolean(data.nodule.atypicalCystSolidDominant) ||
-          Boolean(data.nodule.atypicalCystThickWalled) ||
-          Boolean(data.nodule.atypicalCystMultilocular) ||
-          Boolean(data.nodule.atypicalCystPreviouslyStable) ||
-          Boolean(data.nodule.atypicalCystGrowingCysticComponent) ||
-          Boolean(data.nodule.atypicalCystWallOrCystGrowing) ||
-          Boolean(data.nodule.atypicalCystIncreasedLoculationOrDensity);
-        if (!hasDescriptor) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Indica al menos un descriptor morfológico del quiste atípico o una exclusión ACR',
-            path: ['nodule', 'atypicalCystThickWalled'],
-          });
-        }
-      }
-    }
-    if (data.nodule.hasPet && !data.nodule.petUptake) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Selecciona la captación FDG si hay PET-CT disponible',
-        path: ['nodule', 'petUptake'],
-      });
-    }
-    if (data.nodule.petUptake && !data.nodule.hasPet) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Marca PET-CT disponible para indicar la captación',
-        path: ['nodule', 'hasPet'],
-      });
-    }
-    if (data.nodule.isMultiple && !data.nodule.noduleCount) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Indica el número de nódulos si son múltiples',
-        path: ['nodule', 'noduleCount'],
-      });
-    }
     if (data.priorCategory && !data.priorStatus) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

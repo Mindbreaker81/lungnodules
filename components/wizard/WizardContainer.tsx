@@ -68,6 +68,9 @@ const defaultValues = {
     airwayLocation: undefined,
     airwayPersistent: false,
     airwayInflammatoryOrInfectious: false,
+    airwayInflammatoryCategory: undefined,
+    hasSmoothMargins: false,
+    juxtapleuralShape: undefined,
     atypicalCystCategory: undefined,
     atypicalCystManualOverride: false,
     atypicalCystThickWalled: false,
@@ -123,12 +126,27 @@ export default function WizardContainer() {
       methods.setValue("patient.riskLevel", hasHighRisk ? "high" : "low");
       methods.setValue("nodule.scanType" as any, undefined);
       methods.setValue("nodule.priorDiameterMm" as any, undefined);
+      methods.setValue("nodule.priorSolidComponentMm" as any, undefined);
       methods.setValue("nodule.priorScanMonthsAgo" as any, undefined);
       methods.setValue("nodule.isIncompleteStudy" as any, false);
       methods.setValue("priorCategory", undefined);
       methods.setValue("priorStatus", undefined);
     }
   }, [context, methods]);
+
+  // Un nódulo nuevo no tiene medición, categoría ni trayectoria multiestudio
+  // previa: limpiar los campos previos y el flag de crecimiento lento
+  const isNew = methods.watch("nodule.isNew" as any);
+  useEffect(() => {
+    if (isNew) {
+      methods.setValue("nodule.priorDiameterMm" as any, undefined);
+      methods.setValue("nodule.priorSolidComponentMm" as any, undefined);
+      methods.setValue("nodule.priorScanMonthsAgo" as any, undefined);
+      methods.setValue("nodule.isSlowGrowing" as any, false);
+      methods.setValue("priorCategory", undefined);
+      methods.setValue("priorStatus", undefined);
+    }
+  }, [isNew, methods]);
 
   const stepIndex = steps.findIndex((s) => s.id === currentStep);
   const nextStepId = steps[stepIndex + 1]?.id;
@@ -180,10 +198,11 @@ export default function WizardContainer() {
         return false;
       }
       if (scanType === "follow-up" && !isIncompleteStudy) {
+        const isNew = methods.getValues("nodule.isNew" as any);
         const priorDiameter = methods.getValues("nodule.priorDiameterMm" as any);
         const priorMonths = methods.getValues("nodule.priorScanMonthsAgo" as any);
-        if (priorDiameter === undefined || Number.isNaN(priorDiameter) ||
-            priorMonths === undefined || Number.isNaN(priorMonths)) {
+        if (!isNew && (priorDiameter === undefined || Number.isNaN(priorDiameter) ||
+            priorMonths === undefined || Number.isNaN(priorMonths))) {
           methods.setError("nodule.priorDiameterMm" as any, {
             type: "manual",
             message: "El diámetro previo y el intervalo son requeridos para seguimiento",

@@ -141,9 +141,9 @@ describe('Lung-RADS Regression: Growth Calculation', () => {
       expect(calculateLungRadsGrowth(8, 6, 6)).toBe(true);
     });
 
-    test('TC-GR-005 Absolute growth ≥1.5mm over 24 months -> true', () => {
-      // 2mm absolute growth in 24 months ≥1.5mm threshold (no annualization per Lung-RADS v2022)
-      expect(calculateLungRadsGrowth(8, 6, 24)).toBe(true);
+    test('TC-GR-005 Absolute growth ≥1.5mm over 24 months -> false (12-month interval required per ACR v2022 note 6)', () => {
+      // 2mm in 24 months demonstrates growth but does not meet the >1.5mm/12m definition
+      expect(calculateLungRadsGrowth(8, 6, 24)).toBe(false);
     });
 
     test('TC-GR-006 No prior diameter -> false', () => {

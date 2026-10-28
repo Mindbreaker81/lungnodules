@@ -130,8 +130,7 @@ function assessSolidSingle(diameter: number, riskLevel: RiskLevel): AssessmentRe
     category: 'Sólido >8mm (único)',
     recommendation: 'Considerar TC a los 3 meses, PET/CT o muestreo de tejido',
     followUpInterval: '3 meses (o según indicación)',
-    malignancyRisk: '~3%',
-    rationale: 'Nódulos sólidos más grandes merecen evaluación agresiva',
+    rationale: 'Riesgo medio ~3% solo para un nódulo solitario de 8mm; puede ser considerablemente mayor según morfología, localización y paciente (MacMahon 2017, p.233)',
   };
 }
 

@@ -6,22 +6,31 @@ import {
 import { higherLungRadsCategory, resolveAtypicalCystCategory } from './atypicalCyst';
 
 const GUIDELINE: GuidelineId = 'lung-rads-2022';
-const GROWTH_THRESHOLD_MM_PER_12M = 1.5;
-
-const LONG_INTERVAL_THRESHOLD_MONTHS = 18;
+// ACR v2022 notes 4 and 6: mean diameter is reported to one decimal and growth
+// is an increase of >1.5 mm within a 12-month interval. Diameters are compared
+// in whole tenths so that an exact +1.5 mm decimal pair does not cross the
+// threshold through binary floating-point error (e.g. 2.9 -> 4.4 mm)
+const GROWTH_THRESHOLD_TENTHS = 15;
+const GROWTH_INTERVAL_MONTHS = 12;
 
 interface GrowthResult {
+  // ACR v2022 note 6: increase >1.5 mm within a 12-month interval
   isGrowing: boolean;
-  isLongInterval: boolean;
+  // Increase observed over an interval >12 months does not meet the note 6
+  // definition and, by itself, does not document the slow-growth pattern of
+  // notes 7-8 (which requires growth over multiple screening exams)
+  isIntervalGrowth: boolean;
 }
 
-function calculateGrowth(currentDiameter: number, priorDiameter?: number, intervalMonths?: number): GrowthResult {
-  if (priorDiameter === undefined || priorDiameter <= 0 || currentDiameter <= 0) return { isGrowing: false, isLongInterval: false };
-  if (!intervalMonths || intervalMonths <= 0) return { isGrowing: false, isLongInterval: false };
-  const delta = currentDiameter - priorDiameter;
-  const isLongInterval = intervalMonths > LONG_INTERVAL_THRESHOLD_MONTHS;
-  // Lung-RADS v2022: growth defined as absolute increase >1.5mm (not annualized)
-  return { isGrowing: delta > GROWTH_THRESHOLD_MM_PER_12M, isLongInterval };
+function calculateGrowth(currentDiameter: number, priorDiameter?: number, intervalMonths?: number, allowZeroPrior = false): GrowthResult {
+  if (priorDiameter === undefined || currentDiameter <= 0) return { isGrowing: false, isIntervalGrowth: false };
+  if (allowZeroPrior ? priorDiameter < 0 : priorDiameter <= 0) return { isGrowing: false, isIntervalGrowth: false };
+  if (!intervalMonths || intervalMonths <= 0) return { isGrowing: false, isIntervalGrowth: false };
+  const deltaTenths = Math.round(currentDiameter * 10) - Math.round(priorDiameter * 10);
+  if (intervalMonths <= GROWTH_INTERVAL_MONTHS) {
+    return { isGrowing: deltaTenths > GROWTH_THRESHOLD_TENTHS, isIntervalGrowth: false };
+  }
+  return { isGrowing: false, isIntervalGrowth: deltaTenths > 0 };
 }
 
 function classifySolidLungRADS(options: {
@@ -66,17 +75,29 @@ function classifyGroundGlass(options: {
   scanType: 'baseline' | 'follow-up';
   isNew: boolean;
   isGrowing: boolean;
-}): string {
-  const { diameter, scanType, isNew, isGrowing } = options;
+  isIntervalGrowth: boolean;
+}): { category: string; warnings?: string[] } {
+  const { diameter, scanType, isNew, isGrowing, isIntervalGrowth } = options;
 
-  if (diameter < 30) return '2';
+  if (diameter < 30) return { category: '2' };
 
-  // GGN >=30mm: Cat 3 at baseline or if new/growing; stable follow-up handled by stepped management
+  // ACR v2022: GGN >=30mm stable or slowly growing in follow-up -> Cat 2;
+  // baseline or new -> Cat 3
   if (scanType === 'follow-up' && !isNew && !isGrowing) {
-    // Stable large GGN — keep Cat 3 but stepped management will handle downgrade
-    return '3';
+    if (isIntervalGrowth) {
+      // An increase observed over an interval >12 months is neither confirmed
+      // ACR growth (note 6) nor documented stability/slow growth (note 7):
+      // provisional Cat 3 by size (note 5) pending the intermediate exams
+      return {
+        category: '3',
+        warnings: [
+          'GGN ≥30 mm con aumento en intervalo >12 meses: no se puede acreditar estabilidad ni crecimiento lento. Categoría 3 provisional por tamaño; revise los estudios intermedios para confirmar la trayectoria.',
+        ],
+      };
+    }
+    return { category: '2' };
   }
-  return '3';
+  return { category: '3' };
 }
 
 function classifyPartSolid(options: {
@@ -84,9 +105,21 @@ function classifyPartSolid(options: {
   solidComponent?: number;
   scanType: 'baseline' | 'follow-up';
   isNew: boolean;
-  isGrowing: boolean;
+  isSolidComponentGrowing: boolean;
+  isSolidComponentNew: boolean;
 }): { category: string; warnings?: string[] } {
-  const { diameter, solidComponent, scanType, isNew, isGrowing } = options;
+  const { diameter, solidComponent, scanType, isNew, isSolidComponentGrowing, isSolidComponentNew } = options;
+
+  // ACR v2022: a new or growing solid component escalates an existing nodule
+  // before the <6mm total criterion applies (4A <4mm, 4B >=4mm)
+  if (
+    scanType === 'follow-up' &&
+    !isNew &&
+    solidComponent !== undefined &&
+    (isSolidComponentGrowing || isSolidComponentNew)
+  ) {
+    return { category: solidComponent >= 4 ? '4B' : '4A' };
+  }
 
   if (diameter < 6) {
     // New part-solid <6mm in follow-up -> Cat 3 (more conservative than baseline)
@@ -97,8 +130,9 @@ function classifyPartSolid(options: {
     return { category: '3', warnings: ['Se requiere tamaño del componente sólido para evaluación semi-sólida'] };
   }
 
-  // Follow-up: new or growing part-solid -> escalate
-  if (scanType === 'follow-up' && (isNew || isGrowing)) {
+  // ACR v2022: follow-up escalation uses the solid component
+  // (new or growing <4mm -> 4A; new or growing >=4mm -> 4B)
+  if (scanType === 'follow-up' && (isNew || isSolidComponentGrowing || isSolidComponentNew)) {
     if (solidComponent >= 4) return { category: '4B' };
     return { category: '4A' };
   }
@@ -166,7 +200,11 @@ function buildResult(category: string, rationale: string, warnings?: string[]): 
   };
 }
 
-function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
+function getSpecialCategory(
+  nodule: LungRadsAssessmentInput['nodule'],
+  growth: Pick<GrowthResult, 'isGrowing' | 'isIntervalGrowth'>,
+  collectedWarnings: string[],
+): {
   category: string;
   rationale: string;
   warnings?: string[];
@@ -203,20 +241,29 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
   }
 
   if (nodule.isAirway) {
-    if (nodule.airwayPersistent) {
-      return {
-        category: '4B',
-        rationale: 'Nódulo de vía aérea persistente en seguimiento a 3 meses',
-      };
-    }
     if (nodule.airwayInflammatoryOrInfectious) {
+      const category = nodule.airwayInflammatoryCategory === 'category2' ? '2' : '0';
       return {
-        category: '0',
-        rationale: 'Anomalía tubular/múltiple de vía aérea probablemente infecciosa o inflamatoria sin nódulo obstructivo',
-        warnings: ['Categoría 0: considerar TCBD de control en 1-3 meses para confirmar resolución'],
+        category,
+        rationale:
+          category === '0'
+            ? 'Anomalía tubular/múltiple de vía aérea probablemente infecciosa o inflamatoria sin nódulo obstructivo'
+            : 'Anomalía tubular/múltiple de vía aérea con características benignas',
+        warnings: [
+          ...(category === '0'
+            ? ['Categoría 0: considerar TCBD de control en 1-3 meses para confirmar resolución']
+            : []),
+          ...(nodule.airwayInflammatoryCategory ? [] : ['Categoría de vía aérea inflamatoria no especificada (0 o 2)']),
+        ],
       };
     }
     if (nodule.airwayLocation === 'segmental-proximal') {
+      if (nodule.airwayPersistent) {
+        return {
+          category: '4B',
+          rationale: 'Nódulo de vía aérea segmentario o proximal persistente en control a 3 meses',
+        };
+      }
       return {
         category: '4A',
         rationale: 'Nódulo de vía aérea segmental o proximal',
@@ -225,7 +272,10 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
     if (nodule.airwayLocation === 'subsegmental') {
       return {
         category: '2',
-        rationale: 'Nódulo de vía aérea subsegmental con características benignas',
+        rationale: 'Nódulo de vía aérea subsegmental',
+        warnings: nodule.airwayPersistent
+          ? ['Persistencia en vía aérea subsegmentaria no escala a 4B (reservado a lesiones 4A segmentarias o proximales)']
+          : undefined,
       };
     }
     return {
@@ -236,13 +286,29 @@ function getSpecialCategory(nodule: LungRadsAssessmentInput['nodule']): {
   }
 
   if (nodule.isJuxtapleural || nodule.isPerifissural) {
-    const isBenignJuxta =
-      nodule.type === 'solid' && nodule.diameterMm <= 10 && !nodule.hasSpiculation;
-    if (isBenignJuxta) {
-      return {
-        category: '2',
-        rationale: 'Morfología benigna yuxtapleural/perifisural (≤10mm, márgenes lisos)',
-      };
+    const shapeOk =
+      nodule.juxtapleuralShape === 'triangular' ||
+      nodule.juxtapleuralShape === 'lentiform' ||
+      nodule.juxtapleuralShape === 'ovoid';
+    const morphologyOk =
+      nodule.hasSmoothMargins === true && shapeOk && !nodule.hasSpiculation;
+    const baselineOrNew = nodule.scanType === 'baseline' || nodule.isNew === true;
+    if (nodule.type === 'solid' && nodule.diameterMm < 10) {
+      if (baselineOrNew && !growth.isGrowing && morphologyOk) {
+        return {
+          category: '2',
+          rationale: 'Nódulo yuxtapleural/perifisural sólido <10mm, márgenes lisos y forma triangular, lentiforme u ovoide (basal o nuevo)',
+        };
+      }
+      if (!baselineOrNew) {
+        collectedWarnings.push('La regla yuxtapleural (Cat 2) aplica solo en estudio basal o nódulo nuevo');
+      } else if (growth.isGrowing) {
+        collectedWarnings.push('Nódulo yuxtapleural en crecimiento: no aplica categoría 2 por morfología benigna');
+      } else {
+        collectedWarnings.push('Regla yuxtapleural no aplicada: requiere márgenes lisos y forma triangular, lentiforme u ovoide');
+      }
+    } else if (nodule.type === 'solid' && nodule.diameterMm !== undefined) {
+      collectedWarnings.push('Regla yuxtapleural no aplicada: requiere diámetro medio <10 mm');
     }
   }
 
@@ -257,26 +323,42 @@ interface StandardClassification {
 
 function classifyStandardLungRads(input: {
   nodule: LungRadsAssessmentInput['nodule'];
-  isGrowing: boolean;
+  growth: Pick<GrowthResult, 'isGrowing' | 'isIntervalGrowth'>;
   isNew: boolean;
   priorCategory?: string;
   priorStatus?: 'stable' | 'decreasing' | 'progression';
   initialWarnings?: string[];
 }): StandardClassification {
-  const { nodule, isGrowing, isNew, priorCategory, priorStatus, initialWarnings } = input;
+  const { nodule, growth, isNew, priorCategory, priorStatus, initialWarnings } = input;
+  const { isGrowing, isIntervalGrowth } = growth;
   let category: string;
   let warnings: string[] | undefined = initialWarnings;
 
+  // A solid component that appears in an existing nodule (prior 0 -> >0) is
+  // a "new solid component" per the 4A/4B rows; it does not need to meet the
+  // >1.5mm growth threshold
+  const isSolidComponentNew =
+    nodule.type === 'part-solid' &&
+    !isNew &&
+    nodule.priorSolidComponentMm === 0 &&
+    (nodule.solidComponentMm ?? 0) > 0;
+
+  // Slow growth (ACR v2022 notes 7-8): growth demonstrated over multiple
+  // screening exams without meeting the >1.5mm threshold in any 12-month
+  // interval. A single interval >12 months does not document that pattern, so
+  // the pathway applies only when flagged by the reader (isSlowGrowing).
+  // A new nodule has no documented multi-exam trajectory: the flag is ignored
+  const slowGrowingApplies = !isNew && Boolean(nodule.isSlowGrowing);
   const isSlowGrowingSuspicious =
-    nodule.isSlowGrowing && (nodule.type === 'solid' || nodule.type === 'part-solid');
+    slowGrowingApplies && (nodule.type === 'solid' || nodule.type === 'part-solid');
 
   if (isSlowGrowingSuspicious) {
     category = '4B';
     warnings = [
       ...(warnings ?? []),
-      'Crecimiento lento en múltiples estudios: Lung-RADS permite clasificar sólido/semi-sólido como 4B',
+      'Crecimiento lento en múltiples cribados sin superar >1,5 mm en ningún intervalo de 12 meses: Lung-RADS permite clasificar sólido/semi-sólido como 4B',
     ];
-  } else if (nodule.isSlowGrowing && nodule.type === 'ground-glass') {
+  } else if (slowGrowingApplies && nodule.type === 'ground-glass') {
     category = '2';
     warnings = [
       ...(warnings ?? []),
@@ -290,19 +372,23 @@ function classifyStandardLungRads(input: {
       isNew,
     });
   } else if (nodule.type === 'ground-glass') {
-    category = classifyGroundGlass({
+    const result = classifyGroundGlass({
       diameter: nodule.diameterMm,
       scanType: nodule.scanType,
       isNew,
       isGrowing,
+      isIntervalGrowth,
     });
+    category = result.category;
+    warnings = [...(warnings ?? []), ...(result.warnings ?? [])];
   } else {
     const result = classifyPartSolid({
       diameter: nodule.diameterMm,
       solidComponent: nodule.solidComponentMm,
       scanType: nodule.scanType,
       isNew,
-      isGrowing,
+      isSolidComponentGrowing: isGrowing,
+      isSolidComponentNew,
     });
     category = result.category;
     warnings = [...(warnings ?? []), ...(result.warnings ?? [])];
@@ -323,13 +409,23 @@ function classifyStandardLungRads(input: {
     warnings = [...(warnings ?? []), 'Hallazgo clínicamente significativo (modificador S)'];
   }
 
+  const growthRationale = isGrowing
+    ? nodule.type === 'part-solid'
+      ? 'Crecimiento del componente sólido >1,5 mm en 12 meses'
+      : 'Crecimiento >1,5 mm en 12 meses detectado'
+    : isIntervalGrowth
+      ? 'Aumento de tamaño en intervalo >12 meses (no cumple la definición de crecimiento ACR)'
+      : 'Sin crecimiento significativo (>1,5 mm en 12 meses)';
   const rationaleParts = [
     `Contexto: ${nodule.scanType}`,
-    isGrowing ? 'Crecimiento >1.5mm/12m detectado' : 'Sin crecimiento significativo (>1.5mm/12m)',
+    growthRationale,
     isNew ? 'Nódulo nuevo' : 'Nódulo existente',
   ];
-  if (nodule.isSlowGrowing) {
-    rationaleParts.push('Crecimiento lento en múltiples estudios');
+  if (isSolidComponentNew) {
+    rationaleParts.push('Componente sólido nuevo (0 → >0 mm)');
+  }
+  if (slowGrowingApplies) {
+    rationaleParts.push('Crecimiento lento en múltiples cribados');
   }
   if (nodule.hasSpiculation && category.startsWith('4X')) {
     rationaleParts.push('Márgenes espiculados (4X)');
@@ -347,13 +443,13 @@ function classifyStandardLungRads(input: {
 
 function assessAtypicalCyst(input: {
   nodule: LungRadsAssessmentInput['nodule'];
-  isGrowing: boolean;
+  growth: Pick<GrowthResult, 'isGrowing' | 'isIntervalGrowth'>;
   isNew: boolean;
   priorCategory?: string;
   priorStatus?: 'stable' | 'decreasing' | 'progression';
   initialWarnings?: string[];
 }): AssessmentResult | 'use-standard' {
-  const { nodule, isGrowing, isNew, priorCategory, priorStatus, initialWarnings } = input;
+  const { nodule, growth, isNew, priorCategory, priorStatus, initialWarnings } = input;
   const exitWarnings: string[] = [...(initialWarnings ?? [])];
 
   if (nodule.atypicalCystUnilocularThinWalled) {
@@ -391,7 +487,7 @@ function assessAtypicalCyst(input: {
   if (nodule.atypicalCystAdjacentNodule) {
     const standard = classifyStandardLungRads({
       nodule,
-      isGrowing,
+      growth,
       isNew,
       priorCategory,
       priorStatus,
@@ -422,27 +518,94 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
     };
   }
 
-  const growthResult = calculateGrowth(nodule.diameterMm, nodule.priorDiameterMm, nodule.priorScanMonthsAgo);
-  const isGrowing = growthResult.isGrowing;
   const isNew = nodule.isNew ?? false;
+  // A new nodule has no prior measurement or category: ignore any prior
+  // values sent by callers (a new lesion cannot step down from a prior one)
+  const priorDiameter = isNew ? undefined : nodule.priorDiameterMm;
+  const priorSolidComponent = isNew ? undefined : nodule.priorSolidComponentMm;
+  const effectivePriorCategory = isNew ? undefined : priorCategory;
+  const effectivePriorStatus = isNew ? undefined : priorStatus;
+
+  const diameterGrowth = calculateGrowth(nodule.diameterMm, priorDiameter, nodule.priorScanMonthsAgo);
+  // ACR v2022: part-solid escalation is driven by the solid component, not the
+  // total diameter. A prior solid component of 0 is valid (previous pure GGN).
+  const solidComponentGrowth = calculateGrowth(
+    nodule.solidComponentMm ?? Number.NaN,
+    priorSolidComponent,
+    nodule.priorScanMonthsAgo,
+    true,
+  );
+  const growth: GrowthResult =
+    nodule.type === 'part-solid'
+      ? {
+          isGrowing: solidComponentGrowth.isGrowing,
+          isIntervalGrowth: solidComponentGrowth.isIntervalGrowth || diameterGrowth.isIntervalGrowth,
+        }
+      : diameterGrowth;
+
+  // ACR v2022 note 14: a GGN that doubles in size in 1 year is an additional
+  // finding that increases suspicion (4X applies to category 3 or 4 nodules).
+  // It is surfaced as a warning; the category is not changed automatically
+  const ggnDoublesInOneYear =
+    nodule.type === 'ground-glass' &&
+    !isNew &&
+    priorDiameter !== undefined &&
+    priorDiameter > 0 &&
+    nodule.priorScanMonthsAgo !== undefined &&
+    nodule.priorScanMonthsAgo > 0 &&
+    nodule.priorScanMonthsAgo <= GROWTH_INTERVAL_MONTHS &&
+    Math.round(nodule.diameterMm * 10) >= 2 * Math.round(priorDiameter * 10);
+
   let warnings: string[] | undefined;
 
-  if (growthResult.isGrowing && growthResult.isLongInterval) {
-    warnings = [...(warnings ?? []), 'Intervalo de seguimiento prolongado (>18 meses); interpretar crecimiento con cautela'];
+  if (growth.isIntervalGrowth) {
+    warnings = [
+      ...(warnings ?? []),
+      'Intervalo >12 meses: no se puede aplicar la definición de crecimiento ACR (>1,5 mm en 12 meses). Si el nódulo ha crecido en varios cribados sin superar ese umbral en ningún intervalo de 12 meses, marque "crecimiento lento".',
+    ];
   }
 
-  const specialCategory = getSpecialCategory(nodule);
+  if (
+    nodule.type === 'part-solid' &&
+    nodule.scanType === 'follow-up' &&
+    !isNew &&
+    !nodule.isIncompleteStudy &&
+    priorSolidComponent === undefined
+  ) {
+    warnings = [
+      ...(warnings ?? []),
+      'Componente sólido previo no indicado: el escalado 4A/4B por crecimiento usa el componente sólido',
+    ];
+  }
+
+  const collectedWarnings: string[] = [];
+  const specialCategory = getSpecialCategory(nodule, growth, collectedWarnings);
+  if (collectedWarnings.length > 0) {
+    warnings = [...(warnings ?? []), ...collectedWarnings];
+  }
   if (specialCategory) {
-    return buildResult(specialCategory.category, specialCategory.rationale, specialCategory.warnings);
+    let category = specialCategory.category;
+    let rationale = specialCategory.rationale;
+    const specialWarnings = [...(warnings ?? []), ...(specialCategory.warnings ?? [])];
+    if (nodule.hasSignificantFinding && !category.endsWith('S')) {
+      category = `${category}S`;
+      rationale = `${rationale} | Hallazgo significativo (modificador S)`;
+      specialWarnings.push('Hallazgo clínicamente significativo (modificador S)');
+    }
+    return buildResult(
+      category,
+      rationale,
+      specialWarnings.length > 0 ? specialWarnings : undefined,
+    );
   }
 
   if (nodule.isAtypicalCyst) {
     const atypicalResult = assessAtypicalCyst({
       nodule,
-      isGrowing,
+      growth,
       isNew,
-      priorCategory,
-      priorStatus,
+      priorCategory: effectivePriorCategory,
+      priorStatus: effectivePriorStatus,
       initialWarnings: warnings,
     });
 
@@ -466,16 +629,33 @@ export function assessLungRads({ patient, nodule, priorCategory, priorStatus }: 
 
   const standard = classifyStandardLungRads({
     nodule,
-    isGrowing,
+    growth,
     isNew,
-    priorCategory,
-    priorStatus,
+    priorCategory: effectivePriorCategory,
+    priorStatus: effectivePriorStatus,
     initialWarnings: warnings,
   });
 
-  return buildResult(standard.category, standard.rationale, standard.warnings);
+  let standardWarnings = standard.warnings;
+  if (ggnDoublesInOneYear && !standard.category.startsWith('4X')) {
+    standardWarnings = [
+      ...(standardWarnings ?? []),
+      'GGN que duplica su tamaño en un año (ACR Lung-RADS v2022, nota 14): aumenta la sospecha de malignidad; considerar categoría 4X si la clasificación es 3 o 4',
+    ];
+  }
+
+  return buildResult(standard.category, standard.rationale, standardWarnings);
 }
 
 export function calculateLungRadsGrowth(currentDiameter: number, priorDiameter?: number, intervalMonths?: number): boolean {
   return calculateGrowth(currentDiameter, priorDiameter, intervalMonths).isGrowing;
+}
+
+export function calculateLungRadsGrowthResult(
+  currentDiameter: number,
+  priorDiameter?: number,
+  intervalMonths?: number,
+  allowZeroPrior = false,
+): GrowthResult {
+  return calculateGrowth(currentDiameter, priorDiameter, intervalMonths, allowZeroPrior);
 }
