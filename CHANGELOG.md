@@ -1,3 +1,8 @@
+## [1.8.1] - 2026-10-28
+
+### Fixed
+- **CI (lint):** `research/` queda fuera de ESLint; los scripts de Node de la verificación de 2026-10-27 hacían fallar `eslint .` y bloqueaban Build y E2E (LUN-36).
+
 ## [1.8.0] - 2026-10-27
 
 ### Added
