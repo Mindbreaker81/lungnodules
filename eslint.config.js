@@ -65,6 +65,6 @@ module.exports = [
 		},
 	},
 	{
-		ignores: [".next/", "node_modules/", "dist/"],
+		ignores: [".next/", "node_modules/", "dist/", "research/"],
 	},
 ];

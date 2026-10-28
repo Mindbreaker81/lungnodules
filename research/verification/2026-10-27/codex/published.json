@@ -1,0 +1,1920 @@
+{
+  "results": [
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.02,
+      "actual": 0.014998396111481273,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.05,
+      "actual": 0.05162715145498962,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.16,
+      "actual": 0.16291459443855125,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.03,
+      "actual": 0.03221118950986746,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.11,
+      "actual": 0.10633846824535902,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.3,
+      "actual": 0.2984478556062554,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.07,
+      "actual": 0.06781802706738037,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.21,
+      "actual": 0.206410405096173,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.48,
+      "actual": 0.48183300078352637,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.03,
+      "actual": 0.03226734931417923,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.11,
+      "actual": 0.10650964457025294,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.3,
+      "actual": 0.2988248704026772,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.07,
+      "actual": 0.06793190936489872,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.21,
+      "actual": 0.20670541018486127,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.48,
+      "actual": 0.4822824212867534,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.14,
+      "actual": 0.1374183367889237,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.36,
+      "actual": 0.36287672156556416,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.67,
+      "actual": 0.6706441740226798,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.04,
+      "actual": 0.04132834695711763,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.13,
+      "actual": 0.13354172253321245,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.36,
+      "actual": 0.355259363007132,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.09,
+      "actual": 0.08611666298241182,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.25,
+      "actual": 0.25199507848859165,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.55,
+      "actual": 0.5463664026742796,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.17,
+      "actual": 0.17079548202237443,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.42,
+      "actual": 0.42409139255332623,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.73,
+      "actual": 0.7247206759341824,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.09,
+      "actual": 0.08625842960886537,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.25,
+      "actual": 0.25233451833192694,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.55,
+      "actual": 0.546812495605196,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.17,
+      "actual": 0.17105055699642283,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.43,
+      "actual": 0.4245310807015854,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.73,
+      "actual": 0.7250796317526886,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.31,
+      "actual": 0.3108389619673553,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.62,
+      "actual": 0.6172282424069279,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.85,
+      "actual": 0.8521796907749144,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.06,
+      "actual": 0.05489363878676914,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.17,
+      "actual": 0.17194570037718215,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.43,
+      "actual": 0.4260709257203055,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.11,
+      "actual": 0.11265538056815792,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.31,
+      "actual": 0.3121901417595847,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.62,
+      "actual": 0.6187155615428793,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.22,
+      "actual": 0.2172269751116819,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.5,
+      "actual": 0.49802501027158175,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.78,
+      "actual": 0.7800744013017185,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.11,
+      "actual": 0.11283544152413288,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.31,
+      "actual": 0.3125767817847127,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.62,
+      "actual": 0.6191401026167213,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.22,
+      "actual": 0.2175332018453002,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.5,
+      "actual": 0.49847500472875317,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.78,
+      "actual": 0.78038305061132,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.38,
+      "actual": 0.37798727963113443,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.69,
+      "actual": 0.6847957980868933,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.89,
+      "actual": 0.8859375138866634,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.14,
+      "actual": 0.1412192504298181,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.37,
+      "actual": 0.37023705059879336,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.68,
+      "actual": 0.6776078354561452,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.26,
+      "actual": 0.2644045481873334,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.56,
+      "actual": 0.5623733983475707,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.82,
+      "actual": 0.8212442177969936,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.44,
+      "actual": 0.4399906508209665,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.74,
+      "actual": 0.7374583740214687,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.91,
+      "actual": 0.9094386483980962,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.27,
+      "actual": 0.2647547872288276,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.56,
+      "actual": 0.5628163457038591,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.82,
+      "actual": 0.8215083088923193,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.44,
+      "actual": 0.4404342165941918,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.74,
+      "actual": 0.7378067293686957,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.91,
+      "actual": 0.9095867871691262,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.63,
+      "actual": 0.6324170364502175,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.86,
+      "actual": 0.8601576536428565,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": false,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.96,
+      "actual": 0.9565033347064602,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.03,
+      "actual": 0.032514949654595456,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.11,
+      "actual": 0.10726379115584134,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.3,
+      "actual": 0.3004827723375725,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.07,
+      "actual": 0.06843382556805984,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.21,
+      "actual": 0.20800384037040667,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.48,
+      "actual": 0.48425520724575394,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.14,
+      "actual": 0.1383574447272733,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.37,
+      "actual": 0.36470515067719295,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.67,
+      "actual": 0.6723867722526548,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.07,
+      "actual": 0.06854866589396828,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.21,
+      "actual": 0.20830052506269595,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.49,
+      "actual": 0.48470477364806674,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.14,
+      "actual": 0.138572170838665,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.37,
+      "actual": 0.3651223037008856,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.67,
+      "actual": 0.6727831581899385,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.26,
+      "actual": 0.26014789729000404,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.56,
+      "actual": 0.5569517670738627,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.82,
+      "actual": 0.8179917149745602,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.09,
+      "actual": 0.08688312974092455,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.25,
+      "actual": 0.2538278606677687,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.55,
+      "actual": 0.5487694495722293,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.17,
+      "actual": 0.17217362856747237,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.43,
+      "actual": 0.42646222710966886,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.73,
+      "actual": 0.726651607759867,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.31,
+      "actual": 0.3125338088882249,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.62,
+      "actual": 0.6190929403659057,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.85,
+      "actual": 0.8531720833363634,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.17,
+      "actual": 0.17243033374301725,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.43,
+      "actual": 0.42690255122832527,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.73,
+      "actual": 0.7270089941470737,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.31,
+      "actual": 0.3129206808984715,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.62,
+      "actual": 0.6195173196470847,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.85,
+      "actual": 0.8533974250867669,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.5,
+      "actual": 0.4988750018984336,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.78,
+      "actual": 0.7806571441428455,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": false,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.93,
+      "actual": 0.9271356233984277,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.11,
+      "actual": 0.11362868208101742,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.31,
+      "actual": 0.3142767830835053,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.62,
+      "actual": 0.6210012057784656,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.22,
+      "actual": 0.21888088097839714,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.5,
+      "actual": 0.5004499998785,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.78,
+      "actual": 0.7817339954321969,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.38,
+      "actual": 0.37984645389981797,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.69,
+      "actual": 0.6864985224991893,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": false
+      },
+      "published": 0.89,
+      "actual": 0.8867333958373398,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.22,
+      "actual": 0.21918878637348768,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.5,
+      "actual": 0.5008999990280011,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.78,
+      "actual": 0.7820409663983046,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.38,
+      "actual": 0.38027055913490304,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.69,
+      "actual": 0.6868857853335149,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.89,
+      "actual": 0.8869140571315803,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.57,
+      "actual": 0.5728772432130356,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.83,
+      "actual": 0.8274412000898231,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": false,
+        "upper": true
+      },
+      "published": 0.95,
+      "actual": 0.944882848356559,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.27,
+      "actual": 0.26629545399845195,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.57,
+      "actual": 0.5647591989032298,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.82,
+      "actual": 0.8226637641419096,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.44,
+      "actual": 0.44238209322315325,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.74,
+      "actual": 0.7393320946525014,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.91,
+      "actual": 0.9102343738257627,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.63,
+      "actual": 0.6342515870503974,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.86,
+      "actual": 0.8611052157377244,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": false
+      },
+      "published": 0.96,
+      "actual": 0.956830829107831,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.44,
+      "actual": 0.44282616347704506,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.74,
+      "actual": 0.7396788414483778,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 35,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.91,
+      "actual": 0.9103813392289709,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.64,
+      "actual": 0.6346690437785473,
+      "ok": false
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.86,
+      "actual": 0.861320361279017,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 55,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.96,
+      "actual": 0.9569051180687332,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 10,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.79,
+      "actual": 0.7915510156977018,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 20,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.93,
+      "actual": 0.9313938470156501,
+      "ok": true
+    },
+    {
+      "input": {
+        "age": 75,
+        "diameter": 30,
+        "smoker": true,
+        "cancer": true,
+        "spiculation": true,
+        "upper": true
+      },
+      "published": 0.98,
+      "actual": 0.9798125469606316,
+      "ok": true
+    }
+  ],
+  "graph": [
+    {
+      "cigarettes": 5,
+      "probability": 0.0005841611073180393
+    },
+    {
+      "cigarettes": 10,
+      "probability": 0.003603845649036134
+    },
+    {
+      "cigarettes": 20,
+      "probability": 0.008916985018390567
+    },
+    {
+      "cigarettes": 40,
+      "probability": 0.013991859524149608
+    },
+    {
+      "cigarettes": 80,
+      "probability": 0.017509223396731544
+    }
+  ],
+  "nomogram": [
+    {
+      "mayo": 0.5,
+      "fdg": "absent",
+      "herder": 0.052475818227231186
+    },
+    {
+      "mayo": 0.5,
+      "fdg": "faint",
+      "herder": 0.3608907797716786
+    },
+    {
+      "mayo": 0.5,
+      "fdg": "moderate",
+      "herder": 0.8485791093447029
+    },
+    {
+      "mayo": 0.5,
+      "fdg": "intense",
+      "herder": 0.8673237073121813
+    }
+  ]
+}

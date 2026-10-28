@@ -6,7 +6,7 @@
 > está verificado contra la publicación original** (con su fuente) y **qué falta por
 > verificar/implementar**.
 >
-> Última actualización: 2026-06-15 (sincronizado con `ESTADO_Y_PENDIENTES.md`, `coefficients.md` y código v1.6.0).  
+> Última actualización: 2026-10-27 (LUN-16/17/18: Herder solo regresión logística con pre-test Mayo; Brock con diámetro máximo transversal; LUN-26: quiste atípico cat. 3 alcanzable).  
 > **Estado operativo, pendientes y desfases con el código:** ver `[ESTADO_Y_PENDIENTES.md](./ESTADO_Y_PENDIENTES.md)`.  
 > **Resumen clínico en inglés (fórmulas):** [`coefficients.md`](./coefficients.md).  
 > **Bibliografía con enlaces PubMed/DOI (app):** [`config/references.ts`](../../config/references.ts) → `/references`.
@@ -50,7 +50,7 @@ Probabilidad: `P = e^x / (1 + e^x)`
 
 **Rango de diámetro (Swensen / MDCalc):** el paper y MDCalc validan nódulos **4–30 mm**. La app **no impone mínimo de 4 mm** en Mayo (solo excluye > 30 mm). Herder comparte el umbral ≥ 4 mm vía `MAYO_MIN_DIAMETER_MM` (ver §3).
 
-**Comportamiento con PET rellenado:** si `nodule.hasPet` y `nodule.petUptake` están informados, `buildMayoSummary` añade una nota de que Mayo es probabilidad **pre-PET** y que el ajuste post-PET corresponde a las variantes Herder (§3). `getRecommendedPredictiveModel()` devuelve `"herder"` (BTS) cuando esa variante está disponible; si no, Brock (screening) o Mayo (incidental).
+**Comportamiento con PET rellenado:** si `nodule.hasPet` y `nodule.petUptake` están informados, `buildMayoSummary` añade una nota de que Mayo es probabilidad **pre-PET** y que el ajuste post-PET corresponde a Herder (§3). `getRecommendedPredictiveModel()` devuelve `"herder"` cuando está disponible; si no, Brock (screening) o Mayo (incidental).
 
 **Corrección 2026-06-13:** espiculación (0.71 → 1.0407) y lóbulo superior (1.138 → 0.7838) estaban intercambiados y con valores erróneos.
 
@@ -80,7 +80,7 @@ Particularidades clave frente a Mayo:
 | Sexo femenino                   | 0.6011                                | ✅      | 1 = mujer; 0 = hombre (`patient.sex`)                                    | McWilliams 2013                                                                         |
 | Historia familiar cáncer pulmón | 0.2961                                | ✅      | 1/0 (`patient.hasFamilyHistoryLungCancer`)                               | McWilliams 2013                                                                         |
 | Enfisema (en TC)                | 0.2953                                | ✅      | 1/0; visible en TC, no solo EPOC clínico (`patient.hasEmphysema`)        | McWilliams 2013                                                                         |
-| Tamaño (transformado)           | −5.3854 × [(mm/10)^−0.5 − 1.58113883] | ✅      | mm (`nodule.diameterMm`)                                                 | McWilliams 2013 / calculadora Brock                                                     |
+| Tamaño (transformado)           | −5.3854 × [(mm/10)^−0.5 − 1.58113883] | ✅      | mm (`nodule.maxDiameterMm`, máximo transversal; si falta, `diameterMm`)   | McWilliams 2013 / calculadora Brock                                                     |
 | Tipo: parte-sólido              | 0.377                                 | ✅      | 1 si parte-sólido; sólido es referencia (`nodule.type === 'part-solid'`) | McWilliams 2013                                                                         |
 | Tipo: no sólido (VME/GGO)       | −0.1276                               | ✅      | 1 si vidrio esmerilado (`nodule.type === 'ground-glass'`)                | McWilliams 2013                                                                         |
 | Lóbulo superior                 | 0.6581                                | ✅      | 1/0 (`nodule.isUpperLobe`)                                               | McWilliams 2013                                                                         |
@@ -90,7 +90,9 @@ Particularidades clave frente a Mayo:
 
 > **Nivel de verificación: PRIMARIO** (2026-06-15: tabla 2, Model 2b, cotejada celda a celda contra PDF local `research/pdf/McWilliams - Probability of Cancer in Pulmonary Nodules Detected on First Screening CT.pdf`). Coincide también con PMC McWilliams 2013 y suplemento Clinical Radiology 2024. **Corrección documental 2026-06-14:** estos coeficientes corresponden al **modelo completo con espiculación (Model 2b)**, no al parsimonioso 1b. Coincide con `lib/predictive/index.ts:51-66`. El comentario en código fue corregido en 2026-06-15.
 
-**Exclusiones aplicadas:** contexto screening (Lung-RADS); no aplicar a masas > 30 mm.
+**Exclusiones aplicadas:** contexto screening (Lung-RADS); no aplicar a masas > 30 mm (evaluado sobre el diámetro que usa Brock).
+
+**Diámetro de entrada (corrección 2026-10-27, LUN-18):** McWilliams 2013 se desarrolló con el **diámetro máximo transversal**, no con el medio. El wizard recoge el campo opcional `nodule.maxDiameterMm` («Diámetro máximo transversal (mm)») junto al diámetro medio; Brock lo usa si está informado y, si no, cae a `diameterMm` añadiendo una nota de posible infraestimación. Fleischner, Lung-RADS, Mayo y Herder siguen usando `diameterMm`.
 
 **Corrección 2026-06-13:** se pasó de un coeficiente lineal de tamaño (0.0546·mm) a la transformación no lineal; se centró edad en 62 y recuento en 4; se corrigieron intercepto (−8.4852 → −6.7892), espiculación (0.3543 → 0.7729) y lóbulo superior (0.3138 → 0.6581).
 
@@ -108,7 +110,7 @@ Corresponde al **Model 2a** (modelo completo sin espiculación) de McWilliams 20
 | Sexo femenino                   | 0.5635                                | ✅      | 1 = mujer; 0 = hombre (`patient.sex`)                  | McWilliams 2013 Tabla 2                 |
 | Historia familiar cáncer pulmón | 0.3013                                | ✅      | 1/0 (`patient.hasFamilyHistoryLungCancer`)             | McWilliams 2013 Tabla 2                 |
 | Enfisema (en TC)                | 0.3462                                | ✅      | 1/0 (`patient.hasEmphysema`)                           | McWilliams 2013 Tabla 2                 |
-| Tamaño (transformado)           | −5.6693 × [(mm/10)^−0.5 − 1.58113883] | ✅      | mm (`nodule.diameterMm`); misma transformación que §2a | McWilliams 2013 Tabla 2 (nota al pie †) |
+| Tamaño (transformado)           | −5.6693 × [(mm/10)^−0.5 − 1.58113883] | ✅      | mm (`nodule.maxDiameterMm`; misma transformación que §2a) | McWilliams 2013 Tabla 2 (nota al pie †) |
 | Tipo: parte-sólido              | 0.3395                                | ✅      | 1 si parte-sólido; sólido es referencia                | McWilliams 2013 Tabla 2                 |
 | Tipo: no sólido (VME/GGO)       | −0.3005                               | ✅      | 1 si vidrio esmerilado                                 | McWilliams 2013 Tabla 2                 |
 | Lóbulo superior                 | 0.7116                                | ✅      | 1/0 (`nodule.isUpperLobe`)                             | McWilliams 2013 Tabla 2                 |
@@ -122,38 +124,9 @@ Corresponde al **Model 2a** (modelo completo sin espiculación) de McWilliams 20
 
 ---
 
-## 3. Herder (Herder et al., Chest 2005;128:2490-2496)
+## 3. Herder (Herder et al., Chest 2005;128:2490-2496) — ✅ implementado (`id: "herder"`)
 
-> **IMPORTANTE — corrección 2026-06-15:** tras revisar el PDF original (`research/pdf/Herder 2005 ...pdf`) se confirma que **el paper publica UN único modelo: la regresión logística** (§3b). El paper **no** contiene una "Tabla 4" con likelihood ratios (0.08/0.17/1.9/9.9); ese enfoque por LR (§3a) procede de la guía BTS 2015 / MDCalc, no del artículo. La app **implementa ambas variantes** y las muestra en igualdad de condiciones, cada una con su fuente y cálculo.
-
-### 3a. Variante BTS (odds × likelihood ratio de FDG-PET) — ✅ implementada (`id: "herder"`)
-
-Toma la probabilidad **pre-test** (Mayo en incidental, Brock en screening), la convierte a odds y la multiplica por el *likelihood ratio* (LR) del nivel de captación FDG:
-
-```
-O_pre  = P_pretest / (1 − P_pretest)
-O_post = O_pre × LR
-P_Herder = O_post / (1 + O_post)
-```
-
-
-| Captación FDG | Definición                    | LR   | Estado | Fuente de verificación |
-| ------------- | ----------------------------- | ---- | ------ | ---------------------- |
-| Ausente       | ≤ fondo pulmonar              | 0.08 | ✅      | BTS 2015 / MDCalc      |
-| Leve          | > pulmón, ≤ pool mediastínico | 0.17 | ✅      | BTS 2015 / MDCalc      |
-| Moderada      | > pool mediastínico           | 1.9  | ✅      | BTS 2015 / MDCalc      |
-| Intensa       | muy superior al pool          | 9.9  | ✅      | BTS 2015 / MDCalc      |
-
-
-> **Nivel de verificación:** secundario. Estos LR proceden de la guía **British Thoracic Society 2015** (Callister et al., PMID 26082159) y de MDCalc; **no** aparecen como tabla en el paper Herder 2005. Coincide con `lib/predictive/index.ts` (`HERDER_LIKELIHOOD_RATIOS`).
-
-**Constantes en código:** `MAYO_MIN_DIAMETER_MM = 4` (elegibilidad Herder; rango Mayo/MDCalc); `HERDER_VALIDATED_MIN_DIAMETER_MM = 8` (aviso clínico si diámetro < 8 mm).
-
-**Requisitos en la app:** PET-CT disponible, nódulo ≥ 4 mm, riesgo pre-test ≥ 10% (criterio BTS), no aplicar a masas > 30 mm. Con nódulos < 8 mm se muestra aviso de validación limitada. Input: `nodule.hasPet`, `nodule.petUptake`.
-
-**Nota:** multiplicar odds por un LR equivale a sumar `ln(LR)` al log-odds pre-test. El uso de Herder con pre-test Brock (screening) tiene evidencia limitada (validado originalmente con Mayo) — la app ya lo advierte.
-
-### 3b. Regresión logística publicada (modelo original Herder 2005) — ✅ implementada (`id: "herder-logistic"`)
+> **IMPORTANTE — corrección 2026-10-27 (LUN-16, LUN-17):** el paper publica **un único modelo**: la regresión logística, ajustada con la probabilidad **Mayo** como pre-test. La app lo implementa así en ambos contextos (nunca Brock); una variante previa no respaldada por las fuentes fue retirada.
 
 Es **el modelo multivariable que publica el paper**. Combina la probabilidad pre-test (Mayo/Swensen) con la captación visual de FDG en escala de 4 puntos:
 
@@ -172,9 +145,15 @@ Es **el modelo multivariable que publica el paper**. Combina la probabilidad pre
 
 **Escala de `P_pre` (resuelto):** pese a que el texto del paper habla de "percentage", el coeficiente 3.691 multiplica la probabilidad como **fracción 0–1**, no 0–100. Comprobación: con `P_pre = 0.187` y captación intensa → `x = −4.739 + 3.691·0.187 + 4.771 = 0.722` → `P ≈ 0.673` (clínicamente coherente; con escala 0–100 el resultado saturaría a ~1).
 
+**Pre-test siempre Mayo (LUN-17):** `evaluateHerderEligibility` obtiene `P_pre` de la probabilidad Mayo (`computeMayo`) en ambos contextos. Si Mayo no es calculable — datos ausentes o exclusiones (masa >30 mm, cáncer conocido, cáncer extratorácico <5 a) — Herder queda en `insufficient_data` / `not_applicable` indicando los campos de Mayo que faltan; **nunca** se sustituye por Brock. En screening la UI recoge los inputs de Mayo (tabaquismo, cáncer extratorácico en `RiskStep`; espiculación, lóbulo superior, diámetro en `NoduleStep`).
+
 **Matiz Mourato 2020:** reproduce la misma fórmula pero clasifica la captación PET por **SUVmax**, mientras la app y el paper original usan la **escala visual** (ausente/leve/moderada/intensa) basada en el pool mediastínico. No mezclar ambos criterios de categorización.
 
-**Implementación:** `HERDER_LOGISTIC_COEFFICIENTS` + `HERDER_LOGISTIC_FDG` y `buildHerderLogisticSummary` en `lib/predictive/index.ts`. Comparte la elegibilidad (PET, ≥4 mm, ≤30 mm, pre-test disponible) con la variante BTS vía `evaluateHerderEligibility`. A diferencia de la variante BTS, **no** aplica el umbral pre-test ≥10% (eso es una recomendación BTS, no del modelo logístico).
+**Constantes en código:** `MAYO_MIN_DIAMETER_MM = 4` (elegibilidad Herder; rango Mayo/MDCalc); `HERDER_SMALL_NODULE_CAUTION_MM = 8` (precaución: PET menos sensible en nódulos pequeños, sin afirmación de validación).
+
+**Requisitos en la app:** PET-CT disponible, nódulo ≥ 4 mm, no aplicar a masas > 30 mm, pre-test Mayo calculable. Con nódulos < 8 mm se muestra una nota de precaución. El umbral BTS «usar Herder solo si pre-test ≥10%» ya **no** es condición de cálculo; se muestra como nota informativa cuando el pre-test es <10%. Input: `nodule.hasPet`, `nodule.petUptake`.
+
+**Implementación:** `HERDER_COEFFICIENTS` + `HERDER_FDG` y `buildHerderSummary` en `lib/predictive/index.ts`; elegibilidad en `evaluateHerderEligibility`.
 
 ---
 
@@ -210,31 +189,32 @@ Es **el modelo multivariable que publica el paper**. Combina la probabilidad pre
 ### Tabla maestra por campo
 
 
-| Campo (`AssessmentInput`) | Wizard | Fleischner | Mayo | Brock | Herder BTS | Herder log. | Notas |
-| ------------------------- | ------ | ---------- | ---- | ----- | ---------- | ----------- | ----- |
-| `clinicalContext` | Contexto **O** | **O** incidental | **E** si screening | **E** si incidental | — | — | Rama principal |
-| `patient.age` | Risk **G** inc. / **P** scr. | **G** ≥35 | **O** | **O** | — | — | Screening: edad en bloque predictivo |
-| `patient.riskLevel` | Risk (auto) **G** | **G** | — | — | — | — | Solo Fleischner |
-| `patient.riskFactors` | Risk **G** | **G** (deriva riesgo) | — | — | — | — | |
-| `patient.hasKnownMalignancy` | Risk **G** | **E** si true | **E** si true | — | — | — | |
-| `patient.isImmunocompromised` | Risk **G** | **E** si true | — | — | — | — | |
-| `patient.sex` | Risk **P** | — | — | **O** | — | — | |
-| `patient.smokingStatus` | Risk **P** | — | **O** | — | — | — | never/former/current |
-| `patient.extrathoracicCancerHistory` | Risk **P** | — | **O** (`none`/`over5y`/`recent`) | — | — | — | **E** Mayo si `recent` |
-| `patient.hasFamilyHistoryLungCancer` | Risk **P** (scr.) | — | — | **O** bool | — | — | Checkbox solo screening |
-| `patient.hasEmphysema` | Risk **P** (scr.) | — | — | **O** bool | — | — | En TC, no solo EPOC clínico |
-| `nodule.type` | Nodule **G** | **G** | — | **O** | — | — | solid / part-solid / ground-glass |
-| `nodule.diameterMm` | Nodule **G** | **G** | **O** | **O** | **C** ≥4 mm | **C** ≥4 mm | **E** todos si >30 mm |
-| `nodule.solidComponentMm` | Nodule **C** | **G** si part-solid | — | — | — | — | ≤ diámetro total |
-| `nodule.isMultiple` / `noduleCount` | Nodule **G**/ **C** | **G** | — | **O** (1 si único) | — | — | Schema exige count si múltiple |
-| `nodule.hasSpiculation` | Nodule 3 estados | **G** (Lung-RADS 4X) | **O** bool | **C** | — | — | `undefined` → Brock 2a; Mayo exige bool |
-| `nodule.isUpperLobe` | Nodule **P** | — | **O** bool | **O** bool | — | — | |
-| `nodule.hasPet` | Nodule **P** | — | — (nota pre-PET) | — | **O** | **O** | |
-| `nodule.petUptake` | Nodule **C** | — | — | — | **O** si hasPet | **O** si hasPet | absent/faint/moderate/intense |
-| `nodule.scanType` | Risk **G** | — | — | — | — | — | Solo screening |
-| `nodule.priorDiameterMm` / `priorScanMonthsAgo` | Risk **C** | — | — | — | — | — | Follow-up screening |
-| `priorCategory` / `priorStatus` | Risk **P** | — | — | — | — | — | Stepped management LR |
-| Campos LR especiales (`isAirway`, `isAtypicalCyst`, …) | Nodule **C** | — | — | — | — | — | Solo guía Lung-RADS; quiste atípico: descriptores + override en Anexo A §A.1 |
+| Campo (`AssessmentInput`) | Wizard | Fleischner | Mayo | Brock | Herder | Notas |
+| ------------------------- | ------ | ---------- | ---- | ----- | ------ | ----- |
+| `clinicalContext` | Contexto **O** | **O** incidental | **E** si screening | **E** si incidental | — | Rama principal |
+| `patient.age` | Risk **G** inc. / **P** scr. | **G** ≥35 | **O** | **O** | **O** (vía Mayo) | Screening: edad en bloque predictivo |
+| `patient.riskLevel` | Risk (auto) **G** | **G** | — | — | — | Solo Fleischner |
+| `patient.riskFactors` | Risk **G** | **G** (deriva riesgo) | — | — | — | |
+| `patient.hasKnownMalignancy` | Risk **G** | **E** si true | **E** si true | — | **E** (vía Mayo) | |
+| `patient.isImmunocompromised` | Risk **G** | **E** si true | — | — | — | |
+| `patient.sex` | Risk **P** | — | — | **O** | — | |
+| `patient.smokingStatus` | Risk **P** | — | **O** | — | **O** (vía Mayo) | never/former/current |
+| `patient.extrathoracicCancerHistory` | Risk **P** | — | **O** (`none`/`over5y`/`recent`) | — | **O** (vía Mayo) | **E** Mayo si `recent` |
+| `patient.hasFamilyHistoryLungCancer` | Risk **P** (scr.) | — | — | **O** bool | — | Checkbox solo screening |
+| `patient.hasEmphysema` | Risk **P** (scr.) | — | — | **O** bool | — | En TC, no solo EPOC clínico |
+| `nodule.type` | Nodule **G** | **G** | — | **O** | — | solid / part-solid / ground-glass |
+| `nodule.diameterMm` | Nodule **G** | **G** | **O** | **C** (fallback) | **C** ≥4 mm (vía Mayo) | **E** todos si >30 mm |
+| `nodule.maxDiameterMm` | Nodule **P** | — | — | **C** preferente | — | Máximo transversal; ≥ `diameterMm`; si falta Brock usa el medio |
+| `nodule.solidComponentMm` | Nodule **C** | **G** si part-solid | — | — | — | ≤ diámetro total |
+| `nodule.isMultiple` / `noduleCount` | Nodule **G**/ **C** | **G** | — | **O** (1 si único) | — | Schema exige count si múltiple |
+| `nodule.hasSpiculation` | Nodule 3 estados | **G** (Lung-RADS 4X) | **O** bool | **C** | **O** (vía Mayo) | `undefined` → Brock 2a; Mayo exige bool |
+| `nodule.isUpperLobe` | Nodule **P** | — | **O** bool | **O** bool | **O** (vía Mayo) | |
+| `nodule.hasPet` | Nodule **P** | — | — (nota pre-PET) | — | **O** | |
+| `nodule.petUptake` | Nodule **C** | — | — | — | **O** si hasPet | absent/faint/moderate/intense |
+| `nodule.scanType` | Risk **G** | — | — | — | — | Solo screening |
+| `nodule.priorDiameterMm` / `priorScanMonthsAgo` | Risk **C** | — | — | — | — | Follow-up screening |
+| `priorCategory` / `priorStatus` | Risk **P** | — | — | — | — | Stepped management LR |
+| Campos LR especiales (`isAirway`, `isAtypicalCyst`, …) | Nodule **C** | — | — | — | — | Solo guía Lung-RADS; quiste atípico: descriptores + override en Anexo A §A.1 |
 
 ### Resumen por modelo predictivo
 
@@ -253,20 +233,21 @@ Es **el modelo multivariable que publica el paper**. Combina la probabilidad pre
 | Requisito | Detalle |
 | --------- | ------- |
 | Contexto | `screening` |
-| Exclusiones | Diámetro >30 mm |
-| Campos **O** | `age`, `sex`, `hasFamilyHistoryLungCancer`, `hasEmphysema`, `diameterMm`, `type`, `isUpperLobe`, `noduleCount` (default 1 si solitario) |
+| Exclusiones | Diámetro >30 mm (sobre `maxDiameterMm` si está, si no `diameterMm`) |
+| Campos **O** | `age`, `sex`, `hasFamilyHistoryLungCancer`, `hasEmphysema`, `diameterMm` o `maxDiameterMm`, `type`, `isUpperLobe`, `noduleCount` (default 1 si solitario) |
+| Tamaño | `maxDiameterMm` (máximo transversal) si está informado; si no, `diameterMm` + nota de infraestimación |
 | Variante | `hasSpiculation` **bool** → McWilliams **2b**; `undefined` → **2a** (`BROCK_COEFFICIENTS_NO_SPIC`) |
 
-#### Herder BTS (`id: "herder"`) y logístico (`id: "herder-logistic"`)
+#### Herder (`id: "herder"`) — ambos contextos
 
-| Requisito | Herder BTS | Herder logístico |
-| --------- | ---------- | ---------------- |
-| PET | `hasPet` + `petUptake` **O** | igual |
-| Diámetro | ≥4 mm (`MAYO_MIN_DIAMETER_MM`); aviso si <8 mm | igual |
-| Exclusiones | >30 mm; pre-test Mayo/Brock no calculable | igual |
-| Pre-test | Mayo (incidental) o Brock (screening) **O** | igual |
-| Umbral pre-test | **≥10%** (BTS); si <10% → `not_applicable` | **sin** umbral ≥10% |
-| Cálculo | odds × LR FDG | regresión logística §3b |
+| Requisito | Detalle |
+| --------- | ------- |
+| PET | `hasPet` + `petUptake` **O** |
+| Diámetro | ≥4 mm (`MAYO_MIN_DIAMETER_MM`); nota de precaución si <8 mm (`HERDER_SMALL_NODULE_CAUTION_MM`) |
+| Exclusiones | >30 mm; pre-test Mayo no calculable (faltan datos → `insufficient_data`; exclusión → `not_applicable`) |
+| Pre-test | **Siempre Mayo** (ambos contextos; nunca Brock) |
+| Umbral pre-test | Sin restricción; si <10% se añade nota informativa BTS |
+| Cálculo | regresión logística §3 (`x = −4.739 + 3.691·P_Mayo + βFDG`) |
 
 ### Diferencias críticas wizard ↔ predictivo
 
@@ -290,10 +271,10 @@ Un caso puede **pasar** la guía y aun así mostrar predictivos incompletos si n
 | Campo | Wizard | Algoritmo | Notas |
 | ----- | ------ | --------- | ----- |
 | `isAtypicalCyst` | Checkbox **C** | Activa rama híbrida | |
-| `atypicalCystThickWalled` | Checkbox **C** | Auto 4A/4B | Pared ≥ 2 mm |
+| `atypicalCystThickWalled` | Checkbox **C** | Auto 3/4A/4B | Pared ≥ 2 mm |
 | `atypicalCystMultilocular` | Checkbox **C** | Auto 4A/4B | |
-| `atypicalCystPreviouslyStable` | Checkbox **C** | Auto 3 | Con comp. quístico creciente |
-| `atypicalCystGrowingCysticComponent` | Checkbox **C** | Auto 3 | |
+| `atypicalCystPreviouslyStable` | Checkbox **C** | Auto 3 | Solo con pared gruesa + comp. quístico creciente |
+| `atypicalCystGrowingCysticComponent` | Checkbox **C** | Auto 3 | Solo con pared gruesa + prev. estable |
 | `atypicalCystWallOrCystGrowing` | Checkbox **C** | Auto 4B | Con pared gruesa o multilocular |
 | `atypicalCystIncreasedLoculationOrDensity` | Checkbox **C** | Auto 4B | Con multilocular |
 | `atypicalCystAdjacentNodule` | Checkbox **C** | max(quiste, nódulo estándar) | ACR «most concerning feature» |
@@ -302,7 +283,7 @@ Un caso puede **pasar** la guía y aun así mostrar predictivos incompletos si n
 | `atypicalCystManualOverride` | Checkbox **C** | Override | Si true, exige `atypicalCystCategory` |
 | `atypicalCystCategory` | Select **C** | Manual 3/4A/4B | Solo con override |
 
-Prioridad auto: **4B → 4A → 3**. Sugerencia en UI vía `previewAtypicalCystCategory`.
+Prioridad auto: **4B → 3 → 4A** (la cat. 3 — pared gruesa estable con componente quístico creciente — se evalúa antes que la regla general 4A). Sugerencia en UI vía `previewAtypicalCystCategory`.
 
 ---
 
@@ -410,7 +391,7 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 > | Semi-sólido nuevo/creciente                                                | componente sólido <4→C4A; ≥4→C4B                                                    | implementado                                                                                                          | ✅ PRIMARIO     |
 > | Crecimiento lento sólido/semi-sólido                                       | crecimiento en múltiples estudios sin >1.5 mm/12 m → puede ser C4B                  | `isSlowGrowing → 4B` para sólido/semi-sólido                                                                          | ✅ PRIMARIO     |
 > | Crecimiento lento GGN                                                      | puede mantenerse C2 hasta cumplir otra categoría                                    | `isSlowGrowing → 2` para GGN                                                                                          | ✅ PRIMARIO     |
-> | Quiste atípico                                                             | Cat 3: estable + comp. quístico creciente; 4A: pared ≥2 mm o multilocular; 4B: crecimiento pared/multilocular o ↑ loculación/densidad; adyacente → max con nódulo | **Híbrido** (`lib/algorithms/atypicalCyst.ts` + `assessAtypicalCyst` en `lungRads.ts`): descriptores → `classifyAtypicalCyst` (prioridad 4B→4A→3); override manual `atypicalCystManualOverride` + `atypicalCystCategory`; exclusiones unilocular fino / sólido dominante → flujo estándar | ✅ PRIMARIO |
+> | Quiste atípico                                                             | Cat 3: pared gruesa previamente estable + comp. quístico creciente; 4A: pared ≥2 mm o multilocular; 4B: crecimiento pared/multilocular o ↑ loculación/densidad; adyacente → max con nódulo | **Híbrido** (`lib/algorithms/atypicalCyst.ts` + `assessAtypicalCyst` en `lungRads.ts`): descriptores → `classifyAtypicalCyst` (prioridad 4B→3→4A); override manual `atypicalCystManualOverride` + `atypicalCystCategory`; exclusiones unilocular fino / sólido dominante → flujo estándar | ✅ PRIMARIO |
 >
 >
 > **Implementación híbrida (2026-06-15):** ver [`lib/algorithms/atypicalCyst.ts`](../../lib/algorithms/atypicalCyst.ts). Campos wizard: `atypicalCystThickWalled`, `atypicalCystMultilocular`, `atypicalCystPreviouslyStable`, `atypicalCystGrowingCysticComponent`, `atypicalCystWallOrCystGrowing`, `atypicalCystIncreasedLoculationOrDensity`, `atypicalCystAdjacentNodule`, exclusiones `atypicalCystUnilocularThinWalled` / `atypicalCystSolidDominant`. UI: badge de sugerencia + override radiológico en `NoduleStep.tsx`. Tests: `atypicalCyst.test.ts`, `lungRads.test.ts` TC-LR-016*.
@@ -419,7 +400,7 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 
 ---
 
-## 5. Bandas de riesgo (modelos predictivos: Mayo, Brock, Herder BTS, Herder logístico)
+## 5. Bandas de riesgo (modelos predictivos: Mayo, Brock, Herder)
 
 
 | Banda      | Probabilidad | Implementado |
@@ -429,7 +410,7 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | Alto       | > 65%        | ✅            |
 
 
-(`toRiskBand` en `lib/predictive/index.ts`.) Para Herder BTS, la guía BTS usa además umbrales clínicos de manejo: pre-test < 10% → no aplicar variante LR; post-test < 10% vigilancia; > 70% tratamiento (mencionados en documentación, **no** mapeados como acciones automáticas en la UI).
+(`toRiskBand` en `lib/predictive/index.ts`.) La guía BTS usa además umbrales clínicos de manejo: pre-test < 10% → la app muestra una nota informativa (no bloquea el cálculo); post-test < 10% vigilancia; > 70% tratamiento (mencionados en documentación, **no** mapeados como acciones automáticas en la UI).
 
 **Sugerencias clínicas en UI** (`components/wizard/ResultsStep.tsx`, textos fijos por banda):
 
@@ -439,9 +420,9 @@ Asigna categorías 0/1/2/3/4A/4B/4X (+ modificador `S`).
 | `intermediate`     | Riesgo intermedio (5–65%). Considerar PET-CT o biopsia no quirúrgica. |
 | `high`             | Riesgo alto (>65%). Considerar biopsia quirúrgica o escisión. |
 
-Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModels.disclaimer` (describe las dos variantes Herder cuando hay PET).
+Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModels.disclaimer` (describe el modelo Herder único cuando hay PET).
 
-**Casos de regresión documentados:** ver `ESTADO_Y_PENDIENTES.md` § «Casos de regresión útiles» y `__tests__/predictive/predictive.test.ts` (p. ej. incidental 74 a / 7 mm / PET intenso → Mayo ~18.7 %, Herder BTS ~69.6 %, Herder logístico ~67.3 %).
+**Casos de regresión documentados:** ver `ESTADO_Y_PENDIENTES.md` § «Casos de regresión útiles» y `__tests__/predictive/predictive.test.ts` (p. ej. incidental 74 a / 7 mm / PET intenso → Mayo ~18.7 %, Herder ~67.3 %).
 
 ---
 
@@ -450,7 +431,7 @@ Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModel
 | #   | Tarea                                                                                         | Estado / bloqueo                                                          |
 | --- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | 1   | ~~Implementar Brock sin espiculación (McWilliams Model 2a)~~                                  | ✅ 2026-06-15                                                              |
-| 2   | ~~Herder regresión logística (§3b) + exponer ambas variantes Herder~~                           | ✅ 2026-06-15 (`herder` + `herder-logistic`)                               |
+| 2   | ~~Herder regresión logística + exponer ambas variantes Herder~~                                 | ✅ 2026-06-15; **revisado 2026-10-27 (LUN-16/17):** queda solo `herder` (logística, pre-test Mayo) |
 | 3   | ~~UX selector espiculación 3 estados (Brock 2a vs 2b)~~                                       | ✅ 2026-06-15                                                              |
 | 4   | ~~Lung-RADS: crecimiento `> 1.5` mm (no `>=`)~~                                               | ✅ 2026-06-14                                                              |
 | 5   | ~~Lung-RADS: part-solid nuevo/creciente, crecimiento lento, vía aérea C0~~                    | ✅ 2026-06-14                                                              |
@@ -467,11 +448,11 @@ Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModel
 - Coeficientes verificados contra McWilliams 2013 Tabla 2 / PDF local (ver §2b).
 - Código: `BROCK_COEFFICIENTS_NO_SPIC`, selector en `buildBrockSummary`, UI 3 estados en `NoduleStep.tsx`, tests en `predictive.test.ts`.
 
-**#2 — Herder logístico + dual display** ✅ Cerrado 2026-06-15
+**#2 — Herder logístico** ✅ Cerrado 2026-06-15; revisado 2026-10-27 (LUN-16/17)
 
 - Fórmula verificada contra PDF Herder 2005 (PRIMARIO) y Mourato 2020 / PMC7159041 (secundario).
 - Coeficientes: intercepto −4.739, `P_pre` como fracción 0–1, βFDG 0 / 2.322 / 4.617 / 4.771.
-- Decisión de producto: **ambas** variantes expuestas en igualdad (`herder` BTS-LR y `herder-logistic`); notas con fuente y cálculo en cada tarjeta.
+- Revisión 2026-10-27 (LUN-16/17): se retiró una variante previa no respaldada por las fuentes; el id `herder` implementa la regresión logística con pre-test Mayo (nunca Brock).
 
 **#6 — Tabla inputs wizard ↔ predictivos** ✅ Cerrado 2026-06-15
 
@@ -492,7 +473,7 @@ Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModel
 
 **#8 — Quiste atípico Lung-RADS híbrido** ✅ Cerrado 2026-06-15
 
-- Decisión de producto: **opción C** — descriptores morfológicos → categoría sugerida (4B→4A→3) + override manual radiológico.
+- Decisión de producto: **opción C** — descriptores morfológicos → categoría sugerida (4B→3→4A) + override manual radiológico.
 - Código: `lib/algorithms/atypicalCyst.ts`, rama `assessAtypicalCyst` en `lungRads.ts`.
 - Nódulo adyacente: `higherLungRadsCategory` vs clasificación estándar del nódulo.
 - Exclusiones ACR: unilocular pared fina / cavitado sólido dominante → flujo LR estándar + aviso.
@@ -509,9 +490,9 @@ Disclaimer de modelos predictivos: `config/i18n.ts` → `results.predictiveModel
 - Swensen SJ, et al. The probability of malignancy in solitary pulmonary nodules. Application to small radiologically indeterminate nodules. *Arch Intern Med.* 1997;157(8):849-855. *(Mayo)* — PubMed 9129544; PDF local `research/pdf/swensen 10.1001-archinte.1997.00440290031002.pdf`
 - McWilliams A, et al. Probability of cancer in pulmonary nodules detected on first screening CT. *N Engl J Med.* 2013;369(10):910-919. *(Brock/PanCan)* — PubMed 24004118; PMC3951177
 - Chen S, et al. Pulmonary nodule malignancy probability: a meta-analysis of the Brock model. *Clin Radiol.* 2025;82:106788. *(meta-análisis Brock)* — PubMed 39842180
-- Herder GJ, et al. Clinical prediction model to characterize pulmonary nodules: validation and added value of 18F-fluorodeoxyglucose positron emission tomography. *Chest.* 2005;128(4):2490-2496. *(Herder logístico)* — PubMed 16236914; PDF local `research/pdf/Herder 2005 ...pdf`
+- Herder GJ, et al. Clinical prediction model to characterize pulmonary nodules: validation and added value of 18F-fluorodeoxyglucose positron emission tomography. *Chest.* 2005;128(4):2490-2496. *(Herder)* — PubMed 16236914; PDF local `research/pdf/Herder 2005 ...pdf`
 - Mourato FA, et al. Use of PET/CT to aid clinical decision-making in cases of solitary pulmonary nodule: a probabilistic approach. *Radiol Bras.* 2020;53(1):1-6. *(aplicación clínica Swensen + Herder)* — PubMed 32313329; PMC7159041
-- Callister MEJ, et al. British Thoracic Society guidelines for the investigation and management of pulmonary nodules. *Thorax.* 2015;70(Suppl 2):ii1-ii54. *(Herder BTS-LR + umbrales)* — PubMed 26082159
+- Callister MEJ, et al. British Thoracic Society guidelines for the investigation and management of pulmonary nodules. *Thorax.* 2015;70(Suppl 2):ii1-ii54. *(guía de manejo; remite a Herder 2005 + umbrales pre-test ≥10%)* — PubMed 26082159
 - MDCalc — Solitary Pulmonary Nodule (SPN) Malignancy Risk Score (Mayo Clinic Model). Herramienta de contraste, no fuente primaria de coeficientes.
 
 **Guías de manejo (categóricas, sin coeficientes):**

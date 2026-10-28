@@ -1,0 +1,1299 @@
+{
+  "sweepCount": 27216,
+  "available": {
+    "mayo": 7776,
+    "brock": 10692,
+    "herder": 10368
+  },
+  "sweepDelta": 2.220446049250313e-16,
+  "sweepErrors": [],
+  "plcoN": 21600,
+  "plcoDelta": 3.3306690738754696e-16,
+  "rows": [
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 1,
+      "independent": {
+        "mayo": 0.07025362013994449,
+        "herder": 0.5342726997185727,
+        "brock": 0.0000011093168691374665
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.0000011093168691374665,
+          "riskBand": "low",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Requiere PET-CT disponible y nódulo ≥4 mm."
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 1,
+      "max": 3,
+      "independent": {
+        "mayo": 0.07025362013994449,
+        "herder": 0.5342726997185727,
+        "brock": 0.0014803649841667905
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.0014803649841667905,
+          "riskBand": "low"
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Requiere PET-CT disponible y nódulo ≥4 mm."
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 3,
+      "independent": {
+        "mayo": 0.08883040932609612,
+        "herder": 0.551287242739449,
+        "brock": 0.0014803649841667905
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.0014803649841667905,
+          "riskBand": "low",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Requiere PET-CT disponible y nódulo ≥4 mm."
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 3,
+      "max": 5,
+      "independent": {
+        "mayo": 0.08883040932609612,
+        "herder": 0.551287242739449,
+        "brock": 0.013416791312959017
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.013416791312959017,
+          "riskBand": "low"
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Requiere PET-CT disponible y nódulo ≥4 mm."
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 4,
+      "independent": {
+        "mayo": 0.09969662186008374,
+        "herder": 0.5611868527852102,
+        "brock": 0.005504333769723049
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.005504333769723049,
+          "riskBand": "low",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.5611868527852102,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.09969662186008374,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041).",
+            "Precaución: la captación FDG-PET es menos sensible en nódulos <8 mm; interpretar el resultado con cautela.",
+            "Nota informativa: la guía BTS 2015 recomienda PET-CT (y por tanto Herder) cuando el riesgo pre-test es ≥10%; no es una restricción del modelo."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 4,
+      "max": 6,
+      "independent": {
+        "mayo": 0.09969662186008374,
+        "herder": 0.5611868527852102,
+        "brock": 0.02572685158035544
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.025726851580355446,
+          "riskBand": "low"
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.5611868527852102,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.09969662186008374,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041).",
+            "Precaución: la captación FDG-PET es menos sensible en nódulos <8 mm; interpretar el resultado con cautela.",
+            "Nota informativa: la guía BTS 2015 recomienda PET-CT (y por tanto Herder) cuando el riesgo pre-test es ≥10%; no es una restricción del modelo."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 7,
+      "independent": {
+        "mayo": 0.13962597105202443,
+        "herder": 0.5970911584326276,
+        "brock": 0.042353846868696206
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.042353846868696206,
+          "riskBand": "low",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.5970911584326276,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.13962597105202443,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041).",
+            "Precaución: la captación FDG-PET es menos sensible en nódulos <8 mm; interpretar el resultado con cautela."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 7,
+      "max": 9,
+      "independent": {
+        "mayo": 0.13962597105202443,
+        "herder": 0.5970911584326276,
+        "brock": 0.0864047505197368
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.0864047505197368,
+          "riskBand": "intermediate"
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.5970911584326276,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.13962597105202443,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041).",
+            "Precaución: la captación FDG-PET es menos sensible en nódulos <8 mm; interpretar el resultado con cautela."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 8,
+      "independent": {
+        "mayo": 0.15564437566018982,
+        "herder": 0.6112295198156722,
+        "brock": 0.062814506382688
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.062814506382688,
+          "riskBand": "intermediate",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.6112295198156722,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 8,
+      "max": 10,
+      "independent": {
+        "mayo": 0.15564437566018982,
+        "herder": 0.6112295198156722,
+        "brock": 0.11234237881295184
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.11234237881295184,
+          "riskBand": "intermediate"
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.6112295198156722,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 30,
+      "independent": {
+        "mayo": 0.7524645347631302,
+        "herder": 0.9343397614879119,
+        "brock": 0.5520860825559196
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.5520860825559196,
+          "riskBand": "intermediate",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.9343397614879119,
+          "riskBand": "high",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.7524645347631302,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 30,
+      "max": 32,
+      "independent": {
+        "mayo": 0.7524645347631302,
+        "herder": 0.9343397614879119,
+        "brock": 0.576356705199062
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "No aplicar a masas >30 mm."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.9343397614879119,
+          "riskBand": "high",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.7524645347631302,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 31,
+      "independent": {
+        "mayo": 0.7754247319923233,
+        "herder": 0.9393513772425173,
+        "brock": 0.5645535445293695
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "No aplicar a masas >30 mm."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "No aplicar a masas >30 mm."
+        }
+      ]
+    },
+    {
+      "ctx": "screening",
+      "age": 65,
+      "d": 31,
+      "max": 33,
+      "independent": {
+        "mayo": 0.7754247319923233,
+        "herder": 0.9393513772425173,
+        "brock": 0.5875387464629557
+      },
+      "app": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "No aplicar a masas >30 mm."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "No aplicar a masas >30 mm."
+        }
+      ]
+    }
+  ],
+  "applicability": [
+    {
+      "name": "Mayo 3mm",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 3,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "available",
+          "probability": 0.08883040932609612,
+          "riskBand": "intermediate",
+          "notes": [
+            "Probabilidad pre-PET (modelo Mayo). No incorpora captación FDG; ver Herder para riesgo post-PET."
+          ]
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Requiere PET-CT disponible y nódulo ≥4 mm."
+        }
+      ],
+      "recommended": "mayo"
+    },
+    {
+      "name": "Multiple incidental",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": true,
+          "noduleCount": 3,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "available",
+          "probability": 0.15564437566018982,
+          "riskBand": "intermediate",
+          "notes": [
+            "Probabilidad pre-PET (modelo Mayo). No incorpora captación FDG; ver Herder para riesgo post-PET."
+          ]
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.6112295198156722,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ],
+      "recommended": "herder"
+    },
+    {
+      "name": "Ground glass incidental",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "ground-glass",
+          "diameterMm": 8,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "available",
+          "probability": 0.15564437566018982,
+          "riskBand": "intermediate",
+          "notes": [
+            "Probabilidad pre-PET (modelo Mayo). No incorpora captación FDG; ver Herder para riesgo post-PET."
+          ]
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.6112295198156722,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ],
+      "recommended": "herder"
+    },
+    {
+      "name": "Missing FDG",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "available",
+          "probability": 0.15564437566018982,
+          "riskBand": "intermediate"
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "insufficient_data",
+          "missingFields": [
+            "Captación FDG"
+          ],
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982
+        }
+      ],
+      "recommended": "mayo"
+    },
+    {
+      "name": "Missing diameter",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": false,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "insufficient_data",
+          "missingFields": [
+            "Diámetro"
+          ]
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "insufficient_data",
+          "missingFields": [
+            "Diámetro"
+          ],
+          "preTestModelId": "mayo"
+        }
+      ],
+      "recommended": "mayo"
+    },
+    {
+      "name": "No PET",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": false,
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "available",
+          "probability": 0.15564437566018982,
+          "riskBand": "intermediate"
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Requiere PET-CT disponible y nódulo ≥4 mm."
+        }
+      ],
+      "recommended": "mayo"
+    },
+    {
+      "name": "Recent cancer",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "recent",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "No aplica si cáncer extratorácico fue <5 años."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Pre-test Mayo no aplicable: No aplica si cáncer extratorácico fue <5 años.",
+          "preTestModelId": "mayo"
+        }
+      ],
+      "recommended": "mayo"
+    },
+    {
+      "name": "Known cancer screening",
+      "input": {
+        "clinicalContext": "screening",
+        "patient": {
+          "clinicalContext": "screening",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": true,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.062814506382688,
+          "riskBand": "intermediate",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "Pre-test Mayo no aplicable: No aplica con cáncer conocido.",
+          "preTestModelId": "mayo"
+        }
+      ],
+      "recommended": "brock"
+    },
+    {
+      "name": "Follow-up screening",
+      "input": {
+        "clinicalContext": "screening",
+        "patient": {
+          "clinicalContext": "screening",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "follow-up",
+          "priorDiameterMm": 8,
+          "priorScanMonthsAgo": 12
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.062814506382688,
+          "riskBand": "intermediate",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.6112295198156722,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ],
+      "recommended": "herder"
+    },
+    {
+      "name": "Missing multiple count",
+      "input": {
+        "clinicalContext": "screening",
+        "patient": {
+          "clinicalContext": "screening",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": true,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": false,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "insufficient_data",
+          "missingFields": [
+            "Número de nódulos"
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.6112295198156722,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ],
+      "recommended": "herder"
+    },
+    {
+      "name": "Fractional count",
+      "input": {
+        "clinicalContext": "screening",
+        "patient": {
+          "clinicalContext": "screening",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": true,
+          "noduleCount": 1.5,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "Recomendado para hallazgos incidentales; usa Brock en screening."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "available",
+          "probability": 0.06043235437940502,
+          "riskBand": "intermediate",
+          "notes": [
+            "Brock se desarrolló con el diámetro máximo transversal; se está usando el diámetro medio, lo que puede infraestimar el riesgo."
+          ]
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "available",
+          "probability": 0.6112295198156722,
+          "riskBand": "intermediate",
+          "preTestModelId": "mayo",
+          "preTestProbability": 0.15564437566018982,
+          "notes": [
+            "Regresión logística multivariable publicada en Herder 2005.",
+            "Cálculo: x = -4.739 + 3.691·P_pre + βFDG (faint 2.322 · moderate 4.617 · intense 4.771); P = 1/(1+e^-x).",
+            "P_pre es la probabilidad Mayo como fracción 0–1; captación FDG en escala visual de 4 puntos.",
+            "Fuente: Herder GJ et al., Chest 2005;128:2490-2496 (fórmula reproducida en Mourato 2020, PMC7159041)."
+          ]
+        }
+      ],
+      "recommended": "herder"
+    },
+    {
+      "name": "Missing spiculation incidental",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 8,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "insufficient_data",
+          "missingFields": [
+            "Espiculación"
+          ]
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "insufficient_data",
+          "missingFields": [
+            "Espiculación"
+          ],
+          "preTestModelId": "mayo"
+        }
+      ],
+      "recommended": "mayo"
+    },
+    {
+      "name": "31mm",
+      "input": {
+        "clinicalContext": "incidental",
+        "patient": {
+          "clinicalContext": "incidental",
+          "age": 65,
+          "riskLevel": "low",
+          "hasKnownMalignancy": false,
+          "isImmunocompromised": false,
+          "sex": "female",
+          "smokingStatus": "former",
+          "extrathoracicCancerHistory": "none",
+          "hasFamilyHistoryLungCancer": false,
+          "hasEmphysema": false
+        },
+        "nodule": {
+          "type": "solid",
+          "diameterMm": 31,
+          "isMultiple": false,
+          "noduleCount": 1,
+          "hasSpiculation": false,
+          "isUpperLobe": true,
+          "hasPet": true,
+          "petUptake": "moderate",
+          "scanType": "baseline"
+        }
+      },
+      "schema": true,
+      "output": [
+        {
+          "id": "mayo",
+          "label": "Mayo Clinic",
+          "status": "not_applicable",
+          "reason": "No aplicar a masas >30 mm."
+        },
+        {
+          "id": "brock",
+          "label": "Brock (Pan-Can)",
+          "status": "not_applicable",
+          "reason": "Recomendado para cohortes de screening (Lung-RADS)."
+        },
+        {
+          "id": "herder",
+          "label": "Herder (2005)",
+          "status": "not_applicable",
+          "reason": "No aplicar a masas >30 mm."
+        }
+      ],
+      "recommended": "mayo"
+    }
+  ]
+}

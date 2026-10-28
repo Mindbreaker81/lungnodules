@@ -1,0 +1,1301 @@
+{
+ "source": "Swensen SJ et al. Arch Intern Med 1997;157:849-855, Table 3 (p.854). Transcribed independently twice (2026-10-27); probabilities rounded to 2 decimals.",
+ "rows": [
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.02
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.03
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.04
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.09
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.06
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.11
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.14
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.27
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.03
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.07
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.09
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.17
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.11
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.22
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.27
+  },
+  {
+   "age": 35,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.44
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.05
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.11
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.13
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.25
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.17
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.31
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.37
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.56
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.11
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.21
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.25
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.43
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.31
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.5
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.57
+  },
+  {
+   "age": 35,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.74
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.16
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.3
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.36
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.55
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.43
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.62
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.68
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.82
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.3
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.49
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.55
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.73
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.62
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.78
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.82
+  },
+  {
+   "age": 35,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.91
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.03
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.07
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.09
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.17
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.11
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.22
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.26
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.44
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.07
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.14
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.17
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.31
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.22
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.38
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.44
+  },
+  {
+   "age": 55,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.64
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.11
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.21
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.25
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.43
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.31
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.5
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.56
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.74
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.21
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.37
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.43
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.62
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.5
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.69
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.74
+  },
+  {
+   "age": 55,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.86
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.3
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.48
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.55
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.73
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.62
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.78
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.82
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.91
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.48
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.67
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.73
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.85
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.78
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.89
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.91
+  },
+  {
+   "age": 55,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.96
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.07
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.14
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.17
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.31
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.22
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.38
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.44
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.63
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.14
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.26
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.31
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.5
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.38
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.57
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.63
+  },
+  {
+   "age": 75,
+   "diameterMm": 10,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.79
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.21
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.36
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.42
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.62
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.5
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.69
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.74
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.86
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.37
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.56
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.62
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.78
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.69
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.83
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.86
+  },
+  {
+   "age": 75,
+   "diameterMm": 20,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.93
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.48
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.67
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.73
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.85
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.78
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.89
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.91
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": false,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.96
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.67
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.82
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.85
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": false,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.93
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": false,
+   "published": 0.89
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": false,
+   "upperLobe": true,
+   "published": 0.95
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": false,
+   "published": 0.96
+  },
+  {
+   "age": 75,
+   "diameterMm": 30,
+   "smoker": true,
+   "extrathoracicCancer": true,
+   "spiculation": true,
+   "upperLobe": true,
+   "published": 0.98
+  }
+ ]
+}

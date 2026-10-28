@@ -1,5 +1,15 @@
 # Roadmap: Modelos predictivos (Mayo / Brock / Herder)
 
+> **ARCHIVADO (2026-10-27):** documento histórico de planificación, ya sustituido.
+> El estado vigente de inputs, exclusiones y selección de modelo está en
+> [`predictive_model/variables_y_coeficientes.md`](./predictive_model/variables_y_coeficientes.md)
+> y [`predictive_model/ESTADO_Y_PENDIENTES.md`](./predictive_model/ESTADO_Y_PENDIENTES.md).
+> Divergencias principales respecto a este roadmap: Herder es un **modelo único**
+> (la regresión logística publicada) con pre-test **Mayo exclusivo** en ambos
+> contextos — nunca Brock —; exige nódulo **≥4 mm** (lo de <8 mm es solo una nota
+> de precaución por menor sensibilidad del PET) y **no** aplica el umbral de
+> pre-test >10 % como condición de cálculo.
+
 ## Objetivo
 Definir el alcance y los requisitos para integrar modelos predictivos de malignidad en la app sin comprometer la interpretabilidad clínica. Este documento **no** implementa los modelos; establece inputs, exclusiones, UI y pasos de integración.
 

@@ -65,7 +65,7 @@ export const REFERENCE_CATEGORIES: ReferenceCategory[] = [
     id: 'predictive-models',
     title: 'Modelos predictivos de malignidad',
     description:
-      'Regresiones logísticas y ajuste bayesiano post-PET usados en la sección de modelos predictivos.',
+      'Regresiones logísticas (incluido el ajuste post-PET de Herder) y bandas de riesgo usadas en la sección de modelos predictivos.',
   },
   {
     id: 'screening-eligibility',
@@ -127,7 +127,7 @@ export const BIBLIOGRAPHY: Record<ReferenceCategoryId, BibliographyEntry[]> = {
       citation:
         'Herder GJ, et al. Clinical prediction model to characterize pulmonary nodules: validation and added value of 18F-fluorodeoxyglucose positron emission tomography. Chest. 2005;128(4):2490-2496.',
       usedInApp:
-        'Variante logística Herder 2005 (`id: "herder-logistic"`): x = −4.739 + 3.691·P_pre + βFDG.',
+        'Modelo Herder 2005 (`id: "herder"`): x = −4.739 + 3.691·P_Mayo + βFDG; P_Mayo es el pre-test en ambos contextos.',
       links: [pubmed('16236914')],
     },
     {
@@ -135,7 +135,7 @@ export const BIBLIOGRAPHY: Record<ReferenceCategoryId, BibliographyEntry[]> = {
       citation:
         'Callister MEJ, Baldwin DR, Akram AR, et al. British Thoracic Society guidelines for the investigation and management of pulmonary nodules: accredited by NICE. Thorax. 2015;70(Suppl 2):ii1-ii54.',
       usedInApp:
-        'Variante Herder BTS por likelihood ratios de FDG-PET (`id: "herder"`); umbrales de manejo pre-test ≥10%.',
+        'Guía de manejo de nódulos. Indica el PET-CT con riesgo inicial Brock >10% y la reevaluación con Herder 2005 (probabilidad Mayo + captación FDG). La app usa sus bandas post-PET (<10%, 10–70%, >70%) para Herder.',
       links: [
         pubmed('26082159'),
         doi('10.1136/thoraxjnl-2015-207168'),
@@ -144,6 +144,14 @@ export const BIBLIOGRAPHY: Record<ReferenceCategoryId, BibliographyEntry[]> = {
           'https://www.brit-thoracic.org.uk/clinical-resources/guidelines/pulmonary-nodules/',
         ),
       ],
+    },
+    {
+      id: 'accp-2013',
+      citation:
+        'Gould MK, Donington J, Lynch WR, et al. Evaluation of individuals with pulmonary nodules: when is it lung cancer? Diagnosis and management of lung cancer, 3rd ed: American College of Chest Physicians evidence-based clinical practice guidelines. Chest. 2013;143(5 Suppl):e93S-e120S.',
+      usedInApp:
+        'Bandas de riesgo pre-test para Mayo y Brock: <5% bajo, 5–65% intermedio, >65% alto (definidas para nódulos sólidos >8 mm).',
+      links: [pubmed('23649456'), doi('10.1378/chest.12-2351')],
     },
     {
       id: 'mourato-2020',
@@ -177,6 +185,14 @@ export const BIBLIOGRAPHY: Record<ReferenceCategoryId, BibliographyEntry[]> = {
         'Tammemägi MC, Katki HA, Hocking WG, et al. Selection criteria for lung-cancer screening. N Engl J Med. 2013;368(8):728-736.',
       usedInApp: 'Modelo PLCOm2012 — riesgo de cáncer de pulmón a 6 años (`lib/eligibility/plcom2012.ts`).',
       links: [pubmed('23425165'), doi('10.1056/NEJMoa1211776')],
+    },
+    {
+      id: 'plcom2012-threshold-2014',
+      citation:
+        'Tammemägi MC, Church TR, Hocking WG, et al. Evaluation of the lung cancer risks at which to screen ever- and never-smokers: screening rules applied to the PLCO and NLST cohorts. PLoS Med. 2014;11(12):e1001764.',
+      usedInApp:
+        'Umbral de elegibilidad PLCOm2012 ≥1,51% a 6 años (percentil 65 de riesgo; `PLCOM2012_DEFAULT_THRESHOLD`).',
+      links: [pubmed('25460915'), doi('10.1371/journal.pmed.1001764')],
     },
   ],
   'secondary-sources': [

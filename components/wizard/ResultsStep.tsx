@@ -29,8 +29,7 @@ const NODULE_TYPE_LABELS: Record<string, string> = {
 const PREDICTIVE_MODEL_LABELS: Record<PredictiveModelId, string> = {
   mayo: "Mayo Clinic",
   brock: "Brock (Pan-Can)",
-  herder: "Herder (BTS · LR)",
-  "herder-logistic": "Herder (logístico · 2005)",
+  herder: "Herder (2005)",
 };
 
 const PREDICTIVE_STATUS_LABELS: Record<PredictiveModelSummary["status"], string> = {
@@ -51,11 +50,25 @@ const PREDICTIVE_RISK_LABELS: Record<NonNullable<PredictiveModelSummary["riskBan
   high: "Alto",
 };
 
+// ACCP 2013 pre-test bands (Mayo, Brock).
+const PRE_TEST_SUGGESTIONS: Record<NonNullable<PredictiveModelSummary["riskBand"]>, string> = {
+  low: "Riesgo bajo (<5%). Se sugiere vigilancia activa con TC (watchful waiting).",
+  intermediate: "Riesgo intermedio (5-65%). Considerar PET-CT o biopsia no quirúrgica.",
+  high: "Riesgo alto (>65%). Considerar evaluación para biopsia quirúrgica o escisión.",
+};
+
+// BTS 2015 post-PET bands (Herder).
+const POST_PET_SUGGESTIONS: Record<NonNullable<PredictiveModelSummary["riskBand"]>, string> = {
+  low: "Riesgo bajo tras PET (<10%). Considerar vigilancia con TC.",
+  intermediate: "Riesgo intermedio tras PET (10-70%). Considerar biopsia guiada por imagen; alternativas: biopsia escisional o vigilancia según riesgo y preferencia.",
+  high: "Riesgo alto tras PET (>70%). Ofrecer resección quirúrgica; tratamiento no quirúrgico si no es candidato.",
+};
+
 const formatNoduleType = (type: string) => NODULE_TYPE_LABELS[type] ?? type;
 const formatProbability = (value: number) => `${(value * 100).toFixed(1)}%`;
 const hasNumber = (value: unknown): value is number => typeof value === "number" && !Number.isNaN(value);
 
-function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
+export function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | null): string {
   const guidelineInfo =
     result.guideline === "fleischner-2017"
       ? GUIDELINE_VERSIONS.fleischner
@@ -97,7 +110,10 @@ function formatResultForCopy(result: AssessmentResult, input: AssessmentInput | 
       `DATOS DE ENTRADA:`,
       `  Contexto: ${input.clinicalContext}`,
       `  Tipo de Nódulo: ${formatNoduleType(input.nodule.type)}`,
-      hasNumber(input.nodule.diameterMm) ? `  Diámetro: ${formatMeasurement(input.nodule.diameterMm)}mm` : null,
+      hasNumber(input.nodule.diameterMm) ? `  Diámetro medio: ${formatMeasurement(input.nodule.diameterMm)}mm` : null,
+      hasNumber(input.nodule.maxDiameterMm)
+        ? `  Diámetro máximo transversal: ${formatMeasurement(input.nodule.maxDiameterMm)}mm (usado por Brock)`
+        : null,
       input.nodule.solidComponentMm !== undefined
         ? `  Componente Sólido: ${formatMeasurement(input.nodule.solidComponentMm)}mm`
         : null,
@@ -255,9 +271,7 @@ export default function ResultsStep({ result, input }: Props) {
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         <span className="font-semibold text-foreground">Sugerencia clínica: </span>
-                        {summary.riskBand === 'low' && "Riesgo bajo (<5%). Se sugiere vigilancia activa con TC (watchful waiting)."}
-                        {summary.riskBand === 'intermediate' && "Riesgo intermedio (5-65%). Considerar PET-CT o biopsia no quirúrgica."}
-                        {summary.riskBand === 'high' && "Riesgo alto (>65%). Considerar evaluación para biopsia quirúrgica o escisión."}
+                        {(summary.id === 'herder' ? POST_PET_SUGGESTIONS : PRE_TEST_SUGGESTIONS)[summary.riskBand]}
                       </p>
                     </>
                   )}
@@ -286,9 +300,25 @@ export default function ResultsStep({ result, input }: Props) {
                       ))}
                     </ul>
                   )}
+                  <details className="mt-2 text-xs text-muted-foreground">
+                    <summary className="cursor-pointer font-medium text-foreground">
+                      {UI_TEXTS.results.predictiveModels.howTitle}
+                    </summary>
+                    <dl className="mt-2 space-y-1">
+                      {(["purpose", "variables", "method", "applicability"] as const).map((key) => (
+                        <div key={key}>
+                          <dt className="font-medium text-foreground">{UI_TEXTS.results.predictiveModels.labels[key]}</dt>
+                          <dd>{UI_TEXTS.results.predictiveModels.explanations[summary.id][key]}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </details>
                 </div>
               ))}
             </div>
+            <p className="text-xs text-muted-foreground">
+              {UI_TEXTS.results.predictiveModels.riskBands}
+            </p>
             <p className="text-xs text-muted-foreground">
               {UI_TEXTS.results.predictiveModels.disclaimer}
             </p>

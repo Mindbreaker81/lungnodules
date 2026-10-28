@@ -270,6 +270,15 @@ export default function RiskStep({ clinicalContext }: Props) {
               <option value="recent" className="bg-popover">Sí, &lt;5 años</option>
             </select>
           </div>
+          <label className="flex items-center gap-2 text-foreground sm:col-span-2">
+            <input
+              type="checkbox"
+              aria-label="Antecedente personal de cáncer de pulmón"
+              {...register("patient.hasLungCancerHistory")}
+              className="text-primary rounded focus:ring-primary"
+            />
+            Antecedente personal de cáncer de pulmón (excluido en Mayo y Brock)
+          </label>
         </div>
         {clinicalContext === "screening" && (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

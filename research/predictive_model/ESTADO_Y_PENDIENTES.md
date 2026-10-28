@@ -7,7 +7,7 @@
 > **Inputs / validación:** [`lib/schemas/noduleInput.ts`](../../lib/schemas/noduleInput.ts)  
 > **Tests:** [`__tests__/predictive/predictive.test.ts`](../../__tests__/predictive/predictive.test.ts)
 
-Última revisión de este documento: **2026-06-15** (sincronizado con `variables_y_coeficientes.md` y código v1.6.0).
+Última revisión de este documento: **2026-10-27** (LUN-16/17/18: Herder único logístico con pre-test Mayo; Brock con diámetro máximo transversal `maxDiameterMm`).
 
 ---
 
@@ -26,21 +26,20 @@
 ## Reglas de selección de modelo (comportamiento actual en app)
 
 ```
-Incidental (Fleischner)  →  Mayo (pre-PET)  +  Herder BTS + Herder logístico si hay PET
-Screening (Lung-RADS)    →  Brock (pre-PET) +  Herder BTS + Herder logístico si hay PET
+Incidental (Fleischner)  →  Mayo (pre-PET)  +  Herder si hay PET
+Screening (Lung-RADS)    →  Brock (pre-PET) +  Herder si hay PET
 
-Dos variantes Herder (ambas se muestran en igualdad de condiciones):
-  - "herder"          → BTS: odds × likelihood ratio (LR)
-  - "herder-logistic" → regresión logística publicada (Herder 2005)
+Un único modelo Herder (corrección LUN-16, 2026-10-27):
+  - "herder" → regresión logística publicada (Herder 2005), pre-test siempre Mayo
 
 Modelo recomendado (UI):
-  - Herder (BTS), si status === "available"
+  - Herder, si status === "available"
   - Si no: Brock (screening) o Mayo (incidental)
 ```
 
 Implementación: `getRecommendedPredictiveModel()` en `lib/predictive/index.ts`.
 
-**Importante para el usuario clínico:** Mayo **no incluye PET**. Si se rellena FDG-PET, comparar con [MDCalc Mayo + PET](https://www.mdcalc.com/calc/4057/solitary-pulmonary-nodule-spn-malignancy-risk-score-mayo-clinic-model) usando **Herder** (BTS o logístico), no Mayo. Ambas variantes Herder se muestran en igualdad; la UI no marca una como «principal» (v1.5.0+).
+**Importante para el usuario clínico:** Mayo **no incluye PET**. Si se rellena FDG-PET, comparar con [MDCalc Mayo + PET](https://www.mdcalc.com/calc/4057/solitary-pulmonary-nodule-spn-malignancy-risk-score-mayo-clinic-model) usando **Herder**, no Mayo.
 
 ---
 
@@ -57,11 +56,11 @@ Sincronización **2026-06-15** con `variables_y_coeficientes.md`. Lo siguiente s
 - Tabla inputs wizard ↔ predictivos → **Anexo A** (2026-06-15)
 - `coefficients.md` alineado con doc largo (2026-06-15)
 
-- Herder ≥ 4 mm (`MAYO_MIN_DIAMETER_MM`), aviso < 8 mm (`HERDER_VALIDATED_MIN_DIAMETER_MM`)
+- Herder ≥ 4 mm (`MAYO_MIN_DIAMETER_MM`), precaución < 8 mm (`HERDER_SMALL_NODULE_CAUTION_MM`)
 - Mayo coeficientes verificados primariamente vs PDF Swensen 1997 (2026-06-15)
 - Quiste atípico Lung-RADS híbrido (2026-06-15)
 - Mayo nota pre-PET, `getRecommendedPredictiveModel`, bandas → `ResultsStep.tsx`, casos de regresión
-- Brock 2a/2b, Herder dual, selector espiculación 3 estados, Lung-RADS espiculación no evaluable
+- Brock 2a/2b, Herder único logístico (pre-test Mayo), selector espiculación 3 estados, Lung-RADS espiculación no evaluable
 - Rango Mayo 4–30 mm (paper/MDCalc) documentado en §1
 
 ---
@@ -85,7 +84,7 @@ Resumen alineado con [`variables_y_coeficientes.md` §6](./variables_y_coeficien
 | # | Tarea | Fuente | Código destino |
 |---|-------|--------|----------------|
 | 1 | ~~**Brock sin espiculación** (Model 2a; coeficientes ✅ verificados 2026-06-15)~~ ✅ implementado 2026-06-15 | McWilliams 2013 Tabla 2 / PDF local | `BROCK_COEFFICIENTS_NO_SPIC` + selector de variante + UI 3 estados |
-| 2 | ~~(Opcional) **Herder regresión logística**~~ ✅ implementado 2026-06-15 | Herder 2005 Chest / PDF local + Mourato 2020 | `HERDER_LOGISTIC_COEFFICIENTS` + `buildHerderLogisticSummary` (`id: "herder-logistic"`); ambas variantes expuestas |
+| 2 | ~~(Opcional) **Herder regresión logística**~~ ✅ implementado 2026-06-15; **revisado 2026-10-27 (LUN-16/17):** queda un único modelo logístico con pre-test Mayo | Herder 2005 Chest / PDF local + Mourato 2020 | `HERDER_COEFFICIENTS` + `HERDER_FDG` + `buildHerderSummary` (`id: "herder"`), pre-test Mayo |
 | 3 | ~~**UX Brock** con/sin espiculación~~ ✅ resuelto 2026-06-15 | — | Control 3 estados en `NoduleStep.tsx` |
 
 Detalle accionable de fuentes: [`variables_y_coeficientes.md` §6.1](./variables_y_coeficientes.md#61-qué-buscar-exactamente-para-cerrar-cada-pendiente).
@@ -149,7 +148,7 @@ Transformación de tamaño común (nota † Tabla 2): `−β·[(mm/10)^−0.5 �
 | Sexo | `patient.sex` | female = 1 |
 | Hist. familiar CP | `patient.hasFamilyHistoryLungCancer` | En TC/cuestionario |
 | Enfisema en TC | `patient.hasEmphysema` | Visible en TC, no solo EPOC clínico |
-| Diámetro | `nodule.diameterMm` | Transformación no lineal |
+| Diámetro | `nodule.maxDiameterMm` (fallback `diameterMm`) | Transformación no lineal; máximo transversal |
 | Tipo | `nodule.type` | solid / part-solid / ground-glass |
 | Lóbulo superior | `nodule.isUpperLobe` | |
 | Nº nódulos | `nodule.noduleCount` o 1 si único | Centrado en 4 |
@@ -159,24 +158,23 @@ Transformación de tamaño común (nota † Tabla 2): `−β·[(mm/10)^−0.5 �
 
 **Nota Lung-RADS (espiculación no evaluable):** si `hasSpiculation` es `undefined`, Lung-RADS no escala a **4X** (el campo es falsy) y en yuxtapleural benigno se trata como ausente (`!undefined`). Brock sí usa Model 2a recalibrado. Comportamiento distinto entre guía categórica y modelo predictivo — ver `lungRads.ts:254,337`.
 
-### Herder (post-PET) — dos variantes
+### Herder (post-PET) — modelo único
 
-Elegibilidad compartida (`evaluateHerderEligibility`):
+Elegibilidad (`evaluateHerderEligibility`):
 
 | Requisito | Regla en app |
 |-----------|--------------|
 | PET | `nodule.hasPet` + `nodule.petUptake` |
-| Diámetro | ≥ 4 mm (rango Mayo); aviso si < 8 mm |
-| Pre-test | Mayo (incidental) o Brock (screening) calculable |
+| Diámetro | ≥ 4 mm (rango Mayo); precaución si < 8 mm (PET menos sensible) |
+| Pre-test | **Mayo** en ambos contextos (nunca Brock; LUN-17) |
 
-| Variante | `id` | Cálculo | Umbral pre-test ≥10% |
-|----------|------|---------|----------------------|
-| BTS (LR) | `herder` | `odds_post = odds_pre × LR`; `P = odds/(1+odds)` | Sí (criterio BTS; si <10 % → no aplica) |
-| Logística (Herder 2005) | `herder-logistic` | `x = −4.739 + 3.691·P_pre + βFDG`; `P = 1/(1+e^−x)` | No |
+| `id` | Cálculo | Umbral pre-test ≥10% |
+|------|---------|----------------------|
+| `herder` | `x = −4.739 + 3.691·P_Mayo + βFDG`; `P = 1/(1+e^−x)` | No (nota informativa BTS si <10 %) |
 
-**LR por captación (variante BTS):** absent 0.08, faint 0.17, moderate 1.9, intense 9.9.
+**βFDG por captación:** absent 0, faint 2.322, moderate 4.617, intense 4.771.
 
-**Nota clínica:** Herder validado con pre-test **Mayo**; con Brock (screening) la app advierte evidencia limitada.
+**Nota clínica:** Herder validado con pre-test **Mayo**; en screening la UI recoge los inputs de Mayo (tabaquismo, cáncer extratorácico, espiculación) y si faltan, Herder queda en `insufficient_data` listándolos.
 
 ---
 
@@ -187,7 +185,7 @@ Elegibilidad compartida (`evaluateHerderEligibility`):
 | Banda baja (app) | < 5 % | `toRiskBand` |
 | Banda intermedia | 5–65 % | `toRiskBand` |
 | Banda alta | > 65 % | `toRiskBand` |
-| Herder: umbral pre-test BTS (solo variante LR) | ≥ 10 % | `buildHerderSummary` |
+| Herder: umbral pre-test BTS | ≥ 10 % (nota informativa, no bloquea) | `buildHerderSummary` |
 | BTS manejo (mencionado, no mapeado en UI) | <10 % vigilancia; >70 % tratamiento | `variables_y_coeficientes.md` §5 |
 
 Mapeo bandas → textos de sugerencia en `ResultsStep.tsx`: documentado en `variables_y_coeficientes.md` §5.
@@ -197,7 +195,7 @@ Mapeo bandas → textos de sugerencia en `ResultsStep.tsx`: documentado en `vari
 ## Inconsistencias a resolver (entre archivos)
 
 1. ~~**Brock:** parsimonioso vs completo~~ ✅ resuelto: app = Model **2b** completo (ver § mapa Brock)
-2. ~~**Herder 3b:** dos juegos de coeficientes PET~~ ✅ resuelto 2026-06-15 (verificado con PDF Herder 2005; implementado como `herder-logistic`)
+2. ~~**Herder 3b:** dos juegos de coeficientes PET~~ ✅ resuelto 2026-06-15 (verificado con PDF Herder 2005; desde 2026-10-27 implementado como `id: "herder"` único)
 3. ~~**`coefficients.md`:** desactualizado respecto a `variables_y_coeficientes.md`~~ ✅ sincronizado 2026-06-15 — jerarquía: **variables_y_coeficientes.md > coefficients.md > código**
 4. ~~**Comentario código Brock** (`index.ts:46`): dice «parsimonious» pero es Model 2b completo~~ ✅ corregido 2026-06-15
 
@@ -213,11 +211,12 @@ Mapeo bandas → textos de sugerencia en `ResultsStep.tsx`: documentado en `vari
 | Brock: mismo caso, espiculación no evaluable (2a) | ~29.7 % intermedio | `Brock Model 2a (without spiculation)...` |
 | Brock: 2a (undefined) vs 2b (false) mismo nódulo | probabilidades distintas (~29.7 % vs ~25.4 %) | `Brock Model 2a differs from 2b when spiculation is absent vs not evaluable` |
 | Mayo: espiculación no evaluable | `insufficient_data` («Espiculación») | `Mayo requires spiculation when not evaluable` |
-| Herder: Mayo pre-test + LR moderado | pre ~16.4 %, post ~27 % | `Herder uses Mayo pre-test odds with PET LR` |
-| **Usuario 2026-06-15:** 74 a, varón, fumador, 7 mm, lóbulo sup., PET intenso | Mayo **~18.7 %** pre-PET; Herder BTS **~69.6 %** post-PET | `incidental 7 mm with intense PET...` |
-| Mismo caso, variante logística (Herder 2005) | Herder logístico **~67.3 %** (`x = −4.739 + 3.691·0.187 + 4.771`) | `Herder logistic variant (Herder 2005)...` |
-| Ambas variantes mismo nódulo (PET moderado) | BTS y logística difieren | `both Herder variants are exposed and differ...` |
-| MDCalc mismo caso con PET | ~67 % (pequeña diferencia LR/redondeo) | Manual / no automatizado |
+| Herder: Mayo pre-test + FDG moderado (60 a, 10 mm) | Mayo ~16.4 %, Herder ~61.8 % | `Herder applies the published logistic model on Mayo pre-test` |
+| Herder: pre-test <10 % | calcula igualmente + nota informativa BTS | `Herder computes below 10% pre-test and notes the BTS guidance` |
+| **Usuario 2026-06-15:** 74 a, varón, fumador, 7 mm, lóbulo sup., PET intenso | Mayo **~18.7 %** pre-PET; Herder **~67.3 %** post-PET (`x = −4.739 + 3.691·0.187 + 4.771`) | `incidental 7 mm with intense PET...` |
+| Herder en screening usa Mayo (60 a, 15 mm, PET moderado) | Mayo ~27.0 %, Herder ~70.6 % | `Herder uses Mayo pre-test in screening too (not Brock)` |
+| Brock con `maxDiameterMm` 20 mm (media 15) | ~38.0 % sin nota de fallback | `Brock uses the maximum transverse diameter when provided` |
+| MDCalc mismo caso con PET | ~67 % | Manual / no automatizado |
 
 ---
 

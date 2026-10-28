@@ -1,0 +1,123 @@
+{
+  "tests": [
+    {
+      "name": "Mayo calculation returns probability and high risk band",
+      "ok": true
+    },
+    {
+      "name": "Mayo matches Swensen 1997 Table 3 baseline case (55 y, 20 mm, no risk factors)",
+      "ok": true
+    },
+    {
+      "name": "Brock calculation returns probability and intermediate risk band",
+      "ok": true
+    },
+    {
+      "name": "Brock requires a real age in screening and does not use synthetic defaults",
+      "ok": true
+    },
+    {
+      "name": "Herder computes below 10% pre-test and notes the BTS guidance",
+      "ok": true
+    },
+    {
+      "name": "Herder applies the published logistic model on Mayo pre-test",
+      "ok": true
+    },
+    {
+      "name": "Predictive summaries snapshot",
+      "ok": true
+    },
+    {
+      "name": "Brock non-linear size term keeps a 15 mm nodule at intermediate risk",
+      "ok": true
+    },
+    {
+      "name": "Brock Model 2a (without spiculation) is used when hasSpiculation is undefined",
+      "ok": true
+    },
+    {
+      "name": "Brock Model 2a and 2b produce different probabilities for the same nodule",
+      "ok": true
+    },
+    {
+      "name": "Brock Model 2a differs from 2b when spiculation is absent vs not evaluable",
+      "ok": true
+    },
+    {
+      "name": "Mayo requires spiculation when not evaluable",
+      "ok": true
+    },
+    {
+      "name": "Mayo weights spiculation above upper-lobe location",
+      "ok": true
+    },
+    {
+      "name": "incidental 7 mm with intense PET: Mayo pre-PET ~18.7%, Herder post-PET ~67%",
+      "ok": true
+    },
+    {
+      "name": "Herder computes published formula with P_pre as 0-1 fraction",
+      "ok": true
+    },
+    {
+      "name": "a single Herder model is exposed (published logistic regression)",
+      "ok": true
+    },
+    {
+      "name": "Herder uses Mayo pre-test in screening too (not Brock)",
+      "ok": true
+    },
+    {
+      "name": "Herder reports missing Mayo fields in screening instead of using Brock",
+      "ok": true
+    },
+    {
+      "name": "Herder reports insufficient_data with the missing Mayo fields when diameter is absent and PET is available",
+      "ok": true
+    },
+    {
+      "name": "Herder stays not_applicable for a known diameter below 4 mm",
+      "ok": true
+    },
+    {
+      "name": "Brock uses the maximum transverse diameter when provided",
+      "ok": true
+    },
+    {
+      "name": "Brock falls back to the mean diameter with an underestimation note",
+      "ok": true
+    },
+    {
+      "name": "reference example returns probability ~1.75%",
+      "ok": true
+    },
+    {
+      "name": "smoking_intensity 0 returns NaN",
+      "ok": true
+    },
+    {
+      "name": "race offsets: black increases risk vs white",
+      "ok": true
+    },
+    {
+      "name": "american_indian_alaskan_native uses reference (same as white)",
+      "ok": true
+    },
+    {
+      "name": "probability is in [0, 1]",
+      "ok": true
+    }
+  ],
+  "errors": [],
+  "maxDelta": 5.551115123125783e-17,
+  "sweepCount": 27216,
+  "available": {
+    "mayo": 7776,
+    "brock": 10692,
+    "herder": 10368
+  },
+  "sweepDelta": 2.220446049250313e-16,
+  "plcoN": 21600,
+  "plcoDelta": 3.3306690738754696e-16
+}

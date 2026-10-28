@@ -28,7 +28,7 @@ export const plcom2012InputSchema = z
   .object({
     age: z
       .number({ invalid_type_error: "La edad debe ser un número" })
-      .min(40, "Edad mínima 40 años para el modelo")
+      .min(40, "Edad mínima 40 años (el modelo se desarrolló con 55–74)")
       .max(90, "Edad máxima 90 años"),
     race: plcom2012RaceSchema,
     education: plcom2012EducationSchema,
@@ -61,9 +61,19 @@ export const plcom2012InputSchema = z
       message: "Si es fumador actual, años desde abandono debe ser 0",
       path: ["smoking_quit_time"],
     }
-  );
+  )
+  .refine((data) => data.duration_smoking + data.smoking_quit_time <= data.age, {
+    message: "Los años fumando más los años desde el abandono no pueden superar la edad",
+    path: ["duration_smoking"],
+  });
+
+/** Age range of the PLCO/NLST cohorts used to develop and validate the model (Tammemägi 2013). */
+export const PLCOM2012_COHORT_AGE = { min: 55, max: 74 } as const;
 
 export type Plcom2012InputSchemaType = z.infer<typeof plcom2012InputSchema>;
 
-/** Default 6-year risk threshold for screening eligibility (1.51%). */
+/**
+ * Default 6-year risk threshold for screening eligibility (1.51%): 65th percentile of
+ * PLCOm2012 risk (Tammemägi et al., PLoS Med 2014;11:e1001764), not the 2013 NEJM paper.
+ */
 export const PLCOM2012_DEFAULT_THRESHOLD = 0.0151;

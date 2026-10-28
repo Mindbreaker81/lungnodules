@@ -1,3 +1,56 @@
+## [1.8.1] - 2026-10-28
+
+### Fixed
+- **CI (lint):** `research/` queda fuera de ESLint; los scripts de Node de la verificación de 2026-10-27 hacían fallar `eslint .` y bloqueaban Build y E2E (LUN-36).
+
+## [1.8.0] - 2026-10-27
+
+### Added
+- **Antecedente personal de cáncer de pulmón** en factores de riesgo: si se marca, Mayo, Brock y Herder no se calculan (excluido en Swensen y PanCan) (LUN-25).
+- **Avisos de extrapolación:** Mayo/Herder con nódulo <4 mm, múltiple o subsólido; Brock fuera de 50–75 años, en TC de seguimiento o con nódulo perifisural (0/571 malignos en PanCan); PLCOm2012 fuera de 55–74 años (LUN-19, LUN-21, LUN-25).
+- **Casos de referencia en el repo:** tabla 3 de Swensen (144 celdas, transcrita dos veces), perfil de la figura 1 de PLCOm2012 y comparación con una implementación independiente escrita desde los artículos (`__tests__/predictive/referenceCases.test.ts`).
+- **Auditoría del recálculo independiente** (Codex y Devin, 0 discrepancias numéricas) en `research/verification/2026-10-27/` (LUN-38).
+- **Fuentes:** PDF de la guía BTS 2015 en `research/pdf/`; referencias ACCP 2013 y Tammemägi 2014 en la página de referencias.
+
+### Changed
+- **Bandas de riesgo de Herder:** usa las bandas post-PET de BTS 2015 (<10 %, 10–70 %, >70 %) con sus sugerencias de manejo; Mayo y Brock mantienen las de ACCP 2013 (5/65 %). La nota BTS indica que el PET se recomienda con riesgo inicial Brock >10 % (LUN-20).
+- **Umbral PLCOm2012 1,51 %:** atribuido a Tammemägi 2014 (PLoS Med 11:e1001764, percentil 65 de riesgo) (LUN-23).
+- **Textos:** explicación de Brock más precisa; el límite de 30 mm de Brock se presenta como decisión de la app.
+
+### Fixed
+- **PLCOm2012:** se rechazan historias de tabaquismo imposibles (años fumando + años desde el abandono > edad) (LUN-22) y umbrales que no sean una fracción finita entre 0 y 1 (LUN-24).
+- **Entradas:** el número de nódulos debe ser entero y la edad no puede superar 110 años (LUN-25).
+
+## [1.7.1] - 2026-10-27
+
+### Added
+- **Explicación de los modelos predictivos:** cada tarjeta (Mayo, Brock, Herder) tiene un desplegable «¿Cómo se calcula?» con para qué sirve, qué datos usa, cómo los combina y cuándo se calcula, y se explican las bandas de riesgo (LUN-37).
+
+## [1.7.0] - 2026-10-27
+
+### Added
+- **Diámetro máximo transversal** (opcional) en el paso del nódulo, usado solo por Brock (McWilliams 2013). Si falta, Brock usa el diámetro medio y lo avisa. Validación: máximo ≥ medio. El informe TXT y el texto copiado muestran ambas medidas (LUN-18).
+
+### Changed
+- **Herder (2005):** queda un único modelo con la regresión logística publicada (−4.739 + 3.691·P_Mayo + βFDG). Se elimina la variante «BTS · LR» con likelihood ratios no publicados (LUN-16).
+- **Herder usa siempre Mayo como pre-test**, también en cribado (antes usaba Brock); si faltan datos de Mayo, indica cuáles. El umbral BTS del 10 % pasa a nota informativa y la nota <8 mm se reformula como precaución sobre la sensibilidad del PET (LUN-17).
+- **Documentación de `research/`** alineada con el código; el roadmap antiguo queda archivado.
+
+### Fixed
+- **Quiste atípico (Lung-RADS v2022):** el quiste de pared gruesa previamente estable con componente quístico en crecimiento ahora da categoría 3 (orden 4B → 3 → 4A). Se elimina la asignación de 3 a quistes sin pared gruesa (LUN-26).
+
+### Tests
+- Casos de referencia de Herder (61,82 % / 70,57 %), Brock con diámetro medio y máximo, quiste atípico, validación del esquema y exportación.
+
+## [1.6.5] - 2026-10-27
+
+### Added
+- **Informe de revisión** `INFORME_REVISION_2026-10-27.md`: revisión clínica y técnica conjunta (claude-nodules + codex-nodules) de modelos predictivos, PLCOm2012, Fleischner 2017, Lung-RADS v2022 y referencias; hallazgos registrados en YouTrack (LUN-16…LUN-36, padre LUN-15).
+
+### Changed
+- **Gestión de tareas:** `AGENTS.md` migra de `td` a YouTrack (proyecto LUN); histórico del CHANGELOG cargado como issues (LUN-1…LUN-12).
+- **Versionado:** metadatos alineados a `1.6.5`.
+
 ## [1.6.4] - 2026-06-18
 
 ### Changed

@@ -43,10 +43,12 @@ const defaultValues = {
     extrathoracicCancerHistory: undefined,
     hasFamilyHistoryLungCancer: false,
     hasEmphysema: false,
+    hasLungCancerHistory: false,
   },
   nodule: {
     type: "solid",
     diameterMm: undefined,
+    maxDiameterMm: undefined,
     solidComponentMm: undefined,
     isMultiple: false,
     isPerifissural: false,
@@ -217,6 +219,17 @@ export default function WizardContainer() {
         methods.setError("nodule.diameterMm" as any, { type: "manual", message: "Ingresa un diámetro entre 1 y 100 mm" });
         return false;
       }
+      const maxDiameter = methods.getValues("nodule.maxDiameterMm");
+      if (maxDiameter !== undefined) {
+        if (Number.isNaN(maxDiameter) || maxDiameter < 1 || maxDiameter > 100) {
+          methods.setError("nodule.maxDiameterMm" as any, { type: "manual", message: "Ingresa un diámetro entre 1 y 100 mm" });
+          return false;
+        }
+        if (maxDiameter < diameter) {
+          methods.setError("nodule.maxDiameterMm" as any, { type: "manual", message: "El diámetro máximo no puede ser menor que el diámetro medio" });
+          return false;
+        }
+      }
       const type = methods.getValues("nodule.type");
       if (type === "part-solid") {
         const solidComponent = methods.getValues("nodule.solidComponentMm");
@@ -241,6 +254,10 @@ export default function WizardContainer() {
         const count = methods.getValues("nodule.noduleCount");
         if (count === undefined || Number.isNaN(count) || count < 1) {
           methods.setError("nodule.noduleCount" as any, { type: "manual", message: "Ingresa el número de nódulos" });
+          return false;
+        }
+        if (!Number.isInteger(count)) {
+          methods.setError("nodule.noduleCount" as any, { type: "manual", message: "El número de nódulos debe ser entero" });
           return false;
         }
       }

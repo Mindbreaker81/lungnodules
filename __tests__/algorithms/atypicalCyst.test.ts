@@ -34,13 +34,23 @@ describe('Atypical cyst classification', () => {
     ).toBe('4B');
   });
 
-  test('previously stable with growing cystic component -> 3', () => {
+  test('thick-walled, previously stable with growing cystic component -> 3', () => {
     expect(
       classifyAtypicalCyst({
+        atypicalCystThickWalled: true,
         atypicalCystPreviouslyStable: true,
         atypicalCystGrowingCysticComponent: true,
       })?.category,
     ).toBe('3');
+  });
+
+  test('previously stable with growing cystic component but no thick wall -> null', () => {
+    expect(
+      classifyAtypicalCyst({
+        atypicalCystPreviouslyStable: true,
+        atypicalCystGrowingCysticComponent: true,
+      }),
+    ).toBeNull();
   });
 
   test('manual override takes precedence over auto 4A', () => {
