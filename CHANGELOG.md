@@ -1,3 +1,12 @@
+## [1.9.1] - 2026-10-28
+
+### Security
+- **Dependencias (LUN-39):** `next` 16.2.9 → 16.4.3 (avisos críticos y altos), `postcss` → 8.5.32, `zod` 3.25 → 4.6.7 (agotamiento de memoria con arrays grandes) con `@hookform/resolvers` 3 → 5, override de `brace-expansion@1` a ^1.1.21 y `npm audit fix` para las transitivas (handlebars, js-yaml, nanoid, sharp, browserslist, source-map-js…).
+- Sin corrección publicada: `deepmerge` (baja, solo vía jest en desarrollo); `braces` y `sprintf-js` tienen el aviso retirado por GitHub.
+
+### Changed
+- **Zod 4:** `invalid_type_error` pasa a `error`; el mensaje propio también se muestra cuando el número falta. `z.coerce.boolean<boolean>()` mantiene el tipo de entrada del formulario.
+
 ## [1.9.0] - 2026-10-28
 
 ### Added

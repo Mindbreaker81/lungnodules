@@ -27,13 +27,13 @@ export const plcom2012SmokingStatusSchema = z.enum(
 export const plcom2012InputSchema = z
   .object({
     age: z
-      .number({ invalid_type_error: "La edad debe ser un número" })
+      .number({ error: "La edad debe ser un número" })
       .min(40, "Edad mínima 40 años (el modelo se desarrolló con 55–74)")
       .max(90, "Edad máxima 90 años"),
     race: plcom2012RaceSchema,
     education: plcom2012EducationSchema,
     bmi: z
-      .number({ invalid_type_error: "El IMC debe ser un número" })
+      .number({ error: "El IMC debe ser un número" })
       .min(15, "IMC mínimo 15")
       .max(50, "IMC máximo 50"),
     copd: z.boolean(),
@@ -41,14 +41,14 @@ export const plcom2012InputSchema = z
     family_hist_lung_cancer: z.boolean(),
     smoking_status: plcom2012SmokingStatusSchema,
     smoking_intensity: z
-      .number({ invalid_type_error: "Intensidad debe ser un número" })
+      .number({ error: "Intensidad debe ser un número" })
       .min(1, "Intensidad debe ser al menos 1 cigarrillo/día (use valor cuando fumaba si es exfumador)"),
     duration_smoking: z
-      .number({ invalid_type_error: "Duración debe ser un número" })
+      .number({ error: "Duración debe ser un número" })
       .min(1, "Duración del tabaquismo al menos 1 año")
       .max(70, "Duración máxima 70 años"),
     smoking_quit_time: z
-      .number({ invalid_type_error: "Años desde abandono debe ser un número" })
+      .number({ error: "Años desde abandono debe ser un número" })
       .min(0, "Años desde abandono no puede ser negativo")
       .max(60, "Años desde abandono máximo 60"),
   })

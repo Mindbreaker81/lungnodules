@@ -17,26 +17,26 @@ const lungRadsCategoryValues = ['0', '1', '2', '3', '4A', '4B', '4X'] as const;
 const priorStatusValues = ['stable', 'decreasing', 'progression'] as const;
 
 const riskFactorSchema = z.object({
-  age65: z.coerce.boolean().optional(),
-  smoking30: z.coerce.boolean().optional(),
-  currentSmoker: z.coerce.boolean().optional(),
-  familyHistory: z.coerce.boolean().optional(),
-  emphysema: z.coerce.boolean().optional(),
-  carcinogenExposure: z.coerce.boolean().optional(),
+  age65: z.coerce.boolean<boolean>().optional(),
+  smoking30: z.coerce.boolean<boolean>().optional(),
+  currentSmoker: z.coerce.boolean<boolean>().optional(),
+  familyHistory: z.coerce.boolean<boolean>().optional(),
+  emphysema: z.coerce.boolean<boolean>().optional(),
+  carcinogenExposure: z.coerce.boolean<boolean>().optional(),
 });
 
 const diameterSchema = z
-  .number({ invalid_type_error: 'Ingresa un diámetro entre 1 y 100 mm' })
+  .number({ error: 'Ingresa un diámetro entre 1 y 100 mm' })
   .min(1, 'Ingresa un diámetro entre 1 y 100 mm')
   .max(100, 'Ingresa un diámetro entre 1 y 100 mm');
 
 const ageSchema = z
-  .number({ invalid_type_error: 'La edad debe ser positiva' })
+  .number({ error: 'La edad debe ser positiva' })
   .min(0, 'La edad debe ser positiva')
   .max(110, 'La edad no puede superar 110 años');
 
 const solidComponentSchema = z
-  .number({ invalid_type_error: 'El componente sólido no puede exceder el total' })
+  .number({ error: 'El componente sólido no puede exceder el total' })
   .min(0, 'El componente sólido no puede exceder el total')
   .max(100, 'El componente sólido no puede exceder el total')
   .optional();
@@ -66,7 +66,7 @@ export const noduleBaseSchema = z.object({
   hasSpiculation: z.boolean().optional(),
   isUpperLobe: z.boolean().optional(),
   noduleCount: z
-    .number({ invalid_type_error: 'Ingresa el número de nódulos' })
+    .number({ error: 'Ingresa el número de nódulos' })
     .int('El número de nódulos debe ser entero')
     .min(1, 'Ingresa el número de nódulos')
     .max(50, 'Ingresa el número de nódulos (≤50)')
@@ -77,7 +77,7 @@ export const noduleBaseSchema = z.object({
   isAirway: z.boolean().optional(),
   isAtypicalCyst: z.boolean().optional(),
   isBenign: z.boolean().optional(),
-  isIncompleteStudy: z.coerce.boolean().optional(),
+  isIncompleteStudy: z.coerce.boolean<boolean>().optional(),
   hasSignificantFinding: z.boolean().optional(),
   isInflammatory: z.boolean().optional(),
   inflammatoryCategory: z.enum(inflammatoryCategoryValues).optional(),
